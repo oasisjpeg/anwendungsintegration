@@ -1,53 +1,66 @@
-# Next.js & HeroUI Template
+# 🚀 WattWise Frontend
 
-This is a template for creating applications using Next.js 14 (app directory) and HeroUI (v2).
+This is the **WattWise Frontend**, built using **Next.js** and **Hero UI**.
 
-[Try it on CodeSandbox](https://githubbox.com/heroui-inc/heroui/next-app-template)
+## 📚 Folder Structure
 
-## Technologies Used
-
-- [Next.js 14](https://nextjs.org/docs/getting-started)
-- [HeroUI v2](https://heroui.com/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Tailwind Variants](https://tailwind-variants.org)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Framer Motion](https://www.framer.com/motion/)
-- [next-themes](https://github.com/pacocoursey/next-themes)
-
-## How to Use
-
-### Use the template with create-next-app
-
-To create a new project based on this template using `create-next-app`, run the following command:
-
-```bash
-npx create-next-app -e https://github.com/heroui-inc/next-app-template
+```
+frontend/
+│-- wattwise/
+│   │-- app/          # Next.js App Router (if applicable)
+│   │-- components/   # Reusable UI components
+│   │-- styles/       # Global CSS & Tailwind styles
+│   │-- public/       # Static assets (images, etc.)
+│   ├── package.json  # Project dependencies
+│   ├── tailwind.config.js # Tailwind configuration
+│   ├── next.config.js # Next.js configuration
 ```
 
-### Install dependencies
+---
 
-You can use one of them `npm`, `yarn`, `pnpm`, `bun`, Example using `npm`:
+## 🛠️ **Installation**
 
-```bash
-npm install
-```
+Make sure you have **Node.js** installed (recommended: **LTS version**).
 
-### Run the development server
+1. **Navigate to the frontend directory:**
+
+   ```bash
+   cd frontend/wattwise
+   ```
+
+2. **Install dependencies:**
+
+   ```bash
+   npm install
+   ```
+
+---
+
+## 🚀 **Run the Development Server**
+
+After installing dependencies, start the development server:
 
 ```bash
 npm run dev
 ```
 
-### Setup pnpm (optional)
+- The app will be available at ``.
 
-If you are using `pnpm`, you need to add the following code to your `.npmrc` file:
 
-```bash
-public-hoist-pattern[]=*@heroui/*
-```
 
-After modifying the `.npmrc` file, you need to run `pnpm install` again to ensure that the dependencies are installed correctly.
+---
+## 🛠 **Troubleshooting**
 
-## License
+- If you encounter errors, try:
+  ```bash
+  rm -rf node_modules package-lock.json
+  npm install
+  npm run dev
+  ```
 
-Licensed under the [MIT license](https://github.com/heroui-inc/next-app-template/blob/main/LICENSE).
+
+
+## 🐜 **License**
+
+This project is licensed under the [MIT License](LICENSE).
+

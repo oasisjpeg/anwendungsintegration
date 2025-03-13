@@ -1,0 +1,47 @@
+# Compiled binary output
+bin/
+obj/
+
+# User-specific settings
+.vscode/
+.idea/
+*.user
+*.suo
+*.ntvs*
+*.njsproj
+*.sln.docstates
+*.swp
+
+# ASP.NET Core & Entity Framework
+appsettings.json
+appsettings.*.json
+secrets.json
+.env
+
+# Dependency caches
+node_modules/
+packages/
+wwwroot/lib/
+wwwroot/dist/
+
+# Logs, lock files, and backups
+*.log
+*.lock
+*.bak
+*.orig
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Visual Studio Code
+.vscode/
+
+# Rider & JetBrains
+.idea/
+*.iml
+
+# Docker files (if using Docker)
+docker-compose.override.yml
+**/Dockerfile
+**/docker-compose.yml

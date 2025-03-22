@@ -32,12 +32,40 @@ namespace WebApplication1.API.Controller;
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserModel userModel)
         {
-            var existingUser = await _userRepository.GetByEmailAsync(userModel.Email);
+            var existingUser = await _userRepository.GetByEmailAsync(userModel.Email); // <-- why are we getting user by email if Id is [key]?
             if (existingUser == null || !existingUser.VerifyPassword(userModel.PasswordHash))
             {
-                return Unauthorized("Invalid email or password.");
-            }
+                return Unauthorized("Invalid email or password."); // <-- sepperate into two if statements to facilitate accurate HTTP responses (not found / unauthorized)
+        }
 
             return Ok(new { message = "Login successful!", user = existingUser });
         }
-    }
+
+    // DELETE user 
+        [HttpDelete("{Id}")]
+        public async Task<IActionResult> Delete(string Id)
+        {
+            // Add What to do
+            var existingUser = await _userRepository.GetByIdAsync(Id);
+            // check if user exists
+            if (existingUser == null)
+            {
+                return NotFound("User not found.");
+            }
+            // authenticate user
+            if (!existingUser.VerifyPassword(existingUser.PasswordHash))
+            {
+                return Unauthorized("Invalid password.");
+            }
+        // Add delete confirmation ?
+
+        // Delete user
+        await _userRepository.DeleteAsync(existingUser);
+
+        return Ok(new { message = "Your account has been deleted.", user = existingUser });
+        }
+
+    // ADD user UPDATE Request
+
+    // ADD INFORMATION Request
+}

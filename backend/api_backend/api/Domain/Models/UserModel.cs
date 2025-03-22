@@ -7,19 +7,21 @@ namespace WebApplication1.Domain.Models
 {
     public class UserModel
     {
-        [Key]
-        public int Id { get; set; }
+        // What is the difference between [Required] and required?
+        [Required] // note to self: --> Ensures API request contains the value
+        [Key]      
+        public required string Id { get; set; } // note to self: --> this "required" Ensures it's initialized at compile-time
 
         [Required]
         [MaxLength(100)]
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public required string Email { get; set; }
 
         [Required]
-        public string PasswordHash { get; set; }
+        public required string PasswordHash { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

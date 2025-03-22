@@ -22,5 +22,4 @@ public class ConsumptionRecordsController : ControllerBase
         if (records == null || !records.Any()) return NotFound();
         return Ok(records);
     }
-
 }

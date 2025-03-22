@@ -18,9 +18,28 @@ public class MySqlUserRepository : IUserRepository
         return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
     }
 
+    public async Task<UserModel?> GetByIdAsync(string Id)
+    {
+        return await _context.Users.FirstOrDefaultAsync(u => u.Id == Id);
+    }
+
     public async Task<UserModel> RegisterAsync(UserModel userModel)
     {
         _context.Users.Add(userModel);
+        await _context.SaveChangesAsync();
+        return userModel;
+    }
+
+    public async Task<UserModel> DeleteAsync(UserModel userModel)
+    {
+        _context.Users.Remove(userModel);
+        await _context.SaveChangesAsync();
+        return userModel;
+    }
+
+    public async Task<UserModel> UpdateAsync(UserModel userModel)
+    {
+        _context.Users.Update(userModel);
         await _context.SaveChangesAsync();
         return userModel;
     }

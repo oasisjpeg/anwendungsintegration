@@ -37,10 +37,23 @@ public class MySqlUserRepository : IUserRepository
         return userModel;
     }
 
-    public async Task<UserModel> UpdateAsync(UserModel userModel)
+    public async Task<UserModel> PatchAsync(string Id, UserUpdateDto updateDto)
     {
-        _context.Users.Update(userModel);
+        var user = await GetByIdAsync(Id); // can never be null, as the controller checks this
+
+        if (!string.IsNullOrEmpty(updateDto.Name))
+        {
+            user.Name = updateDto.Name;
+        }
+        if (!string.IsNullOrEmpty(updateDto.Email))
+        {
+            user.Email = updateDto.Email;
+        }
+        if (!string.IsNullOrEmpty(updateDto.NewPasswordHash))
+        {
+            user.PasswordHash = UserModel.HashPassword(updateDto.NewPasswordHash);
+        }
         await _context.SaveChangesAsync();
-        return userModel;
+        return user;
     }
 }

@@ -42,10 +42,9 @@ namespace WebApplication1.API.Controller;
         }
 
     // DELETE user 
-        [HttpDelete("{Id}")]
+        [HttpDelete("delete/{Id}")]
         public async Task<IActionResult> Delete(string Id)
         {
-            // Add What to do
             var existingUser = await _userRepository.GetByIdAsync(Id);
             // check if user exists
             if (existingUser == null)
@@ -65,7 +64,28 @@ namespace WebApplication1.API.Controller;
         return Ok(new { message = "Your account has been deleted.", user = existingUser });
         }
 
-    // ADD user UPDATE Request
+    // ADD user UPDATE/PATCH Request
+
+        [HttpPatch("update/{Id}")]
+        public async Task<IActionResult> Update(string Id, [FromBody] UserUpdateDto updateDto)
+        {
+            var existingUser = await _userRepository.GetByIdAsync(Id);
+            // check if user exists
+            if (existingUser == null)
+            {
+                return NotFound("User not found.");
+            }
+            // authenticate user
+            if (!existingUser.VerifyPassword(updateDto.CurrentPasswordHash))
+            {
+                return Unauthorized("Invalid password.");
+            }
+
+            // Modify user
+            await _userRepository.PatchAsync(Id, updateDto);
+
+            return Ok(new { message = "Your account has been updated.", user = existingUser });
+        }
 
     // ADD INFORMATION Request
 }

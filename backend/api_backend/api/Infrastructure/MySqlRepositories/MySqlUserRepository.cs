@@ -37,7 +37,7 @@ public class MySqlUserRepository : IUserRepository
         return userModel;
     }
 
-    public async Task<UserModel> PatchAsync(string Id, UserUpdateDto updateDto)
+    public async Task<UserModel> PatchAsync(string Id, IUserUpdateDto updateDto)
     {
         var user = await GetByIdAsync(Id); // can never be null, as the controller checks this
 

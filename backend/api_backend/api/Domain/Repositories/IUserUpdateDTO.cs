@@ -1,6 +1,6 @@
 ﻿namespace WebApplication1.Domain.Repositories
 {
-    public interface IUserUpdateDTO
+    public interface IUserUpdateDto
     {
         string? Name { get; set; }
         string? Email { get; set; }

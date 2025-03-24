@@ -67,7 +67,7 @@ namespace WebApplication1.API.Controller;
     // ADD user UPDATE/PATCH Request
 
         [HttpPatch("update/{Id}")]
-        public async Task<IActionResult> Update(string Id, [FromBody] UserUpdateDto updateDto)
+        public async Task<IActionResult> Update(string Id, [FromBody] IUserUpdateDto updateDto)
         {
             var existingUser = await _userRepository.GetByIdAsync(Id);
             // check if user exists

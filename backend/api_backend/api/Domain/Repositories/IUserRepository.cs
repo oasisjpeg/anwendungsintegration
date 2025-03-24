@@ -8,5 +8,5 @@ public interface IUserRepository
     Task<UserModel?> GetByIdAsync(string Id);
     Task<UserModel> RegisterAsync(UserModel userModel);
     Task<UserModel> DeleteAsync(UserModel userModel);
-    Task<UserModel> PatchAsync(string Id, UserUpdateDto updateDto);
+    Task<UserModel> PatchAsync(string Id, IUserUpdateDto updateDto);
 }

@@ -13,45 +13,44 @@ public class MySqlUserRepository : IUserRepository
         _context = context;
     }
 
-    public async Task<UserModel?> GetByEmailAsync(string email)
+    public async Task<UserRegisterDto?> GetByEmailAsync(string email)
     {
         return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
     }
 
-    public async Task<UserModel?> GetByIdAsync(string Id)
+    public async Task<UserRegisterDto?> GetByIdAsync(string Id)
     {
         return await _context.Users.FirstOrDefaultAsync(u => u.Id == Id);
     }
 
-    public async Task<UserModel> RegisterAsync(UserModel userModel)
+    public async Task<UserRegisterDto> RegisterAsync(UserRegisterDto userModel)
     {
         _context.Users.Add(userModel);
         await _context.SaveChangesAsync();
         return userModel;
     }
-
-    public async Task<UserModel> DeleteAsync(UserModel userModel)
+    public async Task<IUserManagementDto> DeleteAsync(UserAuthDto userModel)
     {
-        _context.Users.Remove(userModel);
+        _context.Users.Remove((UserRegisterDto)userModel);
         await _context.SaveChangesAsync();
         return userModel;
     }
 
-    public async Task<UserModel> PatchAsync(string Id, IUserUpdateDto updateDto)
+    public async Task<IUserManagementDto> PatchAsync(UserPatchDto userAuthDto)
     {
-        var user = await GetByIdAsync(Id); // can never be null, as the controller checks this
+        var user = await GetByIdAsync(userAuthDto.Id); // can never be null, as the controller checks this
 
-        if (!string.IsNullOrEmpty(updateDto.Name))
+        if (!string.IsNullOrEmpty(userAuthDto.Name))
         {
-            user.Name = updateDto.Name;
+            user.Name = userAuthDto.Name;
         }
-        if (!string.IsNullOrEmpty(updateDto.Email))
+        if (!string.IsNullOrEmpty(userAuthDto.Email))
         {
-            user.Email = updateDto.Email;
+            user.Email = userAuthDto.Email;
         }
-        if (!string.IsNullOrEmpty(updateDto.NewPasswordHash))
+        if (!string.IsNullOrEmpty(userAuthDto.NewPasswordHash))
         {
-            user.PasswordHash = UserModel.HashPassword(updateDto.NewPasswordHash);
+            user.CurrentPasswordHash = UserRegisterDto.HashPassword(userAuthDto.NewPasswordHash);
         }
         await _context.SaveChangesAsync();
         return user;

@@ -2,10 +2,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
 using System.Text;
+using WebApplication1.Domain.Repositories;
 
 namespace WebApplication1.Domain.Models
 {
-    public class UserModel
+    public class UserRegisterDto : IUserManagementDto
     {
         // What is the difference between [Required] and required?
         [Required] // note to self: --> Ensures API request contains the value
@@ -21,7 +22,7 @@ namespace WebApplication1.Domain.Models
         public required string Email { get; set; }
 
         [Required]
-        public required string PasswordHash { get; set; }
+        public required string CurrentPasswordHash { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
@@ -37,7 +38,7 @@ namespace WebApplication1.Domain.Models
 
         public bool VerifyPassword(string password)
         {
-            return HashPassword(password) == this.PasswordHash;
+            return HashPassword(password) == this.CurrentPasswordHash;
         }
     }
 }

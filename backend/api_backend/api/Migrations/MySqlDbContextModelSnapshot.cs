@@ -22,7 +22,7 @@ namespace WebApplication1.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-            modelBuilder.Entity("WebApplication1.Domain.Models.UserModel", b =>
+            modelBuilder.Entity("WebApplication1.Domain.Models.UserRegisterDto", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

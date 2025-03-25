@@ -4,9 +4,9 @@ namespace WebApplication1.Domain.Repositories;
 
 public interface IUserRepository
 {
-    Task<UserModel?> GetByEmailAsync(string email);
-    Task<UserModel?> GetByIdAsync(string Id);
-    Task<UserModel> RegisterAsync(UserModel userModel);
-    Task<UserModel> DeleteAsync(UserModel userModel);
-    Task<UserModel> PatchAsync(string Id, IUserUpdateDto updateDto);
+    Task<UserRegisterDto?> GetByEmailAsync(string email);
+    Task<UserRegisterDto?> GetByIdAsync(string Id);
+    Task<UserRegisterDto> RegisterAsync(UserRegisterDto userModel);
+    Task<IUserManagementDto> DeleteAsync(UserAuthDto userModel);
+    Task<IUserManagementDto> PatchAsync(UserPatchDto updateDto);
 }

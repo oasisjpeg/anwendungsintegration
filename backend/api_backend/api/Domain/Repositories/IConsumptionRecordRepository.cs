@@ -4,6 +4,6 @@ namespace WebApplication1.Domain.Repositories;
 
 public interface IConsumptionRecordRepository
 {
-    Task<IEnumerable<ConsumptionRecord>> GetByUserId(int userId);
-    Task<ConsumptionRecord> AddAsync(ConsumptionRecord entity);
+    Task<IEnumerable<ConsumptionRecordModel>> GetByUserId(int userId);
+    Task<ConsumptionRecordModel> AddAsync(ConsumptionRecordModel entity);
 }

@@ -2,7 +2,7 @@
 
 namespace WebApplication1.Domain.Models
 {
-    public class RecommendRecord
+    public class RecommendRecordModel
     {
         [Key]
         public int Id { get; set; }

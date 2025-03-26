@@ -6,7 +6,7 @@ namespace WebApplication1.Infrastructure.MySqlRepositories;
 
 public class MySqlDbContext: DbContext
 {
-    public DbSet<ConsumptionRecord> ConsumptionRecords { get; set; }
+    public DbSet<ConsumptionRecordModel> ConsumptionRecords { get; set; }
     
     public DbSet<UserModel> Users { get; set; }
 

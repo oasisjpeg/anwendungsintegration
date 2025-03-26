@@ -15,14 +15,14 @@ public class MySqlConsumptionRecordRepository : IConsumptionRecordRepository
     
 
     // ✅ Add new consumption record
-    public async Task<IEnumerable<ConsumptionRecord>> GetByUserId(int userId)
+    public async Task<IEnumerable<ConsumptionRecordModel>> GetByUserId(int userId)
     {
         return await _dbContext.ConsumptionRecords
             .Where(r => r.UserId == userId)
             .ToListAsync();
     }
 
-    public async Task<ConsumptionRecord> AddAsync(ConsumptionRecord entity)
+    public async Task<ConsumptionRecordModel> AddAsync(ConsumptionRecordModel entity)
     {
         _dbContext.ConsumptionRecords.Add(entity);
         await _dbContext.SaveChangesAsync();

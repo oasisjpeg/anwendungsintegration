@@ -24,4 +24,9 @@ public class MySqlUserRepository : IUserRepository
         await _context.SaveChangesAsync();
         return userModel;
     }
+
+    public async Task<UserModel> GetByUserId(int userId)
+    {
+        return await _context.Users.FindAsync(userId);
+    }
 }

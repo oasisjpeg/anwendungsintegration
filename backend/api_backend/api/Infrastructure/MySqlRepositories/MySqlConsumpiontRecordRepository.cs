@@ -18,7 +18,7 @@ public class MySqlConsumptionRecordRepository : IConsumptionRecordRepository
     public async Task<IEnumerable<ConsumptionRecordModel>> GetByUserId(int userId)
     {
         return await _dbContext.ConsumptionRecords
-            .Where(r => r.UserId == userId)
+            .Where(r => r.Id == userId)
             .ToListAsync();
     }
 

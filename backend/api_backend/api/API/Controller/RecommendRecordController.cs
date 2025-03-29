@@ -20,10 +20,10 @@ namespace WebApplication1.API.Controller
 
         //get uuid from jwt token body, so valmir doesnt cry :)
         [HttpGet]
-        public async Task<ActionResult<ConsumptionRecordModel>> GetRecommendConsumption(int userId)
+        public async Task<ActionResult<ConsumptionRecordModel>> GetRecommendConsumption(string Id)
         {
-            //userId = jwt.token.body
-            var recommendConsumpion = _recommendRepository.GetRecommendConsumption(userId);
+            //Id = jwt.token.body
+            var recommendConsumpion = _recommendRepository.GetRecommendConsumption(Id);
 
             if (recommendConsumpion == null) 
                 return NotFound();

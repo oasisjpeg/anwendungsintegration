@@ -112,19 +112,24 @@ namespace WebApplication1.API.Controller;
         }
 
     // ADD INFORMATION Request
-}
+
 
         [HttpGet("{userId}")]
-        public async Task<IActionResult> GetInformationFromUser(int userId)
+        public async Task<IActionResult> GetInformationFromUser(UserAuthDto userAuthDto)
         {
-            var user = await _userRepository.GetByUserId(userId);
-
-            if (userId == null)
+            if (!await _userExistCheck.UserExistsAsync(userAuthDto.Email))
             {
-                return NotFound(new { message = "User not found" });
+                return NotFound("User not found.");
             }
 
-            return Ok(user);
+            var existingUser = await _userRepository.GetByEmailAsync(userAuthDto.Email);
+            // User Auth
+            if (!_userAuth.VerifyPassword(existingUser.CurrentPasswordHash, userAuthDto.Password))
+            {
+                return Unauthorized("Invalid email or password.");
+            }
+
+            return Ok(existingUser);
         }
 
     }

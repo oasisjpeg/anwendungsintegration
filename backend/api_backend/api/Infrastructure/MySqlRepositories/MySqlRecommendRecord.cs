@@ -14,13 +14,20 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             _context = context;
         }
 
-        public async Task<ActionResult<ConsumptionRecordModel>> GetRecommendConsumption(int userId)
+        public async Task<ActionResult<ConsumptionRecordModel>> GetRecommendConsumption(string Id)
         {
-            return await _context.ConsumptionRecords
-                .Where(r => r.UserId == userId)
-                .OrderByDescending(r => r.Id)
-                .FirstOrDefaultAsync();
-        }
+            var recordExists = await _context.ConsumptionRecords.AnyAsync(r => r.Id == Id);
+            if (!recordExists)
+            {
+                return new NotFoundResult();
+            }
 
+            var record = await _context.ConsumptionRecords
+                .Where(r => r.Id == Id)
+                .OrderByDescending(r => r.Timestamp)
+                .FirstOrDefaultAsync();
+
+            return record != null ? new OkObjectResult(record) : new NotFoundResult();
+        }
     }
 }

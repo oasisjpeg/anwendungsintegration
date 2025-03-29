@@ -2,7 +2,7 @@
 
 namespace WebApplication1.Domain.NewFolder;
 
-public class ConsumptionRecord
+public class ConsumptionRecordModel
 {
     [Key]
     public int Id { get; set; }

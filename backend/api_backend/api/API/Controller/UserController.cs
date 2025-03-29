@@ -113,3 +113,18 @@ namespace WebApplication1.API.Controller;
 
     // ADD INFORMATION Request
 }
+
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetInformationFromUser(int userId)
+        {
+            var user = await _userRepository.GetByUserId(userId);
+
+            if (userId == null)
+            {
+                return NotFound(new { message = "User not found" });
+            }
+
+            return Ok(user);
+        }
+
+    }

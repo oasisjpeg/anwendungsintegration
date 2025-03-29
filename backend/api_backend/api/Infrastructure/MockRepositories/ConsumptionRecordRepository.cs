@@ -13,16 +13,16 @@ public class ConsumptionRecordRepository : IConsumptionRecordRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<ConsumptionRecord>> GetByUserId(int userId)
+    public async Task<IEnumerable<ConsumptionRecordModel>> GetByUserId(int userId)
     {
-        return await _context.Set<ConsumptionRecord>()
+        return await _context.Set<ConsumptionRecordModel>()
             .Where(r => r.UserId == userId)
             .ToListAsync();
     }
 
-    public async Task<ConsumptionRecord> AddAsync(ConsumptionRecord entity)
+    public async Task<ConsumptionRecordModel> AddAsync(ConsumptionRecordModel entity)
     {
-        _context.Set<ConsumptionRecord>().Add(entity);
+        _context.Set<ConsumptionRecordModel>().Add(entity);
         await _context.SaveChangesAsync();
         return entity;
     }

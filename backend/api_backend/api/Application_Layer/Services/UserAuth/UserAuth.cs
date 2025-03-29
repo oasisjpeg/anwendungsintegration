@@ -13,7 +13,7 @@ namespace WebApplication1.Application_Layer.Services.UserAuth
             return _passwordHasher.HashPassword(null, password);
         }
 
-        public bool VerifyPassword(string hashedPassword ,string password)
+        public bool VerifyPassword(string hashedPassword, string password)
         {
             return _passwordHasher.VerifyHashedPassword(null, hashedPassword, password) 
                 == PasswordVerificationResult.Success;

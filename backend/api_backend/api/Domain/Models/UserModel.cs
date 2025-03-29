@@ -19,6 +19,5 @@ namespace WebApplication1.Domain.Models
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        
     }
 }

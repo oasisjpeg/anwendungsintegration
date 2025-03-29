@@ -48,11 +48,11 @@ public class MySqlUserRepository : IUserRepository
 
     public async Task<UserModel> DeleteAsync(UserAuthDto userAuthDto)
     {
-        var userModel = await GetByEmailAsync(userAuthDto.Email);
+        var user = await GetByEmailAsync(userAuthDto.Email);
 
-        _context.Users.Remove(userModel);
+        _context.Users.Remove(user);
         await _context.SaveChangesAsync();
-        return (userModel);
+        return (user);
     }
 
     public async Task<UserModel> PatchAsync(UserPatchDto userPatchDto)

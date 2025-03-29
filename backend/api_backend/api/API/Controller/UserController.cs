@@ -41,20 +41,19 @@ namespace WebApplication1.API.Controller;
 
         // ✅ Login user
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] UserRegisterDto userRegisterDto)
+        public async Task<IActionResult> Login([FromBody] UserAuthDto userAuthDto)
         {
-            
 
             // User Exist Check
-            if (!await _userExistCheck.UserExistsAsync(userRegisterDto.Email))
+            if (!await _userExistCheck.UserExistsAsync(userAuthDto.Email))
             {
                 return NotFound("User not found.");
             }
 
-            var existingUser = await _userRepository.GetByEmailAsync(userRegisterDto.Email);
+            var existingUser = await _userRepository.GetByEmailAsync(userAuthDto.Email);
 
             // User Auth
-            if (!_userAuth.VerifyPassword(existingUser.CurrentPasswordHash, userRegisterDto.Password))
+            if (!_userAuth.VerifyPassword(existingUser.CurrentPasswordHash, userAuthDto.Password))
             {
                 return Unauthorized("Invalid email or password."); 
             }

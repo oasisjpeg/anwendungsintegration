@@ -16,9 +16,9 @@ public class ConsumptionRecordsController : ControllerBase
 
     // ✅ Get records by user ID
     [HttpGet("{userId}")]
-    public async Task<IActionResult> GetByUser(int userId)
+    public async Task<IActionResult> GetByUser(string Id)
     {
-        var records = await _repository.GetByUserId(userId);
+        var records = await _repository.GetByIdAsync(Id);
         if (records == null || !records.Any()) return NotFound();
         return Ok(records);
     }

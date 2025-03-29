@@ -114,7 +114,7 @@ namespace WebApplication1.API.Controller;
     // ADD INFORMATION Request
 
 
-        [HttpGet("{userId}")]
+        [HttpGet("information")]
         public async Task<IActionResult> GetInformationFromUser(UserAuthDto userAuthDto)
         {
             if (!await _userExistCheck.UserExistsAsync(userAuthDto.Email))

@@ -23,12 +23,12 @@ namespace WebApplication1.API.Controller
         public async Task<ActionResult<ConsumptionRecordModel>> GetRecommendConsumption(string Id)
         {
             //Id = jwt.token.body
-            var recommendConsumpion = _recommendRepository.GetRecommendConsumption(Id);
+            var recommendConsumption = await _recommendRepository.GetRecommendConsumption(Id);
 
-            if (recommendConsumpion == null) 
+            if (recommendConsumption == null) 
                 return NotFound();
 
-            return Ok(recommendConsumpion);
+            return Ok(recommendConsumption);
         }
     }
 }

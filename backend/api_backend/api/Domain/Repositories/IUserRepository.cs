@@ -1,12 +1,13 @@
-﻿using WebApplication1.Domain.Models;
+﻿using WebApplication1.Application_Layer.DTO;
+using WebApplication1.Domain.Models;
 
 namespace WebApplication1.Domain.Repositories;
 
 public interface IUserRepository
 {
-    Task<UserRegisterDto?> GetByEmailAsync(string email);
-    Task<UserRegisterDto?> GetByIdAsync(string Id);
-    Task<UserRegisterDto> RegisterAsync(UserRegisterDto userModel);
-    Task<IUserManagementDto> DeleteAsync(UserAuthDto userModel);
-    Task<IUserManagementDto> PatchAsync(UserPatchDto updateDto);
+    Task<UserModel?> GetByEmailAsync(string email);
+    Task<UserModel?> GetByIdAsync(string Id);
+    Task<UserModel> RegisterAsync(UserRegisterDto userRegisterDto);
+    Task<UserModel> DeleteAsync(UserAuthDto userAuthDto);
+    Task<UserModel> PatchAsync(UserPatchDto userPatchDto);
 }

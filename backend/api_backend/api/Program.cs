@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using WebApplication1.Application_Layer.Services.UserAuth;
+using WebApplication1.Application_Layer.Services.UserExistCheck;
 using WebApplication1.Domain.Repositories;
 using WebApplication1.Infrastructure.MySqlRepositories;
 
@@ -32,6 +34,8 @@ builder.Services.AddDbContext<MySqlDbContext>(options =>
 builder.Services.AddScoped<IConsumptionRecordRepository, MySqlConsumptionRecordRepository>();
 
 builder.Services.AddScoped<IUserRepository, MySqlUserRepository>();
+builder.Services.AddScoped<IUserAuth, UserAuth>();
+builder.Services.AddScoped<IUserExistCheck, UserExistCheck>();
 
 
 

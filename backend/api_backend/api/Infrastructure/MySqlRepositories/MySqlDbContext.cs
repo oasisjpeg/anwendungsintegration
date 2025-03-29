@@ -8,7 +8,7 @@ public class MySqlDbContext: DbContext
 {
     public DbSet<ConsumptionRecord> ConsumptionRecords { get; set; }
     
-    public DbSet<UserRegisterDto> Users { get; set; }
+    public DbSet<UserModel> Users { get; set; }
 
     public MySqlDbContext(DbContextOptions<MySqlDbContext> options) : base(options) { }
 }

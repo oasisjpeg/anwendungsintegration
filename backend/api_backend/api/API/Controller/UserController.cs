@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebApplication1.Application_Layer.DTO;
+using WebApplication1.Application_Layer.Services.UserAuth;
+using WebApplication1.Application_Layer.Services.UserExistCheck;
 using WebApplication1.Domain.Models;
 using WebApplication1.Domain.Repositories;
 
@@ -9,80 +12,102 @@ namespace WebApplication1.API.Controller;
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
+        private readonly IUserAuth _userAuth;
+        private readonly IUserExistCheck _userExistCheck;
 
-        public UserController(IUserRepository userRepository)
-        {
-            _userRepository = userRepository;
-        }
+    public UserController(IUserRepository userRepository, IUserAuth userAuth, IUserExistCheck userExistCheck)
+    {
+        _userRepository = userRepository;
+        _userAuth = userAuth;
+        _userExistCheck = userExistCheck;
+    }
 
-        // ✅ Register a new user
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] UserRegisterDto userModel)
+    // ✅ Register a new user
+    [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] UserRegisterDto userRegisterDto)
         {
-            if (string.IsNullOrWhiteSpace(userModel.CurrentPasswordHash))
+        // Check if user already exists
+            if (await _userExistCheck.UserExistsAsync(userRegisterDto.Email))
+                return BadRequest("User already exists.");
+        // Check if password is empty
+            if (string.IsNullOrWhiteSpace(userRegisterDto.Password))
                 return BadRequest("Password is required.");
 
-            // Hash password before saving
-            userModel.CurrentPasswordHash = UserRegisterDto.HashPassword(userModel.CurrentPasswordHash);
-            var createdUser = await _userRepository.RegisterAsync(userModel);
+        // Hash password before saving
+            userRegisterDto.Password = _userAuth.HashPassword(userRegisterDto.Password);
+            var createdUser = await _userRepository.RegisterAsync(userRegisterDto);
             return CreatedAtAction(nameof(Login), new { email = createdUser.Email }, createdUser);
         }
 
         // ✅ Login user
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] UserRegisterDto userModel)
+        public async Task<IActionResult> Login([FromBody] UserRegisterDto userRegisterDto)
         {
-            var existingUser = await _userRepository.GetByEmailAsync(userModel.Email); // <-- why are we getting user by email if Id is [key]?
-            if (existingUser == null || !existingUser.VerifyPassword(userModel.CurrentPasswordHash))
+            
+
+            // User Exist Check
+            if (!await _userExistCheck.UserExistsAsync(userRegisterDto.Email))
             {
-                return Unauthorized("Invalid email or password."); // <-- sepperate into two if statements to facilitate accurate HTTP responses (not found / unauthorized)
-        }
+                return NotFound("User not found.");
+            }
+
+            var existingUser = await _userRepository.GetByEmailAsync(userRegisterDto.Email);
+
+            // User Auth
+            if (!_userAuth.VerifyPassword(existingUser.CurrentPasswordHash, userRegisterDto.Password))
+            {
+                return Unauthorized("Invalid email or password."); 
+            }
 
             return Ok(new { message = "Login successful!", user = existingUser });
         }
 
     // DELETE user 
-        [HttpDelete("delete/{Id}")]
+        [HttpDelete("delete")]
         public async Task<IActionResult> Delete([FromBody] UserAuthDto userAuthDto)
         {
-            var existingUser = await _userRepository.GetByIdAsync(userAuthDto.Id);
-            // check if user exists
-            if (existingUser == null)
+            
+        // check if user exists
+            if (!await _userExistCheck.UserExistsAsync(userAuthDto.Email))
             {
                 return NotFound("User not found.");
             }
-            // authenticate user
-            if (!existingUser.VerifyPassword(userAuthDto.CurrentPasswordHash))
+
+            var existingUser = await _userRepository.GetByEmailAsync(userAuthDto.Email);
+        // User Auth
+            if (!_userAuth.VerifyPassword(existingUser.CurrentPasswordHash, userAuthDto.Password)) 
             {
-                return Unauthorized("Invalid password.");
+                return Unauthorized("Invalid email or password.");
             }
         // Add delete confirmation ?
 
         // Delete user
-        await _userRepository.DeleteAsync((UserAuthDto)existingUser);
+        await _userRepository.DeleteAsync(userAuthDto);
 
         return Ok(new { message = "Your account has been deleted.", user = existingUser });
         }
 
     // ADD user UPDATE/PATCH Request
 
-        [HttpPatch("update/{Id}")]
+        [HttpPatch("update")]
         public async Task<IActionResult> Update([FromBody] UserPatchDto userPatchDto)
         {
-            var existingUser = await _userRepository.GetByIdAsync(userPatchDto.Id);
-            // check if user exists
-            if (existingUser == null)
+            
+        // check if user exists
+            if (!await _userExistCheck.UserExistsAsync(userPatchDto.Email))
             {
                 return NotFound("User not found.");
             }
-            // authenticate user
-            if (!existingUser.VerifyPassword(userPatchDto.CurrentPasswordHash))
+
+            var existingUser = await _userRepository.GetByEmailAsync(userPatchDto.Email);
+        // User Auth
+            if (!_userAuth.VerifyPassword(existingUser.CurrentPasswordHash, userPatchDto.Password)) 
             {
-                return Unauthorized("Invalid password.");
+                return Unauthorized("Invalid email or password.");
             }
 
-            // Modify user
-            await _userRepository.PatchAsync(userPatchDto);
+        // Modify user
+        await _userRepository.PatchAsync(userPatchDto);
 
             return Ok(new { message = "Your account has been updated.", user = existingUser });
         }

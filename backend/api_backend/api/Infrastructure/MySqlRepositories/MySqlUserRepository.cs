@@ -78,4 +78,22 @@ public class MySqlUserRepository : IUserRepository
         await _context.SaveChangesAsync();
         return user;
     }
+
+    public async Task<UserModel?> GetInformationFromUserAsync(UserAuthDto userAuthDto)
+    {
+        var user = await GetByEmailAsync(userAuthDto.Email);
+
+        if (user == null)
+        {
+            return null; // Benutzer nicht gefunden
+        }
+
+        if (!_userAuth.VerifyPassword(user.CurrentPasswordHash, userAuthDto.Password))
+        {
+            return null; // Ungültiges Passwort
+        }
+
+        await _context.SaveChangesAsync();
+        return user;
+    }
 }

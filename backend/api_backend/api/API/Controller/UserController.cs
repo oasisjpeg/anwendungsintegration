@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using WebApplication1.Application_Layer.DTO;
 using WebApplication1.Application_Layer.Services.UserAuth;
 using WebApplication1.Application_Layer.Services.UserExistCheck;
@@ -41,7 +42,7 @@ namespace WebApplication1.API.Controller;
 
         // ✅ Login user
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] UserAuthDto userAuthDto)
+        public async Task<IActionResult> Login([FromBody] UserAuthDto userAuthDto, [FromServices] JwtAuth jwtAuth)
         {
 
             // User Exist Check
@@ -57,6 +58,8 @@ namespace WebApplication1.API.Controller;
             {
                 return Unauthorized("Invalid email or password."); 
             }
+
+            var token = jwtAuth.GenerateToken(existingUser);
 
             return Ok(new { message = "Login successful!", user = existingUser });
         }
@@ -117,7 +120,9 @@ namespace WebApplication1.API.Controller;
         [HttpGet("information")]
         public async Task<IActionResult> GetInformationFromUser(UserAuthDto userAuthDto)
         {
-            if (!await _userExistCheck.UserExistsAsync(userAuthDto.Email))
+            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+
+        if (!await _userExistCheck.UserExistsAsync(userAuthDto.Email))
             {
                 return NotFound("User not found.");
             }

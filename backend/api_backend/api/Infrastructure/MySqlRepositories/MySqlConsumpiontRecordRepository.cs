@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WebApplication1.Domain.NewFolder;
+using WebApplication1.Domain.Models;
 using WebApplication1.Domain.Repositories;
 
 namespace WebApplication1.Infrastructure.MySqlRepositories;
@@ -15,10 +15,10 @@ public class MySqlConsumptionRecordRepository : IConsumptionRecordRepository
     
 
     // ✅ Add new consumption record
-    public async Task<IEnumerable<ConsumptionRecordModel>> GetByUserId(int userId)
+    public async Task<IEnumerable<ConsumptionRecordModel>> GetByIdAsync(string userId)
     {
         return await _dbContext.ConsumptionRecords
-            .Where(r => r.Id == userId)
+            .Where(r => r.UserId == userId)
             .ToListAsync();
     }
 

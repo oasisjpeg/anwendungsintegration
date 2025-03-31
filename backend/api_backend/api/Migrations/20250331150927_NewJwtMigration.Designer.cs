@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1.Infrastructure.MySqlRepositories;
 
@@ -11,9 +12,11 @@ using WebApplication1.Infrastructure.MySqlRepositories;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(MySqlDbContext))]
-    partial class MySqlDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250331150927_NewJwtMigration")]
+    partial class NewJwtMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -167,23 +170,7 @@ namespace WebApplication1.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ConsumptionRecords", (string)null);
-                });
-
-            modelBuilder.Entity("WebApplication1.Domain.Models.RecommendRecordModel", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<double>("kWValue")
-                        .HasColumnType("double");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RecommendRecords", (string)null);
+                    b.ToTable("ConsumptionRecords");
                 });
 
             modelBuilder.Entity("WebApplication1.Domain.Models.UserModel", b =>

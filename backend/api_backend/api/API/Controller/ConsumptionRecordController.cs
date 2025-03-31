@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Domain.Repositories;
 
 namespace WebApplication1.API.Controller;
@@ -15,8 +16,9 @@ public class ConsumptionRecordsController : ControllerBase
     }
 
     // ✅ Get records by user ID
+    [Authorize]
     [HttpGet("{userId}")]
-    public async Task<IActionResult> GetByUser(string Id)
+    public async Task<IActionResult> GetByIdAsync(string Id) // change to use Id from JWT token
     {
         var records = await _repository.GetByIdAsync(Id);
         if (records == null || !records.Any()) return NotFound();

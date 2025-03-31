@@ -35,7 +35,7 @@ public class MySqlUserRepository : IUserRepository
             Id = Guid.NewGuid().ToString(),
             Name = userRegisterDto.Name,
             Email = userRegisterDto.Email,
-            CurrentPasswordHash = _userAuth.HashPassword(userRegisterDto.Password),
+            PasswordHash = _userAuth.HashPassword(userRegisterDto.Password),
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -69,7 +69,7 @@ public class MySqlUserRepository : IUserRepository
         }
         if (!string.IsNullOrEmpty(userPatchDto.NewPassword))
         {
-            user.CurrentPasswordHash = _userAuth.HashPassword(userPatchDto.NewPassword);
+            user.PasswordHash = _userAuth.HashPassword(userPatchDto.NewPassword);
         }
 
         // updateAt timestamp to track last update time

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1.Infrastructure.MySqlRepositories;
 
@@ -11,9 +12,11 @@ using WebApplication1.Infrastructure.MySqlRepositories;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(MySqlDbContext))]
-    partial class MySqlDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250331154625_IncludeRecommendations")]
+    partial class IncludeRecommendations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -167,7 +170,7 @@ namespace WebApplication1.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ConsumptionRecords", (string)null);
+                    b.ToTable("ConsumptionRecords");
                 });
 
             modelBuilder.Entity("WebApplication1.Domain.Models.RecommendRecordModel", b =>
@@ -183,7 +186,7 @@ namespace WebApplication1.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RecommendRecords", (string)null);
+                    b.ToTable("RecommendRecords");
                 });
 
             modelBuilder.Entity("WebApplication1.Domain.Models.UserModel", b =>

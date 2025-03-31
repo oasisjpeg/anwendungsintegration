@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Domain.NewFolder;
+using WebApplication1.Domain.Models;
 
 namespace WebApplication1.Domain.Repositories
 {
     public interface IRecommendRecordRepository
     {
-        Task<ActionResult<ConsumptionRecordModel>> GetRecommendConsumption(string Id);
+        Task<ActionResult<RecommendRecordModel>> GetRecommendConsumption(string userId);
         
     }
 }

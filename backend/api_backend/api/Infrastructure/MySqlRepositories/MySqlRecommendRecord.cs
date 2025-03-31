@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebApplication1.Domain.NewFolder;
+using WebApplication1.Domain.Models;
 using WebApplication1.Domain.Repositories;
 
 namespace WebApplication1.Infrastructure.MySqlRepositories
@@ -14,16 +14,16 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             _context = context;
         }
 
-        public async Task<ActionResult<ConsumptionRecordModel>> GetRecommendConsumption(string Id)
+        public async Task<ActionResult<RecommendRecordModel>> GetRecommendConsumption(string UserId)
         {
-            var recordExists = await _context.ConsumptionRecords.AnyAsync(r => r.Id == Id);
+            var recordExists = await _context.RecommendRecords.AnyAsync(r => r.UserId == UserId);
             if (!recordExists)
             {
                 return new NotFoundResult();
             }
 
-            var record = await _context.ConsumptionRecords
-                .Where(r => r.Id == Id)
+            var record = await _context.RecommendRecords
+                .Where(r => r.UserId == UserId)
                 .OrderByDescending(r => r.Timestamp)
                 .FirstOrDefaultAsync();
 

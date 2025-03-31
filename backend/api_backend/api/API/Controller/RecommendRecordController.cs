@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Domain.NewFolder;
+using WebApplication1.Domain.Models;
 using WebApplication1.Domain.Repositories;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 

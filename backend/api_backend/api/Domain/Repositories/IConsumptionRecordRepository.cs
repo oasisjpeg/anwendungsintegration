@@ -1,4 +1,4 @@
-﻿using WebApplication1.Domain.NewFolder;
+﻿using WebApplication1.Domain.Models;
 
 namespace WebApplication1.Domain.Repositories;
 

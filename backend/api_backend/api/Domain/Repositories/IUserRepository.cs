@@ -9,5 +9,5 @@ public interface IUserRepository
     Task<UserModel?> GetByIdAsync(string Id);
     Task<UserModel> RegisterAsync(UserRegisterDto userRegisterDto);
     Task<UserModel> DeleteAsync(UserAuthDto userAuthDto);
-    Task<UserModel> PatchAsync(UserPatchDto userPatchDto);
+    Task<UserModel> PatchAsync(string userId, UserPatchDto dto);
 }

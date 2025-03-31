@@ -10,7 +10,7 @@ public class ConsumptionRecordModel
     [Key]
     public required string ConsumptionId { get; set; }
 
-    [ForeignKey("User")]
+    [ForeignKey("Users")]
     public required string UserId { get; set; }
 
     public required DateTime Timestamp { get; set; }

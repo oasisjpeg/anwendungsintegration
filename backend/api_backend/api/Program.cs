@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using WebApplication1.Application_Layer.Services.UserAuth;
 using WebApplication1.Application_Layer.Services.UserExistCheck;
+using WebApplication1.Application_Layer.Websockets;
 using WebApplication1.Domain.Models;
 using WebApplication1.Domain.Repositories;
 using WebApplication1.Infrastructure.MySqlRepositories;
@@ -46,7 +47,11 @@ if(string.IsNullOrEmpty(jwtSecret))
 
 var key = Encoding.UTF8.GetBytes(jwtSecret);
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
     .AddJwtBearer(options =>
     {
         options.RequireHttpsMetadata = false;
@@ -92,11 +97,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseWebSockets();
+app.UseMiddleware<MotivationWebSocketHandler>();
+
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
 
 app.UseAuthorization();
+
 
 app.MapControllers();
 

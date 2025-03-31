@@ -10,7 +10,7 @@ namespace WebApplication1.Domain.Models
         [Key]
         public required string RecommendId { get; set; }
 
-        [ForeignKey("User")]
+        [ForeignKey("Users")]
         public required string UserId { get; set; }
 
         public required DateTime Timestamp { get; set; }

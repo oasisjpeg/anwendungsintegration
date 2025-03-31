@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Domain.Repositories;
 
@@ -15,13 +16,26 @@ public class ConsumptionRecordsController : ControllerBase
         _repository = repository;
     }
 
-    // ✅ Get records by user ID
     [Authorize]
-    [HttpGet("{Id}")]
-    public async Task<IActionResult> GetByIdAsync(string Id) // change to use Id from JWT token
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMyConsumptionRecords()
     {
-        var records = await _repository.GetByIdAsync(Id);
-        if (records == null || !records.Any()) return NotFound();
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized("Invalid token – user ID not found.");
+
+        var records = await _repository.GetByIdAsync(userId);
+
+        if (records == null || !records.Any())
+            return NotFound("No consumption records found for this user.");
+
+        Console.Out.WriteLine(records);
         return Ok(records);
     }
+    
+    [HttpGet("test")]
+    public IActionResult Test() => Ok("It works!");
+
+
 }

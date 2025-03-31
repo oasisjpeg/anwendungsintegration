@@ -7,15 +7,6 @@ namespace WebApplication1.Application_Layer.DTO
     public class UserPatchDto
     {
 
-        [Required]
-        [EmailAddress]
-        [MaxLength(100)]
-        public required string Email { get; set; }
-
-        [Required]
-        [MinLength(12)]
-        [MaxLength(100)]
-        public required string Password { get; set; }
 
         [MaxLength(100)]
         public string? NewName { get; set; }

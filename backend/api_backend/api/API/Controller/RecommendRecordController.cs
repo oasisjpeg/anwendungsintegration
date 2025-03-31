@@ -1,16 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Domain.Models;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Domain.Repositories;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
 
 namespace WebApplication1.API.Controller
 {
     [ApiController]
-    [Route("api/consumption-records")] 
+    [Route("api/recommend-records")]
     public class RecommendRecordController : ControllerBase
     {
-
         private readonly IRecommendRecordRepository _recommendRepository;
 
         public RecommendRecordController(IRecommendRecordRepository recommendRepository)
@@ -18,15 +16,21 @@ namespace WebApplication1.API.Controller
             _recommendRepository = recommendRepository;
         }
 
-        //get uuid from jwt token body, so valmir doesnt cry :)
-        [HttpGet]
-        public async Task<ActionResult<ConsumptionRecordModel>> GetRecommendConsumption(string Id)
+        // ✅ Require JWT token
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<IActionResult> GetRecommendConsumption()
         {
-            //Id = jwt.token.body
-            var recommendConsumption = await _recommendRepository.GetRecommendConsumption(Id);
+            // ✅ Extract user UUID from token
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (recommendConsumption == null) 
-                return NotFound();
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized("Missing user ID in JWT.");
+
+            var recommendConsumption = await _recommendRepository.GetRecommendConsumption(userId);
+
+            if (recommendConsumption == null)
+                return NotFound("No recommendations found.");
 
             return Ok(recommendConsumption);
         }

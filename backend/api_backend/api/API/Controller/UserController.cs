@@ -62,7 +62,7 @@ namespace WebApplication1.API.Controller;
 
                 var token = jwtAuth.GenerateToken(existingUser);
 
-                return Ok(new { message = "Login successful!", user = existingUser });
+                return Ok(new { message = "Login successful!", email = existingUser.Email, token = token });
             }
 
         // DELETE user 
@@ -92,29 +92,24 @@ namespace WebApplication1.API.Controller;
             }
 
         // user UPDATE/PATCH Request
-            [Authorize]
-            [HttpPatch("update")]
-            public async Task<IActionResult> Update([FromBody] UserPatchDto userPatchDto)
-            {
-            
-            // check if user exists
-                if (!await _userExistCheck.UserExistsAsync(userPatchDto.Email))
-                {
-                    return NotFound("User not found.");
-                }
+        [Authorize]
+        [HttpPatch("update")]
+        public async Task<IActionResult> Update([FromBody] UserPatchDto userPatchDto)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                var existingUser = await _userRepository.GetByEmailAsync(userPatchDto.Email);
-            // User Auth
-                if (!_userAuth.VerifyPassword(existingUser.PasswordHash, userPatchDto.Password)) 
-                {
-                    return Unauthorized("Invalid email or password.");
-                }
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized("Invalid token.");
 
-            // Modify user
-            await _userRepository.PatchAsync(userPatchDto);
+            var existingUser = await _userRepository.GetByIdAsync(userId);
+            if (existingUser == null)
+                return NotFound("User not found.");
 
-                return Ok(new { message = "Your account has been updated.", user = existingUser });
-            }
+            await _userRepository.PatchAsync(userId, userPatchDto);
+
+            return Ok(new { message = "Your account has been updated.", user = existingUser });
+        }
+
 
         // INFORMATION Request
 

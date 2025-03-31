@@ -35,7 +35,7 @@ public class MySqlUserRepository : IUserRepository
             Id = Guid.NewGuid().ToString(),
             Name = userRegisterDto.Name,
             Email = userRegisterDto.Email,
-            PasswordHash = _userAuth.HashPassword(userRegisterDto.Password),
+            PasswordHash = userRegisterDto.Password,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -43,6 +43,52 @@ public class MySqlUserRepository : IUserRepository
         _context.Users.Add(userModel);
         userModel.CreatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
+        
+        var baseDate = DateTime.Parse("2025-03-13 00:00:00");
+        var dummyConsumptionRecords = new List<ConsumptionRecordModel>();
+
+        var kWValuesConsumption = new double[]
+        {
+            0.5, 0.8, 0.4, 0.3, 0.2, 0.4, 0.6, 1.2, 2.1, 1.8, 1.5, 1.3,
+            2.5, 2.8, 3.2, 3.5, 3.0, 2.7, 2.4, 2.0, 1.8, 1.5, 1.0, 0.7
+        };
+
+        for (int i = 0; i < 24; i++)
+        {
+            dummyConsumptionRecords.Add(new ConsumptionRecordModel
+            {
+                ConsumptionId = Guid.NewGuid().ToString(),
+                UserId = userModel.Id,
+                Timestamp = baseDate.AddHours(i),
+                kWValue = kWValuesConsumption[i]
+            });
+        }
+
+        _context.ConsumptionRecords.AddRange(dummyConsumptionRecords);
+        
+        var dummyRecommendedRecords = new List<RecommendRecordModel>();
+
+        var kWValuesRecommended = new double[]
+        {
+            0.3, 0.6, 0.3, 0.2, 0.1, 0.3, 0.4, 0.9, 1.6, 1.3, 1.1, 1.0,
+            1.8, 2.0, 2.4, 2.6, 2.2, 2.0, 1.7, 1.5, 1.2, 1.0, 0.7, 0.5
+        };
+
+        for (int i = 0; i < 24; i++)
+        {
+            dummyRecommendedRecords.Add(new RecommendRecordModel()
+            {
+                RecommendId = Guid.NewGuid().ToString(),
+                UserId = userModel.Id,
+                Timestamp = baseDate.AddHours(i),
+                kWValue = kWValuesRecommended[i]
+            });
+        }
+
+        _context.RecommendRecords.AddRange(dummyRecommendedRecords);
+
+        await _context.SaveChangesAsync(); // Save the dummy data
+        
         return userModel;
     }
 
@@ -55,29 +101,35 @@ public class MySqlUserRepository : IUserRepository
         return (user);
     }
 
-    public async Task<UserModel> PatchAsync(UserPatchDto userPatchDto)
+    public async Task<UserModel> PatchAsync(string userId, UserPatchDto userPatchDto)
     {
-        var user = await GetByEmailAsync(userPatchDto.Email);
+        var user = await _context.Users.FindAsync(userId);
 
-        if (!string.IsNullOrEmpty(userPatchDto.NewName))
+        if (user == null)
+            throw new Exception("User not found.");
+
+        if (!string.IsNullOrWhiteSpace(userPatchDto.NewName))
         {
             user.Name = userPatchDto.NewName;
         }
-        if (!string.IsNullOrEmpty(userPatchDto.NewEmail))
+
+        if (!string.IsNullOrWhiteSpace(userPatchDto.NewEmail))
         {
-            user.Email = userPatchDto.Email;
+            user.Email = userPatchDto.NewEmail;
+            user.UserName = userPatchDto.NewEmail; // if using Identity
         }
-        if (!string.IsNullOrEmpty(userPatchDto.NewPassword))
+
+        if (!string.IsNullOrWhiteSpace(userPatchDto.NewPassword))
         {
             user.PasswordHash = _userAuth.HashPassword(userPatchDto.NewPassword);
         }
 
-        // updateAt timestamp to track last update time
         user.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
         return user;
     }
+
 
     public async Task<UserModel?> GetInformationFromUserAsync(UserAuthDto userAuthDto)
     {

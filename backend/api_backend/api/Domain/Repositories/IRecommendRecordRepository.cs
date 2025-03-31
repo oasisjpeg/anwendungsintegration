@@ -5,7 +5,7 @@ namespace WebApplication1.Domain.Repositories
 {
     public interface IRecommendRecordRepository
     {
-        Task<ActionResult<RecommendRecordModel>> GetRecommendConsumption(string userId);
+        Task<IEnumerable<RecommendRecordModel>> GetRecommendConsumption(string userId);
         
     }
 }

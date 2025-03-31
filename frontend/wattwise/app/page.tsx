@@ -20,28 +20,70 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
+  const [recommendations, setRecommendations] = useState([]);
+  const [mergedData, setMergedData] = useState([]);
 
   const router = useRouter();
+
+  const [motivation, setMotivation] = useState("");
+
+  useEffect(() => {
+    const socket = new WebSocket("ws://localhost:5137/ws/motivation");
+
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.motivation) {
+          setMotivation(data.motivation);
+        }
+      } catch (err) {
+        console.error("Invalid WebSocket message:", err);
+      }
+    };
+
+    socket.onclose = () => {
+      console.log("WebSocket closed");
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, []);
 
   async function checkAuth() {
     const storedEmail = localStorage.getItem("email");
     if (storedEmail) {
       setEmail(storedEmail);
       setLoggedIn(true);
-      return true
+      return true;
     } else {
       setLoggedIn(false);
       console.warn("No user data found in localStorage");
-      return false
+      return false;
     }
   }
 
+  const fetchRecommendations = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5137/api/recommend-records/me",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setRecommendations(response.data);
+    } catch (error) {
+      console.error("Failed to load recommendation data:", error);
+    }
+  };
 
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
       const isLoggedIn = await checkAuth();
-  
+
       if (!isLoggedIn) {
         console.warn("User is not logged in!");
         setLoading(false);
@@ -50,23 +92,26 @@ export default function Home() {
 
       try {
         const response = await axios.get(
-          "http://localhost:5137/api/consumption-records/1"
+          "http://localhost:5137/api/consumption-records/me",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
         );
-        console.log(response.data);
+
         const result = response.data;
         const now = new Date();
         const currentHour = now.getHours();
         const filteredData = result.filter(
           (record) => new Date(record.timestamp).getHours() <= currentHour
         );
-        console.log("Filtered Data:", filteredData);
 
         const totalKwh = filteredData.reduce(
           (sum, record) => sum + record.kWValue,
           0
         );
 
-        console.log("Total kWh:", totalKwh);
         setData({
           records: filteredData,
           total: totalKwh,
@@ -78,7 +123,40 @@ export default function Home() {
     }
 
     fetchData();
+    fetchRecommendations();
   }, []);
+  const mergeConsumptionWithRecommendations = (
+    consumption,
+    recommendations
+  ) => {
+    return consumption.map((record) => {
+      const recordHour = new Date(record.timestamp).toISOString().slice(0, 13); // "2025-03-13T14"
+
+      const matchingRecommendation = recommendations.find((r) => {
+        const recHour = new Date(r.timestamp).toISOString().slice(0, 13);
+        return recHour === recordHour;
+      });
+
+      return {
+        ...record,
+        recommended: matchingRecommendation?.kWValue ?? null,
+      };
+    });
+  };
+
+  useEffect(() => {
+    if (data.records.length && recommendations.length) {
+      const merged = mergeConsumptionWithRecommendations(
+        data.records,
+        recommendations
+      );
+      merged.sort(
+        (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+      );
+      
+      setMergedData(merged);
+    }
+  }, [data.records, recommendations]);
 
   if (!loggedIn) {
     return (
@@ -91,13 +169,12 @@ export default function Home() {
 
           {/* Login Box */}
           <Button
-            onPress={() => router.push("/logi")}
+            onPress={() => router.push("/login")}
             className="bg-indigo-600 dark:bg-indigo-500 text-white font-semibold rounded-xl p-6 text-sm shadow-md"
             variant="flat"
           >
             Zum Login
           </Button>
-  
         </section>
       </main>
     );
@@ -110,8 +187,13 @@ export default function Home() {
             Ersparnis
           </h2>
           <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
-            2500 P
+            69420 P
           </p>
+          {motivation && (
+            <div className="mt-4 rounded-xl bg-indigo-50 dark:bg-indigo-900 px-4 py-3 text-indigo-800 dark:text-indigo-200 shadow-sm border border-indigo-200 dark:border-indigo-700">
+              🧠 Motivation: <span className="font-medium">{motivation}</span>
+            </div>
+          )}
         </div>
 
         <div className="bg-white dark:bg-zinc-900 shadow-lg rounded-3xl p-6 mb-6">
@@ -126,7 +208,7 @@ export default function Home() {
             </div>
             <div className="text-right">
               <p className="text-sm font-medium text-gray-800 dark:text-white">
-                {data.total}W
+                {data.total.toFixed(2)}W
               </p>
               <p className="text-xs text-green-500 font-semibold">+12.75%</p>
             </div>
@@ -136,7 +218,7 @@ export default function Home() {
             {!loading ? (
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
-                  data={data.records}
+                  data={mergedData}
                   margin={{ top: 15, right: 20, left: -15, bottom: 5 }}
                 >
                   <CartesianGrid
@@ -182,6 +264,15 @@ export default function Home() {
                     stroke="#6366F1"
                     strokeWidth={3}
                     dot={{ r: 4 }}
+                  />
+
+                  <Line
+                    type="monotone"
+                    dataKey="recommended"
+                    stroke="#32a852"
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                    dot={false}
                   />
                 </LineChart>
               </ResponsiveContainer>

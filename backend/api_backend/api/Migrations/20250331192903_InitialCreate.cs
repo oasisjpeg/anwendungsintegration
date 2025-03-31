@@ -7,21 +7,13 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WebApplication1.Migrations
 {
     /// <inheritdoc />
-    public partial class NewJwtMigration : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-
-            migrationBuilder.AlterColumn<string>(
-                name: "Id",
-                table: "ConsumptionRecords",
-                type: "varchar(255)",
-                nullable: false,
-                oldClrType: typeof(int),
-                oldType: "int")
-                .Annotation("MySql:CharSet", "utf8mb4")
-                .OldAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
+            migrationBuilder.AlterDatabase()
+                .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
@@ -208,6 +200,52 @@ namespace WebApplication1.Migrations
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
+            migrationBuilder.CreateTable(
+                name: "ConsumptionRecords",
+                columns: table => new
+                {
+                    ConsumptionId = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    UserId = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Timestamp = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    kWValue = table.Column<double>(type: "double", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ConsumptionRecords", x => x.ConsumptionId);
+                    table.ForeignKey(
+                        name: "FK_ConsumptionRecords_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "RecommendRecords",
+                columns: table => new
+                {
+                    RecommendId = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    UserId = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Timestamp = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    kWValue = table.Column<double>(type: "double", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RecommendRecords", x => x.RecommendId);
+                    table.ForeignKey(
+                        name: "FK_RecommendRecords_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -244,6 +282,16 @@ namespace WebApplication1.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ConsumptionRecords_UserId",
+                table: "ConsumptionRecords",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RecommendRecords_UserId",
+                table: "RecommendRecords",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -265,41 +313,16 @@ namespace WebApplication1.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "ConsumptionRecords");
+
+            migrationBuilder.DropTable(
+                name: "RecommendRecords");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
-
-            migrationBuilder.AlterColumn<int>(
-                name: "Id",
-                table: "ConsumptionRecords",
-                type: "int",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "varchar(255)")
-                .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
-                .OldAnnotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "Users",
-                columns: table => new
-                {
-                    RecordId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    Email = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    PasswordHash = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Users", x => x.RecordId);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
         }
     }
 }

@@ -6,23 +6,118 @@ import { Button } from "@heroui/button";
 import { Card } from "@heroui/card";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { useRouter } from "next/navigation";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "@heroui/modal";
+import axios from "axios";
 
 export default function SettingsPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+
   const router = useRouter();
-  const handleSubmit = (e: React.FormEvent) => {
-    if (name || email || password !== "") {
-      alert("Test");
-    }
+
+  const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submitted", { name, email, password });
-    // call update endpoint
+
+    const currentEmail = localStorage.getItem("email");
+    const token = localStorage.getItem("token");
+
+    if (!currentEmail || !token) {
+      alert("Nicht eingeloggt.");
+      return;
+    }
+
+    try {
+      const response = await axios.patch(
+        "http://localhost:5137/api/users/update",
+        {
+          newName: name || undefined,
+          newEmail: email !== currentEmail ? email : undefined,
+          newPassword: password || undefined,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.user?.email) {
+        localStorage.setItem("email", response.data.user.email);
+      }
+
+      if (password !== "" || email !== currentEmail) {
+        alert(
+          "Passwort oder E-Mail geändert. Sie werden zum Login weitergeleitet."
+        );
+        setIsModalOpen(true);
+        localStorage.removeItem("email");
+        localStorage.removeItem("token");
+        setTimeout(() => {
+          router.push("/");
+        }, 2000);
+        return;
+      } else {
+        setIsUpdateModalOpen(true);
+        setTimeout(() => {
+          setIsUpdateModalOpen(false);
+          window.location.reload();
+        }, 2000);
+      }
+    } catch (error: any) {
+      console.error("Update failed", error);
+      alert(error.response?.data?.message || "Fehler beim Aktualisieren.");
+    }
+  };
+
+  const handleDeleteAccount = async (confirmPassword: string) => {
+    const email = localStorage.getItem("email");
+    const token = localStorage.getItem("token");
+
+    if (!email || !token) {
+      return;
+    }
+
+    try {
+      const response = await axios.delete(
+        "http://localhost:5137/api/users/delete",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          data: {
+            email,
+            password: confirmPassword,
+          },
+        }
+      );
+      setShowDeleteModal(false);
+      setIsModalOpen(true);
+      localStorage.removeItem("email");
+      localStorage.removeItem("token");
+      setTimeout(() => {
+        router.push("/login");
+      }, 2000);
+    } catch (error: any) {
+      console.error("Delete failed", error);
+      alert(error.response?.data?.message || "Fehler beim Löschen.");
+    }
   };
 
   function handleLogout() {
     localStorage.removeItem("email");
+    localStorage.removeItem("token");
     setTimeout(() => {
       router.push("/login");
     }, 200);
@@ -46,7 +141,7 @@ export default function SettingsPage() {
       </h1>
 
       <Card className="bg-white dark:bg-zinc-900 shadow-xl rounded-2xl p-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleUpdate} className="space-y-6">
           <Input
             label="Name"
             placeholder="Max Mustermann"
@@ -78,8 +173,136 @@ export default function SettingsPage() {
           <Button onPress={handleLogout} color="danger" className="w-full">
             Ausloggen
           </Button>
+          <Button
+            onPress={() => setShowDeleteModal(true)}
+            color="danger"
+            className="w-full mt-4"
+          >
+            Account löschen
+          </Button>
         </div>
       </Card>
+
+      <div style={{ position: "relative", zIndex: 600 }}>
+        <Modal
+          backdrop="blur"
+          isOpen={isUpdateModalOpen}
+          onClose={() => setIsUpdateModalOpen(false)}
+        >
+          <ModalContent className="md-4 pb-5">
+            <ModalHeader>
+              <h3>Erfolgreich!</h3>
+            </ModalHeader>
+            <ModalBody>
+              <p>Deine Einstellungen wurden gespeichert</p>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      </div>
+      <div style={{ position: "relative", zIndex: 600 }}>
+        <Modal
+          backdrop="blur"
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        >
+          <ModalContent className="md-4 pb-5">
+            <ModalHeader>
+              <h3>Du wurdest ausgelogt!</h3>
+            </ModalHeader>
+            <ModalBody>
+              <p>Du wirst zum Login weitergeleitet</p>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      </div>
+
+      <div style={{ position: "relative", zIndex: 600 }}>
+        <Modal
+          backdrop="blur"
+          isOpen={showDeleteModal}
+          onClose={() => setShowDeleteModal(false)}
+        >
+          <ModalContent className="md-4 pb-5">
+            <ModalHeader>Bist du dir sicher?</ModalHeader>
+            <ModalBody>
+              <p>
+                Möchtest du deinen Account löschen? Diese Aktion kann nicht
+                rückgängig gemacht werden.
+              </p>
+              <ul
+                style={{
+                  marginLeft: "20px",
+                  paddingLeft: "0",
+                  listStyleType: "disc",
+                }}
+              >
+                <li>Dein Profil wird gelöscht</li>
+              </ul>
+            </ModalBody>
+            <ModalFooter>
+              <Button color="default" onPress={() => setShowDeleteModal(false)}>
+                Abbrechen
+              </Button>
+              <Button
+                color="danger"
+                onPress={() => {
+                  setShowDeleteModal(false);
+                  setShowPasswordModal(true);
+                }}
+              >
+                Ja
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      </div>
+
+      <Modal
+        backdrop="blur"
+        isOpen={showPasswordModal}
+        onClose={() => {
+          setShowPasswordModal(false);
+          setConfirmPassword("");
+        }}
+      >
+        <ModalContent className="md-4 pb-5">
+          <ModalHeader>Passwort bestätigen</ModalHeader>
+          <ModalBody>
+            <p className="mb-2">Bitte gib dein Passwort zur Bestätigung ein:</p>
+            <Input
+              type="password"
+              placeholder="••••••••"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              color="default"
+              onPress={() => {
+                setShowPasswordModal(false);
+                setConfirmPassword("");
+              }}
+            >
+              Abbrechen
+            </Button>
+            <Button
+              color="primary"
+              onPress={async () => {
+                if (!confirmPassword) return;
+
+                await handleDeleteAccount(confirmPassword); 
+
+
+                setShowPasswordModal(false);
+                setConfirmPassword("");
+              }}
+            >
+              Bestätigen
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }

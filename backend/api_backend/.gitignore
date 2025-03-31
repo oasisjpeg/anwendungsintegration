@@ -13,6 +13,7 @@ obj/
 *.swp
 
 # ASP.NET Core & Entity Framework
+*.csproj
 appsettings.json
 appsettings.*.json
 secrets.json

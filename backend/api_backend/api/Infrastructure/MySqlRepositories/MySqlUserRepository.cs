@@ -88,7 +88,7 @@ public class MySqlUserRepository : IUserRepository
             return null; // Benutzer nicht gefunden
         }
 
-        if (!_userAuth.VerifyPassword(user.CurrentPasswordHash, userAuthDto.Password))
+        if (!_userAuth.VerifyPassword(user.PasswordHash, userAuthDto.Password))
         {
             return null; // Ungültiges Passwort
         }

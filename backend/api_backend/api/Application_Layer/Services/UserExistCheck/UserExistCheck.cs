@@ -13,7 +13,7 @@ namespace WebApplication1.Application_Layer.Services.UserExistCheck
         }
         public async Task<bool> UserExistsAsync(string email)
         {
-            var user = _userRepository.GetByEmailAsync(email);
+            var user = await _userRepository.GetByEmailAsync(email);
             return user != null;
         }
     }

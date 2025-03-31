@@ -17,7 +17,7 @@ public class ConsumptionRecordsController : ControllerBase
 
     // ✅ Get records by user ID
     [Authorize]
-    [HttpGet("{userId}")]
+    [HttpGet("{Id}")]
     public async Task<IActionResult> GetByIdAsync(string Id) // change to use Id from JWT token
     {
         var records = await _repository.GetByIdAsync(Id);

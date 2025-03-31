@@ -73,6 +73,7 @@ builder.Services.AddSwaggerGen();
 
 // Dependency Injection stuff --> registers dependencies
 builder.Services.AddScoped<IConsumptionRecordRepository, MySqlConsumptionRecordRepository>();
+builder.Services.AddScoped<IRecommendRecordRepository, MySqlRecommendRecord>();
 builder.Services.AddScoped<IUserRepository, MySqlUserRepository>();
 builder.Services.AddScoped<IUserAuth, UserAuth>();
 builder.Services.AddScoped<IUserExistCheck, UserExistCheck>();

@@ -13,7 +13,7 @@ public class ConsumptionRecordRepository : IConsumptionRecordRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<ConsumptionRecordModel>> GetByUserId(int userId)
+    public async Task<IEnumerable<ConsumptionRecordModel>> GetByIdAsync(string userId)
     {
         return await _context.Set<ConsumptionRecordModel>()
             .Where(r => r.Id == userId)

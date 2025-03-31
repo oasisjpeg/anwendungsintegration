@@ -15,7 +15,7 @@ public class MySqlConsumptionRecordRepository : IConsumptionRecordRepository
     
 
     // ✅ Add new consumption record
-    public async Task<IEnumerable<ConsumptionRecordModel>> GetByUserId(int userId)
+    public async Task<IEnumerable<ConsumptionRecordModel>> GetByIdAsync(string userId)
     {
         return await _dbContext.ConsumptionRecords
             .Where(r => r.Id == userId)

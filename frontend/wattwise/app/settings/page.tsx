@@ -169,14 +169,14 @@ export default function SettingsPage() {
             Änderungen speichern
           </Button>
         </form>
-        <div className="mt-4">
-          <Button onPress={handleLogout} color="danger" className="w-full">
+        <div className="mt-4 flex flex-row gap-x-4">
+          <Button onPress={handleLogout} color="warning" className="flex-1">
             Ausloggen
           </Button>
           <Button
             onPress={() => setShowDeleteModal(true)}
             color="danger"
-            className="w-full mt-4"
+            className="flex-1"
           >
             Account löschen
           </Button>
@@ -291,8 +291,7 @@ export default function SettingsPage() {
               onPress={async () => {
                 if (!confirmPassword) return;
 
-                await handleDeleteAccount(confirmPassword); 
-
+                await handleDeleteAccount(confirmPassword);
 
                 setShowPasswordModal(false);
                 setConfirmPassword("");

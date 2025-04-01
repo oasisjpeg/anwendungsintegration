@@ -11,6 +11,7 @@ namespace WebApplication1.Application_Layer.DTO
 
         [Required]
         [MaxLength(100)]
+        [MinLength(12)]
         public required string Password { get; set; }
     }
 }

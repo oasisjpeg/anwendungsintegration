@@ -18,10 +18,13 @@ export default function AuthPage() {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post("http://localhost:5137/api/users/login", {
-        email: email.trim(),
-        password,
-      });
+      const response = await axios.post(
+        "http://localhost:5137/api/users/login",
+        {
+          email: email.trim(),
+          password,
+        }
+      );
 
       console.log("Login successful", response.data);
 
@@ -36,16 +39,19 @@ export default function AuthPage() {
 
   const handleRegister = async () => {
     try {
-      const response = await axios.post("http://localhost:5137/api/users/register", {
-        name,
-        email: email.trim(),
-        password,
-      });
+      const response = await axios.post(
+        "http://localhost:5137/api/users/register",
+        {
+          name,
+          email: email.trim(),
+          password,
+        }
+      );
 
       console.log("Registration successful", response.data);
 
       setRegisterCompleted(true);
-      setIsLogin(true); 
+      setIsLogin(true);
     } catch (error: any) {
       console.error("Registration failed", error);
       alert(error.response?.data?.message || "Registrierung fehlgeschlagen.");
@@ -64,8 +70,13 @@ export default function AuthPage() {
       </h1>
 
       {registerCompleted && (
-        <div className="mb-4 rounded-lg border border-yellow-400 bg-yellow-100 px-4 py-3 text-yellow-800 dark:border-yellow-600 dark:bg-yellow-900 dark:text-yellow-100">
-          ⚠️ Bitte logge dich ein, um fortzufahren.
+        <div>
+          <div className="mb-4 rounded-lg border border-green-400 bg-green-100 px-4 py-3 text-green-800 dark:border-green-600 dark:bg-green-900 dark:text-green-100">
+            ✅ Registrierung erfolgreich.
+          </div>
+          <div className="mb-4 rounded-lg border border-yellow-400 bg-yellow-100 px-4 py-3 text-yellow-800 dark:border-yellow-600 dark:bg-yellow-900 dark:text-yellow-100">
+            ⚠️ Bitte logge dich ein, um fortzufahren.
+          </div>
         </div>
       )}
 
@@ -93,6 +104,7 @@ export default function AuthPage() {
           <Input
             isRequired
             label="Passwort"
+            minLength={12}
             type="password"
             placeholder="••••••••"
             value={password}

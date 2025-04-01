@@ -125,6 +125,7 @@ export default function Home() {
     fetchData();
     fetchRecommendations();
   }, []);
+  
   const mergeConsumptionWithRecommendations = (
     consumption,
     recommendations

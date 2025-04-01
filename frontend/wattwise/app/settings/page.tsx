@@ -58,9 +58,6 @@ export default function SettingsPage() {
       }
 
       if (password !== "" || email !== currentEmail) {
-        alert(
-          "Passwort oder E-Mail geändert. Sie werden zum Login weitergeleitet."
-        );
         setIsModalOpen(true);
         localStorage.removeItem("email");
         localStorage.removeItem("token");
@@ -131,6 +128,7 @@ export default function SettingsPage() {
       console.warn("No user data found in localStorage");
     }
   }, []);
+  
   return (
     <div className="max-w-md mx-auto p-6 pb-24">
       <div className="absolute top-4 right-4 z-50">

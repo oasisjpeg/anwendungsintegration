@@ -64,6 +64,14 @@ export default function Home() {
   }
 
   const fetchRecommendations = async () => {
+    const isLoggedIn = await checkAuth();
+
+    if (!isLoggedIn) {
+      console.warn("User is not logged in!");
+      setLoading(false);
+      return;
+    }
+    
     try {
       const response = await axios.get(
         "http://localhost:5137/api/recommend-records/me",
@@ -125,7 +133,7 @@ export default function Home() {
     fetchData();
     fetchRecommendations();
   }, []);
-  
+
   const mergeConsumptionWithRecommendations = (
     consumption,
     recommendations

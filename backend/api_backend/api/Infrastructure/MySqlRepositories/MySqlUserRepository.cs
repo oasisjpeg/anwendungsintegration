@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 using WebApplication1.Application_Layer.DTO;
 using WebApplication1.Application_Layer.Services.UserAuth;
 using WebApplication1.Domain.Models;
@@ -20,6 +21,10 @@ public class MySqlUserRepository : IUserRepository
 
     public async Task<UserModel?> GetByEmailAsync(string email)
     {
+        if (!new EmailAddressAttribute().IsValid(email))
+        {
+            return null; // Invalid email format
+        }
         return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
     }
 

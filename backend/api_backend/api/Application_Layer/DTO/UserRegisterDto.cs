@@ -11,6 +11,7 @@ namespace WebApplication1.Application_Layer.DTO
 
         [Required]
         [MaxLength(100)]
+        [RegularExpression(@"^[a-zA-Z\s]+$", ErrorMessage = "Name can only contain letters and spaces.")]
         public required string Name { get; set; }
 
         [Required]
@@ -21,6 +22,8 @@ namespace WebApplication1.Application_Layer.DTO
         [Required]
         [MinLength(12)]
         [MaxLength(100)]
+        [RegularExpression(@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]+$", 
+            ErrorMessage = "Password must contain at least one letter and one number.")]
         public required string Password { get; set; }
 
     }

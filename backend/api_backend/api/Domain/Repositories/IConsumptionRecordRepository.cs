@@ -1,4 +1,4 @@
-﻿using WebApplication1.Domain.Models;
+﻿using WebApplication1.Domain.Models.Consumption;
 
 namespace WebApplication1.Domain.Repositories;
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebApplication1.Domain.Models;
+using WebApplication1.Domain.Models.Consumption;
 using WebApplication1.Domain.Repositories;
 
 namespace WebApplication1.Infrastructure.MySqlRepositories
@@ -20,7 +20,7 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
 
             var record = await _context.RecommendRecords
                 .Where(r => r.UserId == UserId)
-                .OrderByDescending(r => r.Timestamp)
+                .OrderByDescending(r => r.Created)
                 .ToListAsync();
 
             return record;

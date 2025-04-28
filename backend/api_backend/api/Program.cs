@@ -6,7 +6,7 @@ using System.Text;
 using WebApplication1.Application_Layer.Services.UserAuth;
 using WebApplication1.Application_Layer.Services.UserExistCheck;
 using WebApplication1.Application_Layer.Websockets;
-using WebApplication1.Domain.Models;
+using WebApplication1.Domain.Models.User;
 using WebApplication1.Domain.Repositories;
 using WebApplication1.Infrastructure.MySqlRepositories;
 

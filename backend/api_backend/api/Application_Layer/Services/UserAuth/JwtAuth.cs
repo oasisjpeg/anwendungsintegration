@@ -3,7 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography.Xml;
 using System.Text;
-using WebApplication1.Domain.Models;
+using WebApplication1.Domain.Models.User;
 
 namespace WebApplication1.Application_Layer.Services.UserAuth
 {

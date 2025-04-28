@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace WebApplication1.Domain.Models
+namespace WebApplication1.Domain.Models.User
 {
     public class UserModel : IdentityUser
     {

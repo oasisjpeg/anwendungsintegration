@@ -2,7 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Application_Layer.DTO;
 using WebApplication1.Application_Layer.Services.UserAuth;
-using WebApplication1.Domain.Models;
+using WebApplication1.Domain.Models.Consumption;
+using WebApplication1.Domain.Models.User;
+using WebApplication1.Domain.Models.Article;
 using WebApplication1.Domain.Repositories;
 
 
@@ -85,7 +87,7 @@ public class MySqlUserRepository : IUserRepository
             {
                 RecommendId = Guid.NewGuid().ToString(),
                 UserId = userModel.Id,
-                Timestamp = baseDate.AddHours(i),
+                Created = baseDate.AddHours(i),
                 kWValue = kWValuesRecommended[i]
             });
         }

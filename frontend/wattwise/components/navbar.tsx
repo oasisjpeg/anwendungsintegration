@@ -4,6 +4,7 @@ import {
   DevicePhoneMobileIcon,
   GiftIcon,
   EllipsisHorizontalIcon,
+  BookOpenIcon
 } from "@heroicons/react/24/outline";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -25,9 +26,10 @@ const Navbar = () => {
           onClick={() => handleNavigate("/")}
         />
         <NavItem
-          icon={<DevicePhoneMobileIcon className="w-6 h-6" />}
-          label="Geräte"
-        //   onClick={() => handleNavigate("/geraete")}
+          icon={<BookOpenIcon className="w-6 h-6" />}
+          label="Wissen"
+          active={pathname === "/knowledge"}
+          onClick={() => handleNavigate("/knowledge")}
         />
         <NavItem
           icon={<GiftIcon className="w-6 h-6" />}

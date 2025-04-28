@@ -91,6 +91,7 @@ export default function Home() {
     async function fetchData() {
       setLoading(true);
       const isLoggedIn = await checkAuth();
+      console.log("User logged in:", isLoggedIn);
 
       if (!isLoggedIn) {
         console.warn("User is not logged in!");
@@ -196,7 +197,7 @@ export default function Home() {
             Ersparnis
           </h2>
           <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
-            69420 P
+            1234 P
           </p>
           {motivation && (
             <div className="mt-4 rounded-xl bg-indigo-50 dark:bg-indigo-900 px-4 py-3 text-indigo-800 dark:text-indigo-200 shadow-sm border border-indigo-200 dark:border-indigo-700">
@@ -293,7 +294,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-zinc-900 shadow-lg rounded-3xl p-6">
+        {/* <div className="bg-white dark:bg-zinc-900 shadow-lg rounded-3xl p-6">
           <h3 className="text-sm font-semibold mb-1 text-gray-800 dark:text-white">
             Punkte sammeln
           </h3>
@@ -317,7 +318,7 @@ export default function Home() {
               Zum Artikel
             </Button>
           </div>
-        </div>
+        </div> */}
       </section>
     </main>
   );

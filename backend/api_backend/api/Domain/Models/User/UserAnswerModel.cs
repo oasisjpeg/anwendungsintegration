@@ -11,7 +11,7 @@ namespace WebApplication1.Domain.Models.User
         public required int UserId { get; set; }
         public required int QuestionId { get; set; }
         // navigation props
-        public required UserModel User { get; set; }
+        public UserModel User { get; set; }
         public required QuestionModel Question { get; set; }
 
     }

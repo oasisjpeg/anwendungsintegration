@@ -6,9 +6,7 @@ namespace WebApplication1.Domain.Repositories
     public interface IArticleRepository
     {
         Task<List<ArticleModel>> GetArticleOverviewFromDB();
-        Task<ArticleModel> GetOneCompleteArticleFromDB(int ArticleId);
-        Task SubmitOneQuestionAnswerFromDB(QuizQuestionDto quizQuestionDto);
-        Task CalculatePointChange(string source, int pointSourceId);
-
+        Task<ArticleModel> GetOneCompleteArticleFromDB(int articleId);
+        Task SubmitOneQuestionAnswerFromDB(QuizQuestionDto quizQuestionDto, Guid userId);
     }
 }

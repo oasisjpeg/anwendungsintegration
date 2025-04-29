@@ -88,8 +88,17 @@ export default function ArticlePage() {
 
   return (
     <main className="min-h-screen bg-white dark:bg-black text-foreground">
-      <section className="max-w-2xl mx-auto px-4 py-12">
-        <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
+
+      <section className="max-w-2xl mx-auto px-4 py-12 relative">
+
+        <Button
+          className="bg-indigo-600 dark:bg-indigo-500 text-white font-semibold rounded-xl px-6 py-2 text-sm shadow-md mt-2 absolute top-4 left-4"
+          variant="flat"
+          onPress={() => window.history.back()}
+        >
+          Zurück
+        </Button>
+        <h1 className="text-3xl font-bold pt-6 mb-4">{article.title}</h1>
         <img
           src={article.url}
           alt={article.title}

@@ -50,14 +50,12 @@ public class MySqlUserRepository : IUserRepository
         await _context.SaveChangesAsync();
         
         var baseDate = DateTime.Parse("2025-03-13 00:00:00");
+    
+        // Generate duck curve consumption pattern
+        var (kWValuesConsumption, kWValuesRecommended) = GenerateDuckCurveData();
+
+        // Create consumption records
         var dummyConsumptionRecords = new List<ConsumptionRecordModel>();
-
-        var kWValuesConsumption = new double[]
-        {
-            0.5, 0.8, 0.4, 0.3, 0.2, 0.4, 0.6, 1.2, 2.1, 1.8, 1.5, 1.3,
-            2.5, 2.8, 3.2, 3.5, 3.0, 2.7, 2.4, 2.0, 1.8, 1.5, 1.0, 0.7
-        };
-
         for (int i = 0; i < 24; i++)
         {
             dummyConsumptionRecords.Add(new ConsumptionRecordModel
@@ -69,16 +67,8 @@ public class MySqlUserRepository : IUserRepository
             });
         }
 
-        _context.ConsumptionRecords.AddRange(dummyConsumptionRecords);
-        
+        // Create recommendation records (inverse pattern)
         var dummyRecommendedRecords = new List<RecommendRecordModel>();
-
-        var kWValuesRecommended = new double[]
-        {
-            0.3, 0.6, 0.3, 0.2, 0.1, 0.3, 0.4, 0.9, 1.6, 1.3, 1.1, 1.0,
-            1.8, 2.0, 2.4, 2.6, 2.2, 2.0, 1.7, 1.5, 1.2, 1.0, 0.7, 0.5
-        };
-
         for (int i = 0; i < 24; i++)
         {
             dummyRecommendedRecords.Add(new RecommendRecordModel()
@@ -90,6 +80,8 @@ public class MySqlUserRepository : IUserRepository
             });
         }
 
+
+        _context.ConsumptionRecords.AddRange(dummyConsumptionRecords);
         _context.RecommendRecords.AddRange(dummyRecommendedRecords);
 
         await _context.SaveChangesAsync(); // Save the dummy data
@@ -152,5 +144,41 @@ public class MySqlUserRepository : IUserRepository
 
         await _context.SaveChangesAsync();
         return user;
+    }
+    
+    private (double[] consumption, double[] recommended) GenerateDuckCurveData()
+    {
+        // Duck curve parameters (adjusted from search results)
+        var hours = Enumerable.Range(0, 24).Select(h => (double)h).ToArray();
+    
+        // Baseline load pattern
+        var baseline = hours.Select(h => 
+                1.2 + 0.8 * Math.Sin((h - 6) / 24 * 2 * Math.PI) // Morning/evening peaks
+        ).ToArray();
+
+        // Solar generation dip
+        var solarDip = hours.Select(h => 
+                1.5 * Math.Exp(-0.5 * Math.Pow((h - 13) / 2.5, 2)) // Peak at 13:00
+        ).ToArray();
+
+        // Net consumption (baseline + evening peak - solar generation)
+        var netConsumption = hours.Select((h, i) => 
+            baseline[i] + 0.5 * Math.Exp(-0.5 * Math.Pow((h - 19)/2, 2)) - solarDip[i]
+        ).ToArray();
+
+        // Normalize to match Excel data range (3-13 kWh daily total)
+        var minConsumption = netConsumption.Min();
+        var maxConsumption = netConsumption.Max();
+        var scaledConsumption = netConsumption.Select(c => 
+            0.2 + (c - minConsumption) * (1.8 - 0.2) / (maxConsumption - minConsumption)
+        ).ToArray();
+
+        // Create recommendation curve (encourage shifting to solar hours)
+        var maxRec = scaledConsumption.Max();
+        var recommended = scaledConsumption.Select(c => 
+            Math.Round(maxRec - c + 0.3, 1)
+        ).ToArray();
+
+        return (scaledConsumption, recommended);
     }
 }

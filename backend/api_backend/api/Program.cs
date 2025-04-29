@@ -20,7 +20,8 @@ builder.Services.AddCors(options =>
         {
             policy.WithOrigins("http://localhost:3000")
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .AllowCredentials();
         });
 });
 
@@ -97,8 +98,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseWebSockets();
-app.UseMiddleware<MotivationWebSocketHandler>();
+
 
 
 app.UseHttpsRedirection();
@@ -106,7 +106,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
-
+app.UseWebSockets();
+app.UseMiddleware<RewardPointsWebSocketHandler>();
 
 app.MapControllers();
 

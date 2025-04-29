@@ -25,16 +25,18 @@ export default function Home() {
 
   const router = useRouter();
 
-  const [motivation, setMotivation] = useState("");
+  const [rewardPoints, setRewardPoints] = useState(0);
 
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:5137/ws/motivation");
+    const token = localStorage.getItem('token');
+    const socket = new WebSocket(`ws://localhost:5137/ws/rewardpoints?access_token=${token}`);
 
     socket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        if (data.motivation) {
-          setMotivation(data.motivation);
+        console.log("WebSocket message received:", data.points);
+        if (data.points) {
+          setRewardPoints(data.points);
         }
       } catch (err) {
         console.error("Invalid WebSocket message:", err);
@@ -71,7 +73,7 @@ export default function Home() {
       setLoading(false);
       return;
     }
-    
+
     try {
       const response = await axios.get(
         "http://localhost:5137/api/recommend-records/me",
@@ -163,7 +165,7 @@ export default function Home() {
       merged.sort(
         (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
       );
-      
+
       setMergedData(merged);
     }
   }, [data.records, recommendations]);
@@ -196,13 +198,11 @@ export default function Home() {
           <h2 className="text-sm text-gray-500 dark:text-gray-400">
             Ersparnis
           </h2>
-          <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
-            1234 P
-          </p>
-          {motivation && (
-            <div className="mt-4 rounded-xl bg-indigo-50 dark:bg-indigo-900 px-4 py-3 text-indigo-800 dark:text-indigo-200 shadow-sm border border-indigo-200 dark:border-indigo-700">
-              🧠 Motivation: <span className="font-medium">{motivation}</span>
-            </div>
+
+          {rewardPoints && (
+            <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
+              {rewardPoints} Punkte
+            </p>
           )}
         </div>
 

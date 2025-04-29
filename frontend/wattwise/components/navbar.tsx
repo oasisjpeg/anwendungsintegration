@@ -2,7 +2,7 @@
 import {
   HomeIcon,
   DevicePhoneMobileIcon,
-  GiftIcon,
+  ClockIcon,
   EllipsisHorizontalIcon,
   BookOpenIcon
 } from "@heroicons/react/24/outline";
@@ -32,9 +32,10 @@ const Navbar = () => {
           onClick={() => handleNavigate("/knowledge")}
         />
         <NavItem
-          icon={<GiftIcon className="w-6 h-6" />}
-          label="Gutscheine"
-        //   onClick={() => handleNavigate("/gutscheine")}
+          icon={<ClockIcon className="w-6 h-6" />}
+          label="Historie"
+          active={pathname === "/history"}
+          onClick={() => handleNavigate("/history")}
         />
         <NavItem
           icon={<EllipsisHorizontalIcon className="w-6 h-6" />}

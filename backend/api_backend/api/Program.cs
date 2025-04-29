@@ -82,7 +82,9 @@ builder.Services.AddScoped<IRecommendRecordRepository, MySqlRecommendRecord>();
 builder.Services.AddScoped<IUserRepository, MySqlUserRepository>();
 builder.Services.AddScoped<IUserAuth, UserAuth>();
 builder.Services.AddScoped<IUserExistCheck, UserExistCheck>();
+builder.Services.AddScoped<ITransactionRepository, MySqlTransactionRepository>();
 builder.Services.AddScoped<IArticleRepository, MySqlArticleRepository>();
+
 
 
 var app = builder.Build();

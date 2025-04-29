@@ -134,4 +134,12 @@ public class UserController : ControllerBase
         return Ok(existingUser);
     }
 
+    [Authorize]
+    [HttpGet("transactions")]
+    public async Task<IActionResult> GetTransactions()
+    {
+        // read userId from JWT claims --> use UserId to retrieve
+        // retrieve last 10 transactions of this user (up to 10... --> handle cases with less than 10 transactions)
+        return Ok();
+    }
 }

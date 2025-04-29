@@ -5,7 +5,7 @@ namespace WebApplication1.Application_Layer.Services.Article
 {
     public interface IArticleServices
     {
-        Task<int> CreateTransaction(); // return point amount
+        Task<int> CreateTransaction(Enum sourceType, int sourceId, string userId); // return point amount
         Task<List<ArticleModel>> GetArticlesOverview();
         Task<ArticleModel> GetOneCompleteArticleById(int id);
         Task<bool> SubmitOneQuestionAnswer(QuizQuestionDto quizQuestionDto, Guid userId);

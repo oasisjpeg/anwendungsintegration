@@ -1,4 +1,4 @@
-﻿using WebApplication1.Application_Layer.DTO;
+﻿using WebApplication1.Application_Layer.DTO.User;
 using WebApplication1.Domain.Models.User;
 
 namespace WebApplication1.Domain.Repositories;

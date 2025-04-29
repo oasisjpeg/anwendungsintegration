@@ -18,5 +18,5 @@ public class ConsumptionRecordModel
 
     public required double kWValue { get; set; }
 
-    public required virtual UserModel Users { get; set; }
+    public virtual UserModel Users { get; set; }
 }

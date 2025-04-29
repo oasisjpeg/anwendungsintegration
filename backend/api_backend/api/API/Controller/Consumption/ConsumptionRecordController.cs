@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Domain.Repositories;
 
-namespace WebApplication1.API.Controller;
+namespace WebApplication1.API.Controller.Consumption;
 
 [ApiController]
 [Route("api/consumption-records")]
@@ -33,7 +33,7 @@ public class ConsumptionRecordsController : ControllerBase
         Console.Out.WriteLine(records);
         return Ok(records);
     }
-    
+
     [HttpGet("test")]
     public IActionResult Test() => Ok("It works!");
 

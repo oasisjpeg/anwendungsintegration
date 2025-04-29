@@ -21,6 +21,6 @@ namespace WebApplication1.Domain.Models.User
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
+        public required int Points { get; set; } = 0;
     }
 }

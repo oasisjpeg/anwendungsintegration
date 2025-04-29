@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using WebApplication1.Domain.Repositories;
 
-namespace WebApplication1.Application_Layer.DTO
+namespace WebApplication1.Application_Layer.DTO.User
 {
     public class UserRegisterDto
     {
@@ -22,7 +22,7 @@ namespace WebApplication1.Application_Layer.DTO
         [Required]
         [MinLength(12)]
         [MaxLength(100)]
-        [RegularExpression(@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]+$", 
+        [RegularExpression(@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]+$",
             ErrorMessage = "Password must contain at least one letter and one number.")]
         public required string Password { get; set; }
 

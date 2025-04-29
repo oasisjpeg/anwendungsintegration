@@ -1,11 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
-using WebApplication1.Application_Layer.DTO;
 using WebApplication1.Application_Layer.Services.UserAuth;
 using WebApplication1.Domain.Models.Consumption;
 using WebApplication1.Domain.Models.User;
 using WebApplication1.Domain.Models.Article;
 using WebApplication1.Domain.Repositories;
+using WebApplication1.Application_Layer.DTO.User;
 
 
 namespace WebApplication1.Infrastructure.MySqlRepositories;
@@ -44,7 +44,8 @@ public class MySqlUserRepository : IUserRepository
             Email = userRegisterDto.Email,
             PasswordHash = userRegisterDto.Password,
             CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
+            UpdatedAt = DateTime.UtcNow,
+            Points = 0
         };
 
         _context.Users.Add(userModel);

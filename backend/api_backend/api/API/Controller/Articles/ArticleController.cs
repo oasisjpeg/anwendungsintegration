@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Application_Layer.DTO.Quiz;
 
 namespace WebApplication1.API.Controller.Articles
@@ -21,9 +22,11 @@ namespace WebApplication1.API.Controller.Articles
             return null;
         }
 
+        [Authorize]
         [HttpPost("{id}/quiz/submissions")]
         public async Task<IActionResult> SubmitOneQuestionAnswer(QuizQuestionDto quizQuestionDto)
         {
+            // read userId from token claims
             // save one question answer to database 
             // return 202 if not last question --> check if last question in quiz for each answer submission
             // return 200 if last question, to inform front end that quiz is now finished, aka the next question is the last question

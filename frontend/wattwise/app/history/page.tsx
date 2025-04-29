@@ -17,28 +17,54 @@ const testTransactions: Transaction[] = [
   {
     Transaction_ID: 1,
     Date: "2025-04-29T13:45:00Z",
-    Points_Gained: 10,
-    Point_Source: "QUIZ",
+    Points_Gained: 20,
+    Point_Source: "quiz taken",
     Point_Ressource: "Duck Curve Quiz",
     User_ID: 1,
   },
   {
     Transaction_ID: 2,
     Date: "2025-04-28T09:30:00Z",
-    Points_Gained: -1,
-    Point_Source: "QUIZ_NOT_COMPLETED",
-    Point_Ressource: "Solar Basics Quiz",
+    Points_Gained: 10,
+    Point_Source: "article read",
+    Point_Ressource: "Solar Basics Article",
     User_ID: 1,
   },
   {
     Transaction_ID: 3,
     Date: "2025-04-27T17:00:00Z",
-    Points_Gained: 0,
-    Point_Source: "INFO",
-    Point_Ressource: "System Info",
+    Points_Gained: -100,
+    Point_Source: "amazon coupon activated",
+    Point_Ressource: "Amazon 10€ Coupon",
+    User_ID: 1,
+  },
+  {
+    Transaction_ID: 4,
+    Date: "2025-04-26T15:20:00Z",
+    Points_Gained: 20,
+    Point_Source: "quiz taken",
+    Point_Ressource: "Wind Power Quiz",
+    User_ID: 1,
+  },
+  {
+    Transaction_ID: 5,
+    Date: "2025-04-25T11:00:00Z",
+    Points_Gained: 10,
+    Point_Source: "article read",
+    Point_Ressource: "Battery Storage Article",
+    User_ID: 1,
+  },
+  {
+    Transaction_ID: 6,
+    Date: "2025-04-24T19:55:00Z",
+    Points_Gained: -100,
+    Point_Source: "amazon coupon activated",
+    Point_Ressource: "Amazon 25€ Coupon",
     User_ID: 1,
   },
 ];
+
+
 
 //Hilfsfunktionen mit Typen
 function getPointsColor(points: number): string {

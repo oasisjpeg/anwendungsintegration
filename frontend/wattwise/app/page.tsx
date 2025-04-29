@@ -91,40 +91,38 @@ export default function Home() {
     async function fetchData() {
       setLoading(true);
       const isLoggedIn = await checkAuth();
-      console.log("User logged in:", isLoggedIn);
 
       if (!isLoggedIn) {
-        console.warn("User is not logged in!");
         setLoading(false);
         return;
       }
 
       try {
-        const response = await axios.get(
-          "http://localhost:5137/api/consumption-records/me",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
+        const [consumptionRes, recommendationsRes] = await Promise.all([
+          axios.get("http://localhost:5137/api/consumption-records/me", {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          }),
+          axios.get("http://localhost:5137/api/recommend-records/me", {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          }),
+        ]);
+
+        const merged = mergeData(
+          consumptionRes.data,
+          recommendationsRes.data
         );
 
-        const result = response.data;
-        const now = new Date();
-        const currentHour = now.getHours();
-        const filteredData = result.filter(
-          (record) => new Date(record.timestamp).getHours() <= currentHour
-        );
-
-        const totalKwh = filteredData.reduce(
-          (sum, record) => sum + record.kWValue,
+        const totalKwh = consumptionRes.data.reduce(
+          (sum, record) => sum + Number(record.kWValue),
           0
         );
 
         setData({
-          records: filteredData,
+          records: consumptionRes.data,
           total: totalKwh,
-        });
+        });   
+        setRecommendations(recommendationsRes.data);
+        setMergedData(merged);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -132,41 +130,53 @@ export default function Home() {
     }
 
     fetchData();
-    fetchRecommendations();
   }, []);
 
-  const mergeConsumptionWithRecommendations = (
-    consumption,
-    recommendations
-  ) => {
-    return consumption.map((record) => {
-      const recordHour = new Date(record.timestamp).toISOString().slice(0, 13); // "2025-03-13T14"
+  const generate24HourTimeline = () => {
+    const timeline = [];
+    const now = new Date();
+    const currentHour = now.getHours();
 
-      const matchingRecommendation = recommendations.find((r) => {
-        const recHour = new Date(r.timestamp).toISOString().slice(0, 13);
-        return recHour === recordHour;
-      });
+    // Generate 24-hour timeline with current hour centered
+    for (let i = -11; i <= 12; i++) {
+      const hour = new Date(now);
+      hour.setHours(currentHour + i);
+      hour.setMinutes(0, 0, 0);
+      timeline.push(hour.toISOString());
+    }
+
+    return timeline;
+  };
+
+  const mergeData = (consumption, recommendations) => {
+    const timeline = generate24HourTimeline();
+    const now = new Date();
+
+    return timeline.map((timestamp) => {
+      const hour = new Date(timestamp).getHours();
+      const isFuture = new Date(timestamp) > now;
+
+      const consumptionRecord = consumption.find(
+        (r) => new Date(r.timestamp).getHours() === hour
+      );
+
+      const recommendation = recommendations.find(
+        (r) => new Date(r.timestamp).getHours() === hour
+      );
 
       return {
-        ...record,
-        recommended: matchingRecommendation?.kWValue ?? null,
+        timestamp,
+        kWValue: consumptionRecord && !isFuture
+          ? Number(consumptionRecord.kWValue).toFixed(2)
+          : null,
+        recommended: recommendation
+          ? Number(recommendation.kWValue).toFixed(2)
+          : null,
       };
     });
   };
 
-  useEffect(() => {
-    if (data.records.length && recommendations.length) {
-      const merged = mergeConsumptionWithRecommendations(
-        data.records,
-        recommendations
-      );
-      merged.sort(
-        (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-      );
 
-      setMergedData(merged);
-    }
-  }, [data.records, recommendations]);
 
   if (!loggedIn) {
     return (
@@ -227,11 +237,7 @@ export default function Home() {
                   data={mergedData}
                   margin={{ top: 15, right: 20, left: -15, bottom: 5 }}
                 >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    vertical={false}
-                    stroke="#e2e8f0"
-                  />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                   <XAxis
                     dataKey="timestamp"
                     tickFormatter={(time) =>
@@ -250,10 +256,10 @@ export default function Home() {
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "var(--tooltip-bg, #ffffff)", // fallback white
-                      border: "1px solid #e5e7eb", // light border
+                      backgroundColor: "var(--tooltip-bg, #ffffff)",
+                      border: "1px solid #e5e7eb",
                       borderRadius: "0.5rem",
-                      color: "var(--tooltip-text, #111827)", // fallback dark text
+                      color: "var(--tooltip-text, #111827)",
                     }}
                     labelStyle={{ color: "inherit" }}
                     labelFormatter={(label) =>
@@ -263,15 +269,14 @@ export default function Home() {
                       })
                     }
                   />
-
                   <Line
                     type="monotone"
                     dataKey="kWValue"
                     stroke="#6366F1"
                     strokeWidth={3}
                     dot={{ r: 4 }}
+                    connectNulls
                   />
-
                   <Line
                     type="monotone"
                     dataKey="recommended"

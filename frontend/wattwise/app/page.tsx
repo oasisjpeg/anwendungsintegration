@@ -35,9 +35,7 @@ export default function Home() {
       try {
         const data = JSON.parse(event.data);
         console.log("WebSocket message received:", data.points);
-        if (data.points) {
-          setRewardPoints(data.points);
-        }
+        setRewardPoints(data.points);
       } catch (err) {
         console.error("Invalid WebSocket message:", err);
       }
@@ -199,11 +197,9 @@ export default function Home() {
             Ersparnis
           </h2>
 
-          {rewardPoints && (
-            <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
-              {rewardPoints} Punkte
-            </p>
-          )}
+          <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
+            {rewardPoints} Punkte
+          </p>
         </div>
 
         <div className="bg-white dark:bg-zinc-900 shadow-lg rounded-3xl p-6 mb-6">

@@ -33,7 +33,7 @@ const Navbar = () => {
         />
         <NavItem
           icon={<ClockIcon className="w-6 h-6" />}
-          label="Historie"
+          label="Transaktionen"
           active={pathname === "/history"}
           onClick={() => handleNavigate("/history")}
         />

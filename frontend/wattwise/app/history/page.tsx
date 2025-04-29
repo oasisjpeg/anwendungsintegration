@@ -58,7 +58,7 @@ function getPointsPrefix(points: number): string {
 }
 
 async function fetchTransactions(): Promise<Transaction[]> {
-  const res = await fetch("/api/transactions");
+  const res = await fetch("/api/user/transaction");
   if (!res.ok) throw new Error("Fehler beim Laden der Daten");
   return res.json();
 }

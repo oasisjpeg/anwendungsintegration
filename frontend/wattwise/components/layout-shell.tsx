@@ -9,7 +9,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="relative flex flex-col h-screen">
-      <main className="container bg-stone-100 dark:bg-black mx-auto max-w-7xl pt-8 px-6 flex-grow">
+      <main className="container dark:bg-black mx-auto max-w-7xl pt-8 px-6 flex-grow">
         {children}
       </main>
       {!hideNavbar && <Navbar />}

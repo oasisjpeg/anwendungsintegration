@@ -3,12 +3,12 @@ using WebApplication1.Domain.Models.User;
 
 namespace WebApplication1.Domain.Repositories;
 
-public interface IUserRepository
+public interface IUserServices
 {
     Task<UserModel?> GetByEmailAsync(string email);
-    Task<UserModel?> GetByIdAsync(Guid Id);
+    Task<UserModel?> GetByIdAsync(string Id);
+    // TODO: change to use Model objects instead of DTOs
     Task<UserModel> RegisterAsync(UserRegisterDto userRegisterDto);
     Task<UserModel> DeleteAsync(UserAuthDto userAuthDto);
-    Task<UserModel> PatchAsync(Guid userId, UserPatchDto dto);
-    Task<List<RewardTransactionModel>> GetRecentTransactionsAsync(Guid userId, int count);
+    Task<UserModel> PatchAsync(UserPatchDto userPatchDto);
 }

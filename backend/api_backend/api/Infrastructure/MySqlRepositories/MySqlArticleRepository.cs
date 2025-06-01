@@ -20,8 +20,10 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
 
         public async Task<ArticleModel> GetOneCompleteArticleFromDB(int articleId)
         {
-            return await _dbContext.Articles
-                .FirstOrDefaultAsync(a => a.ArticleId == articleId);
+            var article = await _dbContext.Articles.FirstOrDefaultAsync(a => a.ArticleId == articleId);
+            if (article == null)
+                throw new KeyNotFoundException($"Article with ID {articleId} not found.");
+            return article;
         }
 
         public async Task SubmitOneQuestionAnswerFromDB(QuizQuestionDto quizQuestionDto, Guid userId)
@@ -49,7 +51,7 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             await _dbContext.SaveChangesAsync();
         }
         
-        public async Task<bool> IsLastQuestionInQuiz(int quizId, int questionId)
+        public async Task<bool> IsLastQuestionInQuiz(int quizId, int questionId) 
         {
             var quizQuestions = await _dbContext.Question
                 .Where(q => q.QuizId == quizId)
@@ -57,7 +59,7 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
                 .ToListAsync();
             
             return quizQuestions.Count > 0 && 
-                   quizQuestions.IndexOf(quizQuestions.FirstOrDefault(q => q.QuestionId == questionId)) == 3;
+                   quizQuestions.IndexOf(quizQuestions.FirstOrDefault(q => q.QuestionId == questionId)) == 3; // TODO: handle possible null reference
         }
     }
 }

@@ -30,7 +30,7 @@ public class MySqlUserRepository : IUserRepository
         return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
     }
 
-    public async Task<UserModel?> GetByIdAsync(string Id)
+    public async Task<UserModel?> GetByIdAsync(Guid Id)
     {
         return await _context.Users.FirstOrDefaultAsync(u => u.Id == Id);
     }
@@ -39,7 +39,7 @@ public class MySqlUserRepository : IUserRepository
     {
         var userModel = new UserModel
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = Guid.NewGuid(),
             Name = userRegisterDto.Name,
             Email = userRegisterDto.Email,
             PasswordHash = userRegisterDto.Password,
@@ -109,7 +109,7 @@ public class MySqlUserRepository : IUserRepository
         return (user);
     }
 
-    public async Task<UserModel> PatchAsync(string userId, UserPatchDto userPatchDto)
+    public async Task<UserModel> PatchAsync(Guid userId, UserPatchDto userPatchDto)
     {
         var user = await _context.Users.FindAsync(userId);
 
@@ -155,5 +155,14 @@ public class MySqlUserRepository : IUserRepository
 
         await _context.SaveChangesAsync();
         return user;
+    }
+
+    public async Task<List<RewardTransactionModel>> GetRecentTransactionsAsync(Guid userId, int count)
+    {
+        return await _context.RewardTransactions
+            .Where(t => t.UserId == userId)
+            .OrderByDescending(t => t.Created) 
+            .Take(count)
+            .ToListAsync();
     }
 }

@@ -18,5 +18,14 @@ namespace WebApplication1.Application_Layer.Services.UserAuth
             return _passwordHasher.VerifyHashedPassword(null, hashedPassword, password) 
                 == PasswordVerificationResult.Success;
         }
+
+        public Guid GetUserIdGuidFromClaims(string userIdString)
+        {
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userIdGuid))
+            {
+                throw new UnauthorizedAccessException("Invalid or missing user ID");
+            }
+            return userIdGuid;
+        }
     }
 }

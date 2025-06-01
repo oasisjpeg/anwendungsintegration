@@ -96,16 +96,18 @@ public class UserController : ControllerBase
     [HttpPatch("update")]
     public async Task<IActionResult> Update([FromBody] UserPatchDto userPatchDto)
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (string.IsNullOrEmpty(userId))
+        if (string.IsNullOrEmpty(userIdString))
             return Unauthorized("Invalid token.");
 
-        var existingUser = await _userRepository.GetByIdAsync(userId);
+        var userIdGuid = _userAuth.GetUserIdGuidFromClaims(userIdString);
+
+        var existingUser = await _userRepository.GetByIdAsync(userIdGuid);
         if (existingUser == null)
             return NotFound("User not found.");
 
-        await _userRepository.PatchAsync(userId, userPatchDto);
+        await _userRepository.PatchAsync(userIdGuid, userPatchDto);
 
         return Ok(new { message = "Your account has been updated.", user = existingUser });
     }
@@ -115,9 +117,9 @@ public class UserController : ControllerBase
 
     [Authorize]
     [HttpGet("information")]
-    public async Task<IActionResult> GetInformationFromUser(UserAuthDto userAuthDto)
+    public async Task<IActionResult> GetInformationOfUser(UserAuthDto userAuthDto)
     {
-        var email = User.FindFirst(ClaimTypes.Email)?.Value;
+        var email = User.FindFirst(ClaimTypes.Email)?.Value; // Adjust to use primary key instead of email
 
         if (!await _userExistCheck.UserExistsAsync(userAuthDto.Email))
         {
@@ -126,6 +128,7 @@ public class UserController : ControllerBase
 
         var existingUser = await _userRepository.GetByEmailAsync(userAuthDto.Email);
         // User Auth
+        // TODO: deal with null PasswordHash
         if (!_userAuth.VerifyPassword(existingUser.PasswordHash, userAuthDto.Password))
         {
             return Unauthorized("Invalid email or password.");
@@ -135,11 +138,39 @@ public class UserController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("transactions")]
-    public async Task<IActionResult> GetTransactions()
+    [HttpGet("transactions/{quantity}")]
+    // !!! quantity is optional !!!
+    // NOTE: quantity == amount of transactions to get --> 10 is default
+    public async Task<IActionResult> GetRecentTransactionsOfUser(int? quantity)
     {
         // read userId from JWT claims --> use UserId to retrieve
-        // retrieve last 10 transactions of this user (up to 10... --> handle cases with less than 10 transactions)
-        return Ok();
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userIdString))
+            return Unauthorized("Invalid token.");
+
+        var userIdGuid = _userAuth.GetUserIdGuidFromClaims(userIdString);
+
+        var existingUser = await _userRepository.GetByIdAsync(userIdGuid);
+        if (existingUser == null)
+            return NotFound("User not found.");
+
+        if (quantity > 100) // prevent getting ridiculous amount of transactions 
+        {
+            quantity = 100;
+        }
+        if (quantity == null) // set default to 10 if no number specified
+        {
+            quantity = 10;
+        }
+
+        var transactionList = await _userRepository.GetRecentTransactionsAsync(userIdGuid, (int)quantity);
+        
+        if (transactionList.Count == 0)
+        {
+            return NotFound("No transactions found for this user.");
+        }
+
+        return Ok(transactionList);
     }
 }

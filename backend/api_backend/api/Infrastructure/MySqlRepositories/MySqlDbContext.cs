@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Domain.Models.Article;
 using WebApplication1.Domain.Models.Consumption;
@@ -6,7 +7,7 @@ using WebApplication1.Domain.Models.User;
 
 namespace WebApplication1.Infrastructure.MySqlRepositories;
 
-public class MySqlDbContext: IdentityDbContext<UserModel>
+public class MySqlDbContext : IdentityDbContext<UserModel, IdentityRole<Guid>, Guid> // --> IdentityDbContext<TUser, TRole, TKey> --> or see IdentityDbContext class for specifics and stuff
 {
     public DbSet<ConsumptionRecordModel> ConsumptionRecords { get; set; }
     public DbSet<RecommendRecordModel> RecommendRecords { get; set; }
@@ -45,10 +46,12 @@ public class MySqlDbContext: IdentityDbContext<UserModel>
             .WithMany()
             .HasForeignKey(r => r.ArticleId);
 
-        builder.Entity<RewardTransactionModel>()
-            .HasOne(r => r.User)
-            .WithMany()
-            .HasForeignKey(r => r.UserId);
+        //builder.Entity<RewardTransactionModel>()
+        //    .HasOne(r => r.User)
+        //    .WithMany()
+        //    .HasForeignKey(r => r.UserId);
+        // NOTE: above section not usable anymore, bc nav prop was removed --> see RewardTransactionModel        
+        // Ef should still be able to handle the FK relationship though
 
         builder.Entity<UserAnswerModel>()
             .HasOne(r => r.User)

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace WebApplication1.Domain.Models.User
 {
-    public class UserModel : IdentityUser
+    public class UserModel : IdentityUser<Guid> // <-- Guid must be specified, otherwise string is default
     {
 
         // removed Id because it is included in IdentityUser

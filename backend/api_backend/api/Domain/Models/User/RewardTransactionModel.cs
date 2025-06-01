@@ -11,6 +11,6 @@
         // fk
         public required Guid UserId { get; set; }
         // navigation prop
-        public required UserModel User { get; set; }
+        // public required UserModel User { get; set; } --> removed because of initialization issues when creating new RewardTransactionModel instances
     }
 }

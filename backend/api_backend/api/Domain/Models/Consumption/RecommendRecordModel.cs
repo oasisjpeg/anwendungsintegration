@@ -13,7 +13,7 @@ namespace WebApplication1.Domain.Models.Consumption
 
         // useless? --> [ForeignKey("Users")]
         // fk
-        public required string UserId { get; set; }
+        public required Guid UserId { get; set; }
 
         public required DateTime Created { get; set; }
 

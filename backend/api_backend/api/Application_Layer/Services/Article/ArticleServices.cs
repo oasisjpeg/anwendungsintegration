@@ -1,57 +1,82 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System;
 using System.Transactions;
+using WebApplication1.Application_Layer.DTO.Article;
 using WebApplication1.Application_Layer.DTO.Quiz;
 using WebApplication1.Domain.Models.Article;
 using WebApplication1.Domain.Models.User;
 using WebApplication1.Domain.Repositories;
+using WebApplication1.Infrastructure.MySqlRepositories;
 
 namespace WebApplication1.Application_Layer.Services.Article
 {
     public class ArticleServices : IArticleServices
     {
         private IUserRepository _userRepository;
+        private MySqlDbContext _dbContext; // TODO: should not be needed --> reference domain layer (MySqlArticleRepository)
+        private MySqlArticleRepository _articleRepository;
 
-        public ArticleServices(IUserRepository userRepository)
+        public ArticleServices(IUserRepository userRepository, MySqlDbContext dbContext, MySqlArticleRepository articleRepository)
         {
             _userRepository = userRepository;
+            _dbContext = dbContext;
+            _articleRepository = articleRepository;
         }
 
-        public Task<int> CreateTransaction(Enum sourceType, int sourceId, string userId)
+        public async Task<int> CreateTransaction(Enum sourceType, int sourceId, Guid userId) // TODO: move to TransactionServices ? or at least part of it...
         {
-            var userModel = _userRepository.GetByIdAsync(userId);
+            var userModel = await _userRepository.GetByIdAsync(userId);
 
-            if(userModel== null)
+            if (userModel == null)
             {
-                return null;
+                return 0;
             }
 
-            var newTransaction = new RewardTransactionModel
+            var newTransaction = new RewardTransactionModel // TODO: move to domain layer?
             {
                 TransactionId = 0,
                 Created = DateTime.Now,
-                PointsGained = 0, // <-- Calculate Points
+                PointsGained = 0, // <-- TODO: ADD some sort of way to Calculate Points
                 PointSourceType = sourceType,
                 PointSourceId = sourceId,
-                UserId = userId, // implicit conversion not possible --> change GUID to STRING
-                User = userModel // implicit conversion not possible --> check out userModel 
+                UserId = userId, 
             };
             int pointsGained = newTransaction.PointsGained;
             return pointsGained;
         }
 
-        public Task<List<ArticleModel>> GetArticlesOverview()
+        public async Task<List<ArticleOverviewDto>> GetArticlesOverview()
         {
-            throw new NotImplementedException();
+            // get overview of articles --> only return list of all articles with Title, Description and URL (for imgs), not entire article content
+            return await _dbContext.Articles
+            .Select(a => new ArticleOverviewDto
+            {
+                Title = a.Title,
+                Description = a.Description,
+                Url = a.Url
+            })
+            .ToListAsync();
         }
 
-        public Task<ArticleModel> GetOneCompleteArticleById(int id)
+        public async Task<ArticleModel> GetOneCompleteArticleById(int articleId)
         {
-            throw new NotImplementedException();
+            // get one complete article by ID, return entire article object
+            var fullArticle = await _articleRepository.GetOneCompleteArticleFromDB(articleId);
+            return fullArticle;
         }
 
-        public Task<bool> SubmitOneQuestionAnswer(QuizQuestionDto quizQuestionDto, Guid userId)
+        public async Task<bool> SubmitOneQuestionAnswer(QuizQuestionDto quizQuestionDto, Guid userId)
         {
-            throw new NotImplementedException();
+            // submit one question answer to database, for a specific user
+            var lastQuestionCheck = await _articleRepository.IsLastQuestionInQuiz(quizQuestionDto.QuizId, quizQuestionDto.QuestionId
+            if (!lastQuestionCheck)
+            {
+                await _articleRepository.SubmitOneQuestionAnswerFromDB(quizQuestionDto, userId);
+                return false;
+            }
+            await _articleRepository.SubmitOneQuestionAnswerFromDB(quizQuestionDto, userId);
+            return true;
         }
     }
 }

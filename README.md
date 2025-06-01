@@ -19,6 +19,7 @@ ADDITIONS:
 	- Added "GetRecentTransactionsAsync" Method 
 		--> slight adjustment to accept an optional integer for the quantity of transactions to retrieve; NOTE: 10 is the default, as we discussed
 	- Added "GetUserIdGuidFromClaims" Method to the IUserAuth and UserAuth classes to prevent code redundancies
+ - ArticleController
 	- Added "GetOneCompleteArticle" Method and necessary logic in all layers
 	- Added SubmitOneQuestionAnswer Controller logic
 		--> read UserID claim from Token and validate

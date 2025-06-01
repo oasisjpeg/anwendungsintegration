@@ -1,4 +1,39 @@
-Change Summary & Considerations:
+Status-Quo (latest) Change Log:
+
+FIXES:
+
+- Modified UserModel IdentityUser to use type Guid instead of string for the primary key; Reconciliation was necessary for the following points:
+	- Modified JwtAuth to deal with Guid type instead of expected string --> still returns string type though
+	- Modified UserController Update method to handle string and parse to Guid
+	- Modified IArticleServices, IUserRepository, ConsumptionRecordController, RecommendRecordController, MySqlUserRepository, MySqlDbContext to handle Guid (instead of string)
+	- Modified ArticleServices to handle Guid
+	  --> had to fix RewardTransactionModel for this as well by removing the navigation property
+	- Modified QuizQuestionDto to include QuizId 
+		--> Important for frontend!
+	
+
+
+ADDITIONS:
+
+- UserController
+	- Added "GetRecentTransactionsAsync" Method 
+		--> slight adjustment to accept an optional integer for the quantity of transactions to retrieve; NOTE: 10 is the default, as we discussed
+	- Added "GetUserIdGuidFromClaims" Method to the IUserAuth and UserAuth classes to prevent code redundancies
+	- Added "GetOneCompleteArticle" Method and necessary logic in all layers
+	- Added SubmitOneQuestionAnswer Controller logic
+		--> read UserID claim from Token and validate
+		--> call application layer logic (ArticleServices)
+	- Added ArticleServices logic to handle MySqlArticleRepository "SubmitOneQuestionAnswer" method call
+
+
+GENERAL:
+
+- Added Several "TODO" comments for individual items that should still be changed
+
+
+
+
+OLD Change Summary & Considerations:
 
 DELETE:
 

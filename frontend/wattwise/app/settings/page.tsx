@@ -15,6 +15,7 @@ import {
 } from "@heroui/modal";
 import axios from "axios";
 
+
 export default function SettingsPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

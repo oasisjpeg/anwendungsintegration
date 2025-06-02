@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebApplication1.Application_Layer.Services.UserAuth;
 using WebApplication1.Domain.Repositories;
 
 namespace WebApplication1.API.Controller.Consumption;
@@ -10,10 +11,12 @@ namespace WebApplication1.API.Controller.Consumption;
 public class ConsumptionRecordsController : ControllerBase
 {
     private readonly IConsumptionRecordRepository _repository;
+    private readonly IUserAuth _userRepository;
 
-    public ConsumptionRecordsController(IConsumptionRecordRepository repository)
+    public ConsumptionRecordsController(IConsumptionRecordRepository repository, IUserAuth userRepository)
     {
         _repository = repository;
+        _userRepository = userRepository;
     }
 
     [Authorize]
@@ -25,7 +28,8 @@ public class ConsumptionRecordsController : ControllerBase
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("Invalid token – user ID not found.");
 
-        var records = await _repository.GetByIdAsync(userId);
+        var userIdGuid = _userRepository.GetUserIdGuidFromClaims(userId);
+        var records = await _repository.GetByIdAsync(userIdGuid);
 
         if (records == null || !records.Any())
             return NotFound("No consumption records found for this user.");

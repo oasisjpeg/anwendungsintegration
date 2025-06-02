@@ -69,7 +69,8 @@ namespace WebApplication1.Application_Layer.Services.Article
         public async Task<bool> SubmitOneQuestionAnswer(QuizQuestionDto quizQuestionDto, Guid userId)
         {
             // submit one question answer to database, for a specific user
-            var lastQuestionCheck = await _articleRepository.IsLastQuestionInQuiz(quizQuestionDto.QuizId, quizQuestionDto.QuestionId
+            var lastQuestionCheck =
+                await _articleRepository.IsLastQuestionInQuiz(quizQuestionDto.QuizId, quizQuestionDto.QuestionId);
             if (!lastQuestionCheck)
             {
                 await _articleRepository.SubmitOneQuestionAnswerFromDB(quizQuestionDto, userId);

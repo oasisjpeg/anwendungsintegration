@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebApplication1.Application_Layer.Services.UserAuth;
 using WebApplication1.Domain.Repositories;
 
 namespace WebApplication1.API.Controller.Consumption
@@ -10,10 +11,12 @@ namespace WebApplication1.API.Controller.Consumption
     public class RecommendRecordController : ControllerBase
     {
         private readonly IRecommendRecordRepository _recommendRepository;
+        private readonly IUserAuth _userRepository;
 
-        public RecommendRecordController(IRecommendRecordRepository recommendRepository)
+        public RecommendRecordController(IRecommendRecordRepository recommendRepository, IUserAuth userRepository)
         {
             _recommendRepository = recommendRepository;
+            _userRepository = _userRepository;
         }
 
         // ✅ Require JWT token
@@ -26,8 +29,9 @@ namespace WebApplication1.API.Controller.Consumption
 
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized("Missing user ID in JWT.");
-
-            var recommendConsumption = await _recommendRepository.GetRecommendConsumption(userId);
+            
+            var userIdGuid = _userRepository.GetUserIdGuidFromClaims(userId);
+            var recommendConsumption = await _recommendRepository.GetRecommendConsumption(userIdGuid);
 
             if (recommendConsumption == null)
                 return NotFound("No recommendations found.");

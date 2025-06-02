@@ -15,7 +15,7 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             _context = context;
         }
 
-        public async Task<IEnumerable<RecommendRecordModel>> GetRecommendConsumption(string UserId)
+        public async Task<IEnumerable<RecommendRecordModel>> GetRecommendConsumption(Guid UserId)
         {
 
             var record = await _context.RecommendRecords

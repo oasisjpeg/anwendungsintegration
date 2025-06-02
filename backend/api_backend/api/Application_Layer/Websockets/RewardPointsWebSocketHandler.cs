@@ -68,7 +68,7 @@ public class RewardPointsWebSocketHandler
                 {
                     var currentPoints = await dbContext.Users
                         .AsNoTracking()
-                        .Where(u => u.Id == userId)
+                        .Where(u => u.Id.ToString() == userId)
                         .Select(u => u.Points)
                         .FirstOrDefaultAsync();
 

@@ -12,12 +12,12 @@ namespace WebApplication1.Infrastructure.MySqlRepositories;
 
 public class MySqlUserRepository : IUserRepository
 {
-    private readonly MySqlDbContext _context;
+    private readonly MySqlDbContext _dbContext;
     private readonly IUserAuth _userAuth;
 
     public MySqlUserRepository(MySqlDbContext context, IUserAuth userAuth)
     {
-        _context = context;
+        _dbContext = context;
         _userAuth = userAuth;
     }
 
@@ -27,12 +27,12 @@ public class MySqlUserRepository : IUserRepository
         {
             return null; // Invalid email format
         }
-        return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        return await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
     }
 
     public async Task<UserModel?> GetByIdAsync(Guid Id)
     {
-        return await _context.Users.FirstOrDefaultAsync(u => u.Id == Id);
+        return await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == Id);
     }
 
     public async Task<UserModel> RegisterAsync(UserRegisterDto userRegisterDto)
@@ -48,9 +48,9 @@ public class MySqlUserRepository : IUserRepository
             Points = 0
         };
 
-        _context.Users.Add(userModel);
+        _dbContext.Users.Add(userModel);
         userModel.CreatedAt = DateTime.UtcNow;
-        await _context.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync();
         
         var baseDate = DateTime.Parse("2025-03-13 00:00:00");
         var dummyConsumptionRecords = new List<ConsumptionRecordModel>();
@@ -72,7 +72,7 @@ public class MySqlUserRepository : IUserRepository
             });
         }
 
-        _context.ConsumptionRecords.AddRange(dummyConsumptionRecords);
+        _dbContext.ConsumptionRecords.AddRange(dummyConsumptionRecords);
         
         var dummyRecommendedRecords = new List<RecommendRecordModel>();
 
@@ -93,9 +93,9 @@ public class MySqlUserRepository : IUserRepository
             });
         }
 
-        _context.RecommendRecords.AddRange(dummyRecommendedRecords);
+        _dbContext.RecommendRecords.AddRange(dummyRecommendedRecords);
 
-        await _context.SaveChangesAsync(); // Save the dummy data
+        await _dbContext.SaveChangesAsync(); // Save the dummy data
         
         return userModel;
     }
@@ -104,14 +104,14 @@ public class MySqlUserRepository : IUserRepository
     {
         var user = await GetByEmailAsync(userAuthDto.Email);
 
-        _context.Users.Remove(user);
-        await _context.SaveChangesAsync();
+        _dbContext.Users.Remove(user);
+        await _dbContext.SaveChangesAsync();
         return (user);
     }
 
     public async Task<UserModel> PatchAsync(Guid userId, UserPatchDto userPatchDto)
     {
-        var user = await _context.Users.FindAsync(userId);
+        var user = await _dbContext.Users.FindAsync(userId);
 
         if (user == null)
             throw new Exception("User not found.");
@@ -134,7 +134,7 @@ public class MySqlUserRepository : IUserRepository
 
         user.UpdatedAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync();
         return user;
     }
 
@@ -153,7 +153,7 @@ public class MySqlUserRepository : IUserRepository
             return null; // Ungültiges Passwort
         }
 
-        await _context.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync();
         return user;
     }
 

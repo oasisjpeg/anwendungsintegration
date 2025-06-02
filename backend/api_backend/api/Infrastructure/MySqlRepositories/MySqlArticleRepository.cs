@@ -80,7 +80,7 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
         public async Task<bool> IsLastQuestionInQuiz(int questionId) 
         {
             // Flexible Lösung für variable Anzahl von Fragen pro Quiz (aktuell 4)
-            var question = await _dbContext.Question.FirstOrDefaultAsync(q => q.QuestionId == questionId);
+            var question = await _dbContext.Question.FirstOrDefaultAsync(q => q.id == questionId);
             if (question == null)
                 throw new KeyNotFoundException($"Question with ID {questionId} not found.");
 
@@ -89,8 +89,8 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             
             var currentQuestionIndex = await _dbContext.Question
                 .Where(q => q.QuizId == question.QuizId)
-                .OrderBy(q => q.QuestionId)
-                .Select(q => q.QuestionId)
+                .OrderBy(q => q.id)
+                .Select(q => q.id)
                 .ToListAsync();
 
             return currentQuestionIndex.IndexOf(questionId) == totalQuestionsInQuiz - 1;

@@ -51,14 +51,6 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             await _dbContext.SaveChangesAsync();
         }
         
-        public async Task<int> FindArticleQuizId(int articleId)
-        {
-            var article = await _dbContext.Articles.FirstOrDefaultAsync(a => a.ArticleId == articleId);
-            if (article == null)
-                throw new KeyNotFoundException($"Article with ID {articleId} not found.");
-            return article.QuizId;
-        }
-
         public async Task<bool> IsLastQuestionInQuiz(int questionId) 
         {
             var question = await _dbContext.Question.FirstOrDefaultAsync(q => q.QuestionId == questionId);

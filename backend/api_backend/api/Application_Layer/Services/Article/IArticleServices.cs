@@ -11,5 +11,6 @@ namespace WebApplication1.Application_Layer.Services.Article
         Task<List<ArticleOverviewDto>> GetArticlesOverview();
         Task<ArticleModel> GetOneCompleteArticleById(int id);
         Task<bool> SubmitOneQuestionAnswer(QuizQuestionDto quizQuestionDto, Guid userId);
+        
     }
 }

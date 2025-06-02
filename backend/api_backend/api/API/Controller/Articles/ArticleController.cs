@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using WebApplication1.Application_Layer.DTO.Quiz;
 using WebApplication1.Application_Layer.Services.Article;
+using WebApplication1.Application_Layer.Services.Transaction;
 using WebApplication1.Application_Layer.Services.UserAuth;
 
 namespace WebApplication1.API.Controller.Articles
@@ -13,10 +14,12 @@ namespace WebApplication1.API.Controller.Articles
     {
         private IArticleServices _articleServices;
         private IUserAuth _userAuth;
-        public ArticleController(IArticleServices articleServices, IUserAuth userAuth)
+        private ITransactionServices _transactionServices;
+        public ArticleController(IArticleServices articleServices, IUserAuth userAuth, ITransactionServices transactionServices)
         {
             _articleServices = articleServices;
             _userAuth = userAuth;
+            _transactionServices = transactionServices;
         }
 
         [HttpGet]
@@ -28,18 +31,21 @@ namespace WebApplication1.API.Controller.Articles
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetOneCompleteArticle(int arcticleId)
+        public async Task<IActionResult> GetOneCompleteArticle(int articleId)
         {
-            if(arcticleId <= 0) // MySql auto incement ID starts at 1, so 0 or negative ID is invalid
+            if(articleId <= 0) // MySql auto incement ID starts at 1, so 0 or negative ID is invalid
             {
                 return BadRequest("Invalid article ID.");
             }
             // return article object of type ArticleModel where ID = acticleId
-            var fullArticle = await _articleServices.GetOneCompleteArticleById(arcticleId);
+            var fullArticle = await _articleServices.GetOneCompleteArticleById(articleId);
             if (fullArticle == null)
             {
                 return NotFound();
             }
+            // TODO: call createTransaction method to get points for reading article
+            var rewardPointsGained = await _transactionServices.CalculateArticlePoints(articleId);
+
             return Ok(fullArticle);
         }
 

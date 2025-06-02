@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Transactions;
@@ -14,13 +15,11 @@ namespace WebApplication1.Application_Layer.Services.Article
     public class ArticleServices : IArticleServices
     {
         private IUserRepository _userRepository;
-        private MySqlDbContext _dbContext; // TODO: should not be needed --> reference domain layer (MySqlArticleRepository)
-        private MySqlArticleRepository _articleRepository;
+        private IArticleRepository _articleRepository;
 
-        public ArticleServices(IUserRepository userRepository, MySqlDbContext dbContext, MySqlArticleRepository articleRepository)
+        public ArticleServices(IUserRepository userRepository, IArticleRepository articleRepository)
         {
             _userRepository = userRepository;
-            _dbContext = dbContext;
             _articleRepository = articleRepository;
         }
 
@@ -30,33 +29,17 @@ namespace WebApplication1.Application_Layer.Services.Article
 
             if (userModel == null)
             {
-                return 0;
+                throw new Exception("User not found.");
             }
 
-            var newTransaction = new RewardTransactionModel // TODO: move to domain layer?
-            {
-                id = 0,
-                Created = DateTime.Now,
-                PointsGained = 0, // <-- TODO: ADD some sort of way to Calculate Points
-                PointSourceType = sourceType,
-                PointSourceId = sourceId,
-                UserId = userId, 
-            };
-            int pointsGained = newTransaction.PointsGained;
+            var pointsGained = await _articleRepository.CreateTransaction(sourceType, sourceId, userId);
             return pointsGained;
         }
 
         public async Task<List<ArticleOverviewDto>> GetArticlesOverview()
         {
             // get overview of articles --> only return list of all articles with Title, Description and URL (for imgs), not entire article content
-            return await _dbContext.Articles
-            .Select(a => new ArticleOverviewDto
-            {
-                Title = a.Title,
-                Description = a.Description,
-                Url = a.Url
-            })
-            .ToListAsync();
+            return await _articleRepository.GetArticleOverviewFromDB();
         }
 
         public async Task<ArticleModel> GetOneCompleteArticleById(int articleId)

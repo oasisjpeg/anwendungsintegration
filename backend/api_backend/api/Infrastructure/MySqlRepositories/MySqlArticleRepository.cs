@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Security.AccessControl;
+using WebApplication1.Application_Layer.DTO.Article;
 using WebApplication1.Application_Layer.DTO.Quiz;
 using WebApplication1.Domain.Models.Article;
 using WebApplication1.Domain.Models.User;
@@ -13,9 +15,33 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
         {
             _dbContext = dbContext;
         }
-        public async Task<List<ArticleModel>> GetArticleOverviewFromDB()
+
+        public async Task<int> CreateTransaction(PointSourceType pointSourceType, int sourceId, Guid userId)
         {
-            return await _dbContext.Articles.ToListAsync();
+            var newTransaction = new RewardTransactionModel // TODO: move to domain layer?
+            {
+                id = 0,
+                Created = DateTime.Now,
+                PointsGained = 0, // <-- TODO: ADD some sort of way to Calculate Points --> add method
+                PointSourceType = pointSourceType,
+                PointSourceId = sourceId,
+                UserId = userId
+            };
+            int pointsGained = newTransaction.PointsGained;
+            await _dbContext.SaveChangesAsync();
+            return pointsGained;
+        }
+
+        public async Task<List<ArticleOverviewDto>> GetArticleOverviewFromDB()
+        {
+            return await _dbContext.Articles
+            .Select(a => new ArticleOverviewDto
+            {
+                Title = a.Title,
+                Description = a.Description,
+                Url = a.Url
+            })
+            .ToListAsync();
         }
 
         public async Task<ArticleModel> GetOneCompleteArticleFromDB(int articleId)

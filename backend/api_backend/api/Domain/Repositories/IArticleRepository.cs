@@ -1,12 +1,16 @@
-﻿using WebApplication1.Application_Layer.DTO.Quiz;
+﻿using WebApplication1.Application_Layer.DTO.Article;
+using WebApplication1.Application_Layer.DTO.Quiz;
 using WebApplication1.Domain.Models.Article;
+using WebApplication1.Domain.Models.User;
 
 namespace WebApplication1.Domain.Repositories
 {
     public interface IArticleRepository
     {
-        Task<List<ArticleModel>> GetArticleOverviewFromDB();
+        Task<int> CreateTransaction(PointSourceType pointSourceType, int sourceId, Guid userId);
+        Task<List<ArticleOverviewDto>> GetArticleOverviewFromDB();
         Task<ArticleModel> GetOneCompleteArticleFromDB(int articleId);
         Task SubmitOneQuestionAnswerFromDB(QuizQuestionDto quizQuestionDto, Guid userId);
+        Task<bool> IsLastQuestionInQuiz(int quizId, int questionId);
     }
 }

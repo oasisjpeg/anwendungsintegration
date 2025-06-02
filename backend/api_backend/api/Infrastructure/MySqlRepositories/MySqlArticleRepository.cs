@@ -26,7 +26,7 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             return article;
         }
 
-        public async Task SubmitOneQuestionAnswerFromDB(QuizQuestionDto quizQuestionDto, Guid userId)
+        public async Task SubmitOneQuestionAnswerToDB(QuizQuestionDto quizQuestionDto, Guid userId)
         {
             var question = await _dbContext.Question
                 .Include(q => q.Quiz)

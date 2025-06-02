@@ -73,10 +73,10 @@ namespace WebApplication1.Application_Layer.Services.Article
                 await _articleRepository.IsLastQuestionInQuiz(quizQuestionDto.QuizId, quizQuestionDto.QuestionId);
             if (!lastQuestionCheck)
             {
-                await _articleRepository.SubmitOneQuestionAnswerFromDB(quizQuestionDto, userId);
+                await _articleRepository.SubmitOneQuestionAnswerToDB(quizQuestionDto, userId);
                 return false;
             }
-            await _articleRepository.SubmitOneQuestionAnswerFromDB(quizQuestionDto, userId);
+            await _articleRepository.SubmitOneQuestionAnswerToDB(quizQuestionDto, userId);
             return true;
         }
     }

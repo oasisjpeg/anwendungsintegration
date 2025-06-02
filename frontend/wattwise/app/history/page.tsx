@@ -1,19 +1,22 @@
 "use client";
 
 import React from "react";
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
 
-//Typ-Definition für eine Transaktion
-interface Transaction {
-  Transaction_ID: number;
-  Date: string; // ISO-String
-  Points_Gained: number;
-  Point_Source: string;
-  Point_Ressource: string;
-  User_ID: number;
+// Hilfsfunktionen für Punkte
+function getPointsColor(points) {
+  if (points > 0) return "text-green-700 bg-green-100";
+  if (points < 0) return "text-red-700 bg-red-100";
+  return "text-yellow-700 bg-yellow-100";
 }
 
-//Hardcodierte Testdaten <-- Entfernen
-const testTransactions: Transaction[] = [
+function getPointsPrefix(points) {
+  if (points > 0) return "+";
+  if (points < 0) return "-";
+  return "";
+}
+
+const testTransactions = [
   {
     Transaction_ID: 1,
     Date: "2025-04-29T13:45:00Z",
@@ -61,76 +64,49 @@ const testTransactions: Transaction[] = [
     Point_Source: "amazon coupon activated",
     Point_Ressource: "Amazon 25€ Coupon",
     User_ID: 1,
-  },
+  }
+  // ... weitere Einträge
 ];
 
 
-
-//Hilfsfunktionen mit Typen
-function getPointsColor(points: number): string {
-  if (points > 0) 
-    return "text-green-700 bg-green-100";
-  if (points < 0) 
-    return "text-red-700 bg-red-100";
-  return "text-yellow-700 bg-yellow-100";
-}
-
-function getPointsPrefix(points: number): string {
-  if (points > 0) 
-    return "+";
-  if (points < 0) 
-    return "-";
-  return "";
-}
-
-async function fetchTransactions(): Promise<Transaction[]> {
-  const res = await fetch("/api/user/transaction");
-  if (!res.ok) throw new Error("Fehler beim Laden der Daten");
-  return res.json();
-}
-
-//Komponente
 export default function TransactionHistory() {
-  const transactions = testTransactions; // <-- Hardcodiert muss danach entfernt werden
+
+  //TODO: Replace with real data fetching logic
+  const transactions = testTransactions; 
 
   return (
     <div className="bg-white dark:bg-zinc-900 shadow-lg rounded-2xl p-6 mb-8">
       <h2 className="text-xl font-semibold mb-4">Transaktionsverlauf</h2>
-      {transactions.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">Keine Transaktionen gefunden.</div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead>
-              <tr>
-                <th className="px-4 py-2 text-left">Datum</th>
-                <th className="px-4 py-2 text-left">Quelle</th>
-                <th className="px-4 py-2 text-left">Ressource</th>
-                <th className="px-4 py-2 text-right">Punkte</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.map((tx) => (
-                <tr key={tx.Transaction_ID} className="border-t">
-                  <td className="px-4 py-2">{new Date(tx.Date).toLocaleDateString()}</td>
-                  <td className="px-4 py-2">{tx.Point_Source}</td>
-                  <td className="px-4 py-2">{tx.Point_Ressource}</td>
-                  <td className={`px-4 py-2 text-right font-semibold`}>
-                    <span
-                      className={`inline-block px-3 py-1 rounded-full font-semibold ${getPointsColor(
-                        tx.Points_Gained
-                      )}`}
-                    >
-                      {getPointsPrefix(tx.Points_Gained)}
-                      {Math.abs(tx.Points_Gained)}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <Table aria-label="Transaktionsverlauf">
+        <TableHeader>
+          <TableColumn width={150}>Datum</TableColumn>
+          <TableColumn>Quelle</TableColumn>
+          <TableColumn>Ressource</TableColumn>
+          <TableColumn align="end">Punkte</TableColumn>
+        </TableHeader>
+        <TableBody
+          emptyContent={"Keine Transaktionen gefunden."}
+          items={transactions}
+        >
+          {(tx) => (
+            <TableRow key={tx.Transaction_ID}>
+              <TableCell>{new Date(tx.Date).toLocaleDateString()}</TableCell>
+              <TableCell>{tx.Point_Source}</TableCell>
+              <TableCell>{tx.Point_Ressource}</TableCell>
+              <TableCell className="text-right">
+                <span
+                  className={`inline-block px-3 py-1 rounded-full font-semibold ${getPointsColor(
+                    tx.Points_Gained
+                  )}`}
+                >
+                  {getPointsPrefix(tx.Points_Gained)}
+                  {Math.abs(tx.Points_Gained)}
+                </span>
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
 }

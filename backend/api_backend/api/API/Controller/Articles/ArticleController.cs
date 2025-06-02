@@ -30,7 +30,7 @@ namespace WebApplication1.API.Controller.Articles
             return Ok(articlesOverview);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{articleId}")]
         public async Task<IActionResult> GetOneCompleteArticle(int articleId)
         {
             if(articleId <= 0) // MySql auto incement ID starts at 1, so 0 or negative ID is invalid

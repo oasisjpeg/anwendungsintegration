@@ -11,12 +11,12 @@ namespace WebApplication1.API.Controller.Consumption;
 public class ConsumptionRecordsController : ControllerBase
 {
     private readonly IConsumptionRecordRepository _repository;
-    private readonly IUserAuth _userRepository;
+    private readonly IUserAuth _userAuth;
 
-    public ConsumptionRecordsController(IConsumptionRecordRepository repository, IUserAuth userRepository)
+    public ConsumptionRecordsController(IConsumptionRecordRepository repository, IUserAuth userAuth)
     {
         _repository = repository;
-        _userRepository = userRepository;
+        _userAuth = userAuth;
     }
 
     [Authorize]
@@ -28,7 +28,7 @@ public class ConsumptionRecordsController : ControllerBase
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("Invalid token – user ID not found.");
 
-        var userIdGuid = _userRepository.GetUserIdGuidFromClaims(userId);
+        var userIdGuid = _userAuth.GetUserIdGuidFromClaims(userId);
         var records = await _repository.GetByIdAsync(userIdGuid);
 
         if (records == null || !records.Any())

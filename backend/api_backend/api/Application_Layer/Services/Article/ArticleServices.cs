@@ -24,7 +24,7 @@ namespace WebApplication1.Application_Layer.Services.Article
             _articleRepository = articleRepository;
         }
 
-        public async Task<int> CreateTransaction(Enum sourceType, int sourceId, Guid userId) // TODO: move to TransactionServices ? or at least part of it...
+        public async Task<int> CreateTransaction(PointSourceType sourceType, int sourceId, Guid userId) // TODO: move to TransactionServices ? or at least part of it...
         {
             var userModel = await _userRepository.GetByIdAsync(userId);
 
@@ -35,7 +35,7 @@ namespace WebApplication1.Application_Layer.Services.Article
 
             var newTransaction = new RewardTransactionModel // TODO: move to domain layer?
             {
-                TransactionId = 0,
+                id = 0,
                 Created = DateTime.Now,
                 PointsGained = 0, // <-- TODO: ADD some sort of way to Calculate Points
                 PointSourceType = sourceType,

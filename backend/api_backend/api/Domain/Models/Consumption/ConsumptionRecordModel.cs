@@ -9,7 +9,7 @@ namespace WebApplication1.Domain.Models.Consumption;
 public class ConsumptionRecordModel
 {
     [Key]
-    public required string ConsumptionId { get; set; }
+    public required string id { get; set; }
 
     [ForeignKey("Users")]
     public required Guid UserId { get; set; }

@@ -4,11 +4,11 @@ namespace WebApplication1.Domain.Models.User
 {
     public class UserAnswerModel
     {
-        public required int AnswerId { get; set; }
+        public required int id { get; set; }
         public required DateTime AnsweredAt { get; set; }
         public required int SelectedAnswer {  get; set; }
         // foreign keys
-        public required int UserId { get; set; }
+        public required Guid UserId { get; set; }
         public required int QuestionId { get; set; }
         // navigation props
         public UserModel User { get; set; }

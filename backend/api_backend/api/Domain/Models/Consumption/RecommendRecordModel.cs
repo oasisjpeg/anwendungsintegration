@@ -9,7 +9,7 @@ namespace WebApplication1.Domain.Models.Consumption
     public class RecommendRecordModel
     {
         // useless? --> [Key]
-        public required string RecommendId { get; set; }
+        public required string id { get; set; }
 
         // useless? --> [ForeignKey("Users")]
         // fk

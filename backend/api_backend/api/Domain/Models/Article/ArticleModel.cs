@@ -2,7 +2,7 @@
 {
     public class ArticleModel
     {
-        public required int ArticleId { get; set; }
+        public required int id { get; set; }
         public required string Title { get; set; }
         public required string Content { get; set; }
         public required string[] Url { get; set; } // note to self, variable names are case-sensitive...? lol

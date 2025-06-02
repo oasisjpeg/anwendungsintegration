@@ -31,7 +31,7 @@ builder.Services.AddDbContext<MySqlDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 // Add Identity --> see UserModel
-builder.Services.AddIdentity<UserModel, IdentityRole>()
+builder.Services.AddIdentity<UserModel, IdentityRole<Guid>>()
     .AddEntityFrameworkStores<MySqlDbContext>()
     .AddDefaultTokenProviders();
 

@@ -63,7 +63,7 @@ public class MySqlUserRepository : IUserRepository
         {
             dummyConsumptionRecords.Add(new ConsumptionRecordModel
             {
-                ConsumptionId = Guid.NewGuid().ToString(),
+                id = Guid.NewGuid().ToString(),
                 UserId = userModel.Id,
                 Timestamp = baseDate.AddHours(i),
                 kWValue = kWValuesConsumption[i]
@@ -76,7 +76,7 @@ public class MySqlUserRepository : IUserRepository
         {
             dummyRecommendedRecords.Add(new RecommendRecordModel()
             {
-                RecommendId = Guid.NewGuid().ToString(),
+                id = Guid.NewGuid().ToString(),
                 UserId = userModel.Id,
                 Created = baseDate.AddHours(i),
                 kWValue = kWValuesRecommended[i]

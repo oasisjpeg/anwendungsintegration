@@ -20,7 +20,7 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
 
         public async Task<ArticleModel> GetOneCompleteArticleFromDB(int articleId)
         {
-            var article = await _dbContext.Articles.FirstOrDefaultAsync(a => a.ArticleId == articleId);
+            var article = await _dbContext.Articles.FirstOrDefaultAsync(a => a.id == articleId);
             if (article == null)
                 throw new KeyNotFoundException($"Article with ID {articleId} not found.");
             return article;
@@ -30,7 +30,7 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
         {
             var question = await _dbContext.Question
                 .Include(q => q.Quiz)
-                .FirstOrDefaultAsync(q => q.QuestionId == quizQuestionDto.QuestionId);
+                .FirstOrDefaultAsync(q => q.id == quizQuestionDto.QuestionId);
 
             if (question == null)
             {
@@ -39,11 +39,11 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
 
             var userAnswer = new UserAnswerModel
             {
-                AnswerId = 0,
+                id = 0,
                 AnsweredAt = DateTime.UtcNow,
                 SelectedAnswer = quizQuestionDto.AnswerSelectionIndex,
                 QuestionId = quizQuestionDto.QuestionId,
-                UserId = int.Parse(userId.ToString()),
+                UserId = userId,
                 Question = question
             };
             
@@ -55,11 +55,11 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
         {
             var quizQuestions = await _dbContext.Question
                 .Where(q => q.QuizId == quizId)
-                .OrderBy(q => q.QuestionId)
+                .OrderBy(q => q.id)
                 .ToListAsync();
             
             return quizQuestions.Count > 0 && 
-                   quizQuestions.IndexOf(quizQuestions.FirstOrDefault(q => q.QuestionId == questionId)) == 3; // TODO: handle possible null reference
+                   quizQuestions.IndexOf(quizQuestions.FirstOrDefault(q => q.id == questionId)) == 3; // TODO: handle possible null reference
         }
     }
 }

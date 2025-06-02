@@ -53,17 +53,21 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
         
         public async Task<bool> IsLastQuestionInQuiz(int questionId) 
         {
+            // Flexible Lösung für variable Anzahl von Fragen pro Quiz (aktuell 4)
             var question = await _dbContext.Question.FirstOrDefaultAsync(q => q.QuestionId == questionId);
             if (question == null)
                 throw new KeyNotFoundException($"Question with ID {questionId} not found.");
 
-            var quizQuestions = await _dbContext.Question
+            var totalQuestionsInQuiz = await _dbContext.Question
+                .CountAsync(q => q.QuizId == question.QuizId);
+            
+            var currentQuestionIndex = await _dbContext.Question
                 .Where(q => q.QuizId == question.QuizId)
                 .OrderBy(q => q.QuestionId)
+                .Select(q => q.QuestionId)
                 .ToListAsync();
-            
-            return quizQuestions.Count > 0 && 
-                   quizQuestions.IndexOf(quizQuestions.FirstOrDefault(q => q.QuestionId == questionId)) == 3;
+
+            return currentQuestionIndex.IndexOf(questionId) == totalQuestionsInQuiz - 1;
         }
     }
 }

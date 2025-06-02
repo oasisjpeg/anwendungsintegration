@@ -11,12 +11,12 @@ namespace WebApplication1.API.Controller.Consumption
     public class RecommendRecordController : ControllerBase
     {
         private readonly IRecommendRecordRepository _recommendRepository;
-        private readonly IUserAuth _userRepository;
+        private readonly IUserAuth _userAuth;
 
-        public RecommendRecordController(IRecommendRecordRepository recommendRepository, IUserAuth userRepository)
+        public RecommendRecordController(IRecommendRecordRepository recommendRepository, IUserAuth userAuth)
         {
             _recommendRepository = recommendRepository;
-            _userRepository = _userRepository;
+            _userAuth = userAuth;
         }
 
         // ✅ Require JWT token
@@ -30,7 +30,7 @@ namespace WebApplication1.API.Controller.Consumption
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized("Missing user ID in JWT.");
             
-            var userIdGuid = _userRepository.GetUserIdGuidFromClaims(userId);
+            var userIdGuid = _userAuth.GetUserIdGuidFromClaims(userId);
             var recommendConsumption = await _recommendRepository.GetRecommendConsumption(userIdGuid);
 
             if (recommendConsumption == null)

@@ -56,7 +56,7 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
         {
             var question = await _dbContext.Question
                 .Include(q => q.Quiz)
-                .FirstOrDefaultAsync(q => q.QuestionId == quizQuestionDto.QuestionId);
+                .FirstOrDefaultAsync(q => q.id == quizQuestionDto.QuestionId);
 
             if (question == null)
             {

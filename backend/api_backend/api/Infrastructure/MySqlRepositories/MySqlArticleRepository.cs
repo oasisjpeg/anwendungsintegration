@@ -52,11 +52,11 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             return article;
         }
 
-        public async Task SubmitOneQuestionAnswerFromDB(QuizQuestionDto quizQuestionDto, Guid userId)
+        public async Task SubmitOneQuestionAnswerToDB(QuizQuestionDto quizQuestionDto, Guid userId)
         {
             var question = await _dbContext.Question
                 .Include(q => q.Quiz)
-                .FirstOrDefaultAsync(q => q.id == quizQuestionDto.QuestionId);
+                .FirstOrDefaultAsync(q => q.QuestionId == quizQuestionDto.QuestionId);
 
             if (question == null)
             {
@@ -77,15 +77,23 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             await _dbContext.SaveChangesAsync();
         }
         
-        public async Task<bool> IsLastQuestionInQuiz(int quizId, int questionId) 
+        public async Task<bool> IsLastQuestionInQuiz(int questionId) 
         {
-            var quizQuestions = await _dbContext.Question
-                .Where(q => q.QuizId == quizId)
-                .OrderBy(q => q.id)
-                .ToListAsync();
+            // Flexible Lösung für variable Anzahl von Fragen pro Quiz (aktuell 4)
+            var question = await _dbContext.Question.FirstOrDefaultAsync(q => q.QuestionId == questionId);
+            if (question == null)
+                throw new KeyNotFoundException($"Question with ID {questionId} not found.");
+
+            var totalQuestionsInQuiz = await _dbContext.Question
+                .CountAsync(q => q.QuizId == question.QuizId);
             
-            return quizQuestions.Count > 0 && 
-                   quizQuestions.IndexOf(quizQuestions.FirstOrDefault(q => q.id == questionId)) == 3; // TODO: handle possible null reference
+            var currentQuestionIndex = await _dbContext.Question
+                .Where(q => q.QuizId == question.QuizId)
+                .OrderBy(q => q.QuestionId)
+                .Select(q => q.QuestionId)
+                .ToListAsync();
+
+            return currentQuestionIndex.IndexOf(questionId) == totalQuestionsInQuiz - 1;
         }
     }
 }

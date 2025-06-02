@@ -53,13 +53,13 @@ namespace WebApplication1.Application_Layer.Services.Article
         {
             // submit one question answer to database, for a specific user
             var lastQuestionCheck =
-                await _articleRepository.IsLastQuestionInQuiz(quizQuestionDto.QuizId, quizQuestionDto.QuestionId);
+                await _articleRepository.IsLastQuestionInQuiz(quizQuestionDto.QuestionId);
             if (!lastQuestionCheck)
             {
-                await _articleRepository.SubmitOneQuestionAnswerFromDB(quizQuestionDto, userId);
+                await _articleRepository.SubmitOneQuestionAnswerToDB(quizQuestionDto, userId);
                 return false;
             }
-            await _articleRepository.SubmitOneQuestionAnswerFromDB(quizQuestionDto, userId);
+            await _articleRepository.SubmitOneQuestionAnswerToDB(quizQuestionDto, userId);
             return true;
         }
     }

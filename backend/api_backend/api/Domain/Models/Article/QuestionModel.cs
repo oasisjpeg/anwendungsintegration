@@ -2,7 +2,8 @@
 {
     public class QuestionModel
     {
-        public required int id { get; set; }
+        public required int QuestionId { get; set; }
+        public required string QuestionText { get; set; }
         public required string FirstAnswerOption { get; set; }
         public required string SecondAnswerOption { get; set; }
         public required string ThirdAnswerOption { get; set; }

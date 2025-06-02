@@ -7,6 +7,7 @@ namespace WebApplication1.Domain.Repositories
     {
         Task<List<ArticleModel>> GetArticleOverviewFromDB();
         Task<ArticleModel> GetOneCompleteArticleFromDB(int articleId);
-        Task SubmitOneQuestionAnswerFromDB(QuizQuestionDto quizQuestionDto, Guid userId);
+        Task SubmitOneQuestionAnswerToDB(QuizQuestionDto quizQuestionDto, Guid userId);
+        Task<bool> IsLastQuestionInQuiz(int questionId);
     }
 }

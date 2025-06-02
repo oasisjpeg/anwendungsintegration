@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "@heroui/button";
+import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/modal";
 
 // Hardcoded article and quiz data matching your JSON structure
 const article = {
@@ -51,15 +52,60 @@ async function submitUserAnswer({ userId, questionId, selectedAnswer }) {
   return { ok: true };
 }
 
+function ProgressLostModal({ isOpen, onClose }) {
+  return (
+    <div style={{ position: "relative", zIndex: 600 }}>
+      <Modal backdrop="blur" isOpen={isOpen} onClose={onClose}>
+        <ModalContent className="md-4 pb-5">
+          <ModalHeader>
+            <h3>Quiz nicht abgeschlossen</h3>
+          </ModalHeader>
+          <ModalBody>
+            <p>
+              Wenn du jetzt gehst, geht dein bisheriger Fortschritt verloren!
+            </p>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="default" onPress={onClose}>
+              Fortsetzen
+            </Button>
+            <Button
+              color="danger"
+              onPress={() => {
+                onClose();
+                window.history.back();
+              }}
+            >
+              Zur Übersicht
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </div>
+  );
+}
+
 export default function ArticlePage() {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selected, setSelected] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [finished, setFinished] = useState(false);
   const [answers, setAnswers] = useState({});
+  const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState(null);
+
 
   const questions = article.quiz.questions;
   const currentQuestion = questions[currentIdx];
+
+  const handleBack = useCallback(() => {
+    if (!finished && currentIdx > 0) {
+      setIsProgressModalOpen(true);
+      setPendingNavigation(() => () => window.history.back());
+    } else {
+      window.history.back();
+    }
+  }, [finished, currentIdx]);
 
   async function handleContinue() {
     if (selected === null) return;
@@ -88,8 +134,22 @@ export default function ArticlePage() {
 
   return (
     <main className="min-h-screen bg-white dark:bg-black text-foreground">
-      <section className="max-w-2xl mx-auto px-4 py-12">
-        <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
+
+      <section className="max-w-2xl mx-auto px-4 py-12 relative">
+
+        <Button
+          className="bg-indigo-600 dark:bg-indigo-500 text-white font-semibold rounded-xl px-6 py-2 text-sm shadow-md mt-2 absolute top-4 left-4"
+          variant="flat"
+          onPress={handleBack}
+        >
+          Zurück
+        </Button>
+
+        <ProgressLostModal
+          isOpen={isProgressModalOpen}
+          onClose={() => setIsProgressModalOpen(false)}
+        />
+        <h1 className="text-3xl font-bold pt-6 mb-4">{article.title}</h1>
         <img
           src={article.url}
           alt={article.title}

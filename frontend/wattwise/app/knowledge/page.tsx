@@ -46,8 +46,8 @@ export default function KnowledgePage() {
   return (
     <main className="min-h-screen bg-white dark:bg-black text-foreground">
       <section className="max-w-2xl mx-auto px-4 py-12">
-        <h1 className="text-3xl font-bold mb-8 text-center">Wissensdatenbank</h1>
-        <div className="space-y-6">
+        <h1 className="text-3xl font-bold mb-4 text-center">Wissensdatenbank</h1>
+        <div className="space-y-6 mb-12">
           {articles.length === 0 && (
             <div className="text-center text-gray-500">Keine Artikel gefunden.</div>
           )}

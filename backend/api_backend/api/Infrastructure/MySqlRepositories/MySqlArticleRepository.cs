@@ -20,7 +20,7 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
 
         public async Task<ArticleModel> GetOneCompleteArticleFromDB(int articleId)
         {
-            var article = await _dbContext.Articles.FirstOrDefaultAsync(a => a.ArticleId == articleId);
+            var article = await _dbContext.Articles.FirstOrDefaultAsync(a => a.id == articleId);
             if (article == null)
                 throw new KeyNotFoundException($"Article with ID {articleId} not found.");
             return article;
@@ -39,11 +39,11 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
 
             var userAnswer = new UserAnswerModel
             {
-                AnswerId = 0,
+                id = 0,
                 AnsweredAt = DateTime.UtcNow,
                 SelectedAnswer = quizQuestionDto.AnswerSelectionIndex,
                 QuestionId = quizQuestionDto.QuestionId,
-                UserId = int.Parse(userId.ToString()),
+                UserId = userId,
                 Question = question
             };
             

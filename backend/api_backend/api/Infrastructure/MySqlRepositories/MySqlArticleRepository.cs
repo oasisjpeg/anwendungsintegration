@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Security.AccessControl;
+using WebApplication1.Application_Layer.DTO.Article;
 using WebApplication1.Application_Layer.DTO.Quiz;
 using WebApplication1.Domain.Models.Article;
 using WebApplication1.Domain.Models.User;
@@ -13,9 +15,33 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
         {
             _dbContext = dbContext;
         }
-        public async Task<List<ArticleModel>> GetArticleOverviewFromDB()
+
+        public async Task<int> CreateTransaction(PointSourceType pointSourceType, int sourceId, Guid userId)
         {
-            return await _dbContext.Articles.ToListAsync();
+            var newTransaction = new RewardTransactionModel // TODO: move to domain layer?
+            {
+                id = 0,
+                Created = DateTime.Now,
+                PointsGained = 0, // <-- TODO: ADD some sort of way to Calculate Points --> add method
+                PointSourceType = pointSourceType,
+                PointSourceId = sourceId,
+                UserId = userId
+            };
+            int pointsGained = newTransaction.PointsGained;
+            await _dbContext.SaveChangesAsync();
+            return pointsGained;
+        }
+
+        public async Task<List<ArticleOverviewDto>> GetArticleOverviewFromDB()
+        {
+            return await _dbContext.Articles
+            .Select(a => new ArticleOverviewDto
+            {
+                Title = a.Title,
+                Description = a.Description,
+                Url = a.Url
+            })
+            .ToListAsync();
         }
 
         public async Task<ArticleModel> GetOneCompleteArticleFromDB(int articleId)
@@ -30,7 +56,7 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
         {
             var question = await _dbContext.Question
                 .Include(q => q.Quiz)
-                .FirstOrDefaultAsync(q => q.QuestionId == quizQuestionDto.QuestionId);
+                .FirstOrDefaultAsync(q => q.id == quizQuestionDto.QuestionId);
 
             if (question == null)
             {
@@ -54,7 +80,7 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
         public async Task<bool> IsLastQuestionInQuiz(int questionId) 
         {
             // Flexible Lösung für variable Anzahl von Fragen pro Quiz (aktuell 4)
-            var question = await _dbContext.Question.FirstOrDefaultAsync(q => q.QuestionId == questionId);
+            var question = await _dbContext.Question.FirstOrDefaultAsync(q => q.id == questionId);
             if (question == null)
                 throw new KeyNotFoundException($"Question with ID {questionId} not found.");
 
@@ -63,8 +89,8 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             
             var currentQuestionIndex = await _dbContext.Question
                 .Where(q => q.QuizId == question.QuizId)
-                .OrderBy(q => q.QuestionId)
-                .Select(q => q.QuestionId)
+                .OrderBy(q => q.id)
+                .Select(q => q.id)
                 .ToListAsync();
 
             return currentQuestionIndex.IndexOf(questionId) == totalQuestionsInQuiz - 1;

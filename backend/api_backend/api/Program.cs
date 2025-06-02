@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using WebApplication1.Application_Layer.Services.Article;
+using WebApplication1.Application_Layer.Services.Transaction;
 using WebApplication1.Application_Layer.Services.UserAuth;
 using WebApplication1.Application_Layer.Services.UserExistCheck;
 using WebApplication1.Application_Layer.Websockets;
@@ -85,7 +87,8 @@ builder.Services.AddScoped<IUserAuth, UserAuth>();
 builder.Services.AddScoped<IUserExistCheck, UserExistCheck>();
 builder.Services.AddScoped<ITransactionRepository, MySqlTransactionRepository>();
 builder.Services.AddScoped<IArticleRepository, MySqlArticleRepository>();
-
+builder.Services.AddScoped<IArticleServices, ArticleServices>();
+builder.Services.AddScoped<ITransactionServices, TransactionServices>();
 
 
 var app = builder.Build();

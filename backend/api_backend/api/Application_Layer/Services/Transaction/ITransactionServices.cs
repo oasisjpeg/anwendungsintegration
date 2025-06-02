@@ -4,6 +4,6 @@ namespace WebApplication1.Application_Layer.Services.Transaction
 {
     public interface ITransactionServices
     {
-        Task<List<RewardTransactionModel>> GetTransactions();
+        Task<int> CalculateArticlePoints(int articleId);
     }
 }

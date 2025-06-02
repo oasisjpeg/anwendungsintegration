@@ -13,7 +13,7 @@ namespace WebApplication1.Infrastructure.MySqlRepositories;
 public class MySqlUserRepository : IUserRepository
 {
     private readonly MySqlDbContext _context;
-    private readonly IUserAuth _userAuth;
+    private readonly IUserAuth _userAuth; // <-- Not good, domain layer should not point to application layer --> review and handle with parameters if possible
 
     public MySqlUserRepository(MySqlDbContext context, IUserAuth userAuth)
     {

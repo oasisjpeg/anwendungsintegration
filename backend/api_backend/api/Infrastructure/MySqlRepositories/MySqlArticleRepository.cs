@@ -51,15 +51,27 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             await _dbContext.SaveChangesAsync();
         }
         
-        public async Task<bool> IsLastQuestionInQuiz(int quizId, int questionId) 
+        public async Task<int> FindArticleQuizId(int articleId)
         {
+            var article = await _dbContext.Articles.FirstOrDefaultAsync(a => a.ArticleId == articleId);
+            if (article == null)
+                throw new KeyNotFoundException($"Article with ID {articleId} not found.");
+            return article.QuizId;
+        }
+
+        public async Task<bool> IsLastQuestionInQuiz(int questionId) 
+        {
+            var question = await _dbContext.Question.FirstOrDefaultAsync(q => q.QuestionId == questionId);
+            if (question == null)
+                throw new KeyNotFoundException($"Question with ID {questionId} not found.");
+
             var quizQuestions = await _dbContext.Question
-                .Where(q => q.QuizId == quizId)
+                .Where(q => q.QuizId == question.QuizId)
                 .OrderBy(q => q.QuestionId)
                 .ToListAsync();
             
             return quizQuestions.Count > 0 && 
-                   quizQuestions.IndexOf(quizQuestions.FirstOrDefault(q => q.QuestionId == questionId)) == 3; // TODO: handle possible null reference
+                   quizQuestions.IndexOf(quizQuestions.FirstOrDefault(q => q.QuestionId == questionId)) == 3;
         }
     }
 }

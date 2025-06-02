@@ -3,9 +3,9 @@ using WebApplication1.Domain.Models.Consumption;
 
 namespace WebApplication1.Domain.Repositories
 {
-    public interface IRecommendRecordRepository
+    public interface IRecommendRecordServices
     {
-        Task<IEnumerable<RecommendRecordModel>> GetRecommendConsumption(string userId);
+        Task<ActionResult<RecommendRecordModel>> GetRecommendConsumption(string userId);
         
     }
 }

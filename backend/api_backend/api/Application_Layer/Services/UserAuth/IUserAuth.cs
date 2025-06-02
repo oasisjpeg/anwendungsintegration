@@ -4,5 +4,6 @@
     {
         string HashPassword(string password);
         bool VerifyPassword(string hashedPassword, string providedPassword);
+        Guid GetUserIdGuidFromClaims(string userIdString);
     }
 }

@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using WebApplication1.Domain.Repositories;
 
-namespace WebApplication1.Application_Layer.DTO
+namespace WebApplication1.Application_Layer.DTO.User
 {
     public class UserPatchDto
     {

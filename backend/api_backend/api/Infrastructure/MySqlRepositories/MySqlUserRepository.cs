@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
-using WebApplication1.Application_Layer.DTO;
 using WebApplication1.Application_Layer.Services.UserAuth;
-using WebApplication1.Domain.Models;
+using WebApplication1.Domain.Models.Consumption;
+using WebApplication1.Domain.Models.User;
+using WebApplication1.Domain.Models.Article;
 using WebApplication1.Domain.Repositories;
+using WebApplication1.Application_Layer.DTO.User;
 
 
 namespace WebApplication1.Infrastructure.MySqlRepositories;
@@ -28,7 +30,7 @@ public class MySqlUserRepository : IUserRepository
         return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
     }
 
-    public async Task<UserModel?> GetByIdAsync(string Id)
+    public async Task<UserModel?> GetByIdAsync(Guid Id)
     {
         return await _context.Users.FirstOrDefaultAsync(u => u.Id == Id);
     }
@@ -37,12 +39,13 @@ public class MySqlUserRepository : IUserRepository
     {
         var userModel = new UserModel
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = Guid.NewGuid(),
             Name = userRegisterDto.Name,
             Email = userRegisterDto.Email,
             PasswordHash = userRegisterDto.Password,
             CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
+            UpdatedAt = DateTime.UtcNow,
+            Points = 0
         };
 
         _context.Users.Add(userModel);
@@ -75,7 +78,7 @@ public class MySqlUserRepository : IUserRepository
             {
                 RecommendId = Guid.NewGuid().ToString(),
                 UserId = userModel.Id,
-                Timestamp = baseDate.AddHours(i),
+                Created = baseDate.AddHours(i),
                 kWValue = kWValuesRecommended[i]
             });
         }
@@ -98,7 +101,7 @@ public class MySqlUserRepository : IUserRepository
         return (user);
     }
 
-    public async Task<UserModel> PatchAsync(string userId, UserPatchDto userPatchDto)
+    public async Task<UserModel> PatchAsync(Guid userId, UserPatchDto userPatchDto)
     {
         var user = await _context.Users.FindAsync(userId);
 
@@ -180,5 +183,14 @@ public class MySqlUserRepository : IUserRepository
         ).ToArray();
 
         return (scaledConsumption, recommended);
+    }
+
+    public async Task<List<RewardTransactionModel>> GetRecentTransactionsAsync(Guid userId, int count)
+    {
+        return await _context.RewardTransactions
+            .Where(t => t.UserId == userId)
+            .OrderByDescending(t => t.Created) 
+            .Take(count)
+            .ToListAsync();
     }
 }

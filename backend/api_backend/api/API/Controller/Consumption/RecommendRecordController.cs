@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Domain.Repositories;
 
-namespace WebApplication1.API.Controller
+namespace WebApplication1.API.Controller.Consumption
 {
     [ApiController]
     [Route("api/recommend-records")]

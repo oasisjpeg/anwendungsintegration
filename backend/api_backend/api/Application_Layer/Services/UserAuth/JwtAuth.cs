@@ -3,7 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography.Xml;
 using System.Text;
-using WebApplication1.Domain.Models;
+using WebApplication1.Domain.Models.User;
 
 namespace WebApplication1.Application_Layer.Services.UserAuth
 {
@@ -26,11 +26,11 @@ namespace WebApplication1.Application_Layer.Services.UserAuth
 
             var key = Encoding.ASCII.GetBytes(secret);
             var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.Name),
-                    new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.NameIdentifier, user.Id)
-                };
+                        {
+                            new Claim(ClaimTypes.Name, user.Name ?? string.Empty), //  ?? --> to catch null values and replace them with empty string
+                            new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
+                            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+                        };
 
             var credentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
             var token = new JwtSecurityToken(

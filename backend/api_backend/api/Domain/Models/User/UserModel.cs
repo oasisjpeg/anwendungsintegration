@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace WebApplication1.Domain.Models
+namespace WebApplication1.Domain.Models.User
 {
-    public class UserModel : IdentityUser
+    public class UserModel : IdentityUser<Guid> // <-- Guid must be specified, otherwise string is default
     {
 
         // removed Id because it is included in IdentityUser
@@ -21,8 +21,6 @@ namespace WebApplication1.Domain.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
-        public int Points { get; set; } = 0;
-
+        public required int Points { get; set; } = 0;
     }
 }

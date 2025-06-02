@@ -6,7 +6,7 @@ using System.Text;
 using WebApplication1.Application_Layer.Services.UserAuth;
 using WebApplication1.Application_Layer.Services.UserExistCheck;
 using WebApplication1.Application_Layer.Websockets;
-using WebApplication1.Domain.Models;
+using WebApplication1.Domain.Models.User;
 using WebApplication1.Domain.Repositories;
 using WebApplication1.Infrastructure.MySqlRepositories;
 
@@ -83,6 +83,8 @@ builder.Services.AddScoped<IRecommendRecordRepository, MySqlRecommendRecord>();
 builder.Services.AddScoped<IUserRepository, MySqlUserRepository>();
 builder.Services.AddScoped<IUserAuth, UserAuth>();
 builder.Services.AddScoped<IUserExistCheck, UserExistCheck>();
+builder.Services.AddScoped<ITransactionRepository, MySqlTransactionRepository>();
+builder.Services.AddScoped<IArticleRepository, MySqlArticleRepository>();
 
 
 

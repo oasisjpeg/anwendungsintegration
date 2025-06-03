@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
+import { DropshippingWidget } from "../../components/EnhancedDropshippingWidget";
 
 // Hilfsfunktionen für Punkte
 function getPointsColor(points) {

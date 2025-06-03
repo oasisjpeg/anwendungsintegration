@@ -23,19 +23,6 @@ namespace WebApplication1.Application_Layer.Services.Article
             _articleRepository = articleRepository;
         }
 
-        public async Task<int> CreateTransaction(PointSourceType sourceType, int sourceId, Guid userId) // TODO: move to TransactionServices ? or at least part of it...
-        {
-            var userModel = await _userRepository.GetByIdAsync(userId);
-
-            if (userModel == null)
-            {
-                throw new Exception("User not found.");
-            }
-
-            var pointsGained = await _articleRepository.CreateTransaction(sourceType, sourceId, userId);
-            return pointsGained;
-        }
-
         public async Task<List<ArticleOverviewDto>> GetArticlesOverview()
         {
             // get overview of articles --> only return list of all articles with Title, Description and URL (for imgs), not entire article content

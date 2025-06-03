@@ -5,6 +5,7 @@ using WebApplication1.Application_Layer.DTO.Quiz;
 using WebApplication1.Application_Layer.Services.Article;
 using WebApplication1.Application_Layer.Services.Transaction;
 using WebApplication1.Application_Layer.Services.UserAuth;
+using WebApplication1.Domain.Models.User;
 
 namespace WebApplication1.API.Controller.Articles
 {
@@ -29,11 +30,17 @@ namespace WebApplication1.API.Controller.Articles
             var articlesOverview = await _articleServices.GetArticlesOverview();
             return Ok(articlesOverview);
         }
-
+        [Authorize]
         [HttpGet("{articleId}")]
         public async Task<IActionResult> GetOneCompleteArticle(int articleId)
         {
-            if(articleId <= 0) // MySql auto incement ID starts at 1, so 0 or negative ID is invalid
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString))
+                return Unauthorized("Invalid token.");
+
+            var userIdGuid = _userAuth.GetUserIdGuidFromClaims(userIdString);
+
+            if (articleId <= 0) // MySql auto incement ID starts at 1, so 0 or negative ID is invalid
             {
                 return BadRequest("Invalid article ID.");
             }
@@ -44,8 +51,8 @@ namespace WebApplication1.API.Controller.Articles
                 return NotFound();
             }
             // TODO: call createTransaction method to get points for reading article
-            var rewardPointsGained = await _transactionServices.CalculateArticlePoints(articleId);
-            
+            // var rewardPointsGained = await _transactionServices.CalculateArticlePoints(articleId);
+            await _transactionServices.CreateTransaction(userIdGuid, articleId);
             
             return Ok(fullArticle);
         }
@@ -64,7 +71,10 @@ namespace WebApplication1.API.Controller.Articles
             if (isLastQuestion)
                 return Ok(); // 200: Quiz finished
             else
+            {
+                await _transactionServices.CreateTransaction(userIdGuid, null);
                 return Accepted(); // 202: Continue to next question
+            }
         }
 
     }

@@ -6,14 +6,14 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
 {
     public class MySqlTransactionRepository : ITransactionRepository
     {
-        private readonly MySqlDbContext _context;
-        public MySqlTransactionRepository(MySqlDbContext context)
+        private readonly MySqlDbContext _dbContext;
+        public MySqlTransactionRepository(MySqlDbContext dbContext)
         {
-            _context = context;
+            _dbContext = dbContext;
         }
-        public async Task<int> GetArticlePoints(int articleId)
+        public async Task<int> GetArticlePoints(int? articleId)
         {
-            var articleContent = await _context.Articles
+            var articleContent = await _dbContext.Articles
                 .Where(a => a.id == articleId)
                 .Select(a => a.Content)
                 .FirstOrDefaultAsync();
@@ -32,6 +32,21 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             }
 
             return points;
+        }
+
+        public async Task CreateTransaction(PointSourceType pointSourceType, Guid userId, int pointAmount)
+        {
+            var newTransaction = new RewardTransactionModel
+            {
+                id = 0,
+                Created = DateTime.Now,
+                PointsGained = pointAmount,
+                PointSourceType = pointSourceType,
+                UserId = userId
+            };
+
+            _dbContext.RewardTransactions.Add(newTransaction);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

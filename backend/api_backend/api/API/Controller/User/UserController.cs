@@ -36,8 +36,8 @@ public class UserController : ControllerBase
             return BadRequest("Password is required.");
 
         // Hash password before saving
-        userRegisterDto.Password = _userAuth.HashPassword(userRegisterDto.Password);
-        var createdUser = await _userRepository.RegisterAsync(userRegisterDto);
+        var hashedPassword = _userAuth.HashPassword(userRegisterDto.Password);
+        var createdUser = await _userRepository.RegisterAsync(userRegisterDto.Name, userRegisterDto.Email, hashedPassword);
         return CreatedAtAction(nameof(Login), new { email = createdUser.Email }, createdUser);
     }
 
@@ -86,7 +86,7 @@ public class UserController : ControllerBase
         // Add delete confirmation ?
 
         // Delete user
-        await _userRepository.DeleteAsync(userAuthDto);
+        await _userRepository.DeleteAsync(userAuthDto.Email);
 
         return Ok(new { message = "Your account has been deleted.", user = existingUser });
     }
@@ -107,7 +107,13 @@ public class UserController : ControllerBase
         if (existingUser == null)
             return NotFound("User not found.");
 
-        await _userRepository.PatchAsync(userIdGuid, userPatchDto);
+        string? hashedNewPassword = null;
+        if (!string.IsNullOrWhiteSpace(userPatchDto.NewPassword))
+        {
+            hashedNewPassword = _userAuth.HashPassword(userPatchDto.NewPassword);
+        }
+        
+        await _userRepository.PatchAsync(userIdGuid, userPatchDto.NewName, userPatchDto.NewEmail, hashedNewPassword);
 
         return Ok(new { message = "Your account has been updated.", user = existingUser });
     }

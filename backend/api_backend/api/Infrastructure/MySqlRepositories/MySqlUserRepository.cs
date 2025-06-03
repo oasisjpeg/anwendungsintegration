@@ -1,11 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
-using WebApplication1.Application_Layer.Services.UserAuth;
-using WebApplication1.Domain.Models.Consumption;
 using WebApplication1.Domain.Models.User;
-using WebApplication1.Domain.Models.Article;
 using WebApplication1.Domain.Repositories;
 using WebApplication1.Application_Layer.DTO.User;
+using WebApplication1.Application_Layer.Services.ConsumptionData;
 
 
 namespace WebApplication1.Infrastructure.MySqlRepositories;
@@ -13,12 +11,12 @@ namespace WebApplication1.Infrastructure.MySqlRepositories;
 public class MySqlUserRepository : IUserRepository
 {
     private readonly MySqlDbContext _context;
-    private readonly IUserAuth _userAuth; // <-- Not good, domain layer should not point to application layer --> review and handle with parameters if possible
+    private readonly IConsumptionDataService _consumptionDataService;
 
-    public MySqlUserRepository(MySqlDbContext context, IUserAuth userAuth)
+    public MySqlUserRepository(MySqlDbContext context, IConsumptionDataService consumptionDataService)
     {
         _context = context;
-        _userAuth = userAuth;
+        _consumptionDataService = consumptionDataService;
     }
 
     public async Task<UserModel?> GetByEmailAsync(string email)
@@ -35,14 +33,14 @@ public class MySqlUserRepository : IUserRepository
         return await _context.Users.FirstOrDefaultAsync(u => u.Id == Id);
     }
 
-    public async Task<UserModel> RegisterAsync(UserRegisterDto userRegisterDto)
+    public async Task<UserModel> RegisterAsync(string name, string email, string passwordHash)
     {
         var userModel = new UserModel
         {
             Id = Guid.NewGuid(),
-            Name = userRegisterDto.Name,
-            Email = userRegisterDto.Email,
-            PasswordHash = userRegisterDto.Password,
+            Name = name,
+            Email = email,
+            PasswordHash = passwordHash,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             Points = 0
@@ -52,76 +50,50 @@ public class MySqlUserRepository : IUserRepository
         userModel.CreatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
         
-        var baseDate = DateTime.Parse("2025-03-13 00:00:00");
-    
-        // Generate duck curve consumption pattern
-        var (kWValuesConsumption, kWValuesRecommended) = GenerateDuckCurveData();
+        // Generate initial consumption and recommendation data
+        var consumptionRecords = await _consumptionDataService.GenerateInitialConsumptionDataAsync(userModel.Id);
+        var recommendationRecords = await _consumptionDataService.GenerateInitialRecommendationDataAsync(userModel.Id);
 
-        // Create consumption records
-        var dummyConsumptionRecords = new List<ConsumptionRecordModel>();
-        for (int i = 0; i < 24; i++)
-        {
-            dummyConsumptionRecords.Add(new ConsumptionRecordModel
-            {
-                id = Guid.NewGuid().ToString(),
-                UserId = userModel.Id,
-                Timestamp = baseDate.AddHours(i),
-                kWValue = kWValuesConsumption[i]
-            });
-        }
+        _context.ConsumptionRecords.AddRange(consumptionRecords);
+        _context.RecommendRecords.AddRange(recommendationRecords);
 
-        // Create recommendation records (inverse pattern)
-        var dummyRecommendedRecords = new List<RecommendRecordModel>();
-        for (int i = 0; i < 24; i++)
-        {
-            dummyRecommendedRecords.Add(new RecommendRecordModel()
-            {
-                id = Guid.NewGuid().ToString(),
-                UserId = userModel.Id,
-                Created = baseDate.AddHours(i),
-                kWValue = kWValuesRecommended[i]
-            });
-        }
-
-
-        _context.ConsumptionRecords.AddRange(dummyConsumptionRecords);
-        _context.RecommendRecords.AddRange(dummyRecommendedRecords);
-
-        await _context.SaveChangesAsync(); // Save the dummy data
+        await _context.SaveChangesAsync();
         
         return userModel;
     }
 
-    public async Task<UserModel> DeleteAsync(UserAuthDto userAuthDto)
+    public async Task<UserModel> DeleteAsync(string email)
     {
-        var user = await GetByEmailAsync(userAuthDto.Email);
+        var user = await GetByEmailAsync(email);
+        if (user == null)
+            throw new Exception("User not found.");
 
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
-        return (user);
+        return user;
     }
 
-    public async Task<UserModel> PatchAsync(Guid userId, UserPatchDto userPatchDto)
+    public async Task<UserModel> PatchAsync(Guid userId, string? newName, string? newEmail, string? newPasswordHash)
     {
         var user = await _context.Users.FindAsync(userId);
 
         if (user == null)
             throw new Exception("User not found.");
 
-        if (!string.IsNullOrWhiteSpace(userPatchDto.NewName))
+        if (!string.IsNullOrWhiteSpace(newName))
         {
-            user.Name = userPatchDto.NewName;
+            user.Name = newName;
         }
 
-        if (!string.IsNullOrWhiteSpace(userPatchDto.NewEmail))
+        if (!string.IsNullOrWhiteSpace(newEmail))
         {
-            user.Email = userPatchDto.NewEmail;
-            user.UserName = userPatchDto.NewEmail; // if using Identity
+            user.Email = newEmail;
+            user.UserName = newEmail; // if using Identity
         }
 
-        if (!string.IsNullOrWhiteSpace(userPatchDto.NewPassword))
+        if (!string.IsNullOrWhiteSpace(newPasswordHash))
         {
-            user.PasswordHash = _userAuth.HashPassword(userPatchDto.NewPassword);
+            user.PasswordHash = newPasswordHash;
         }
 
         user.UpdatedAt = DateTime.UtcNow;
@@ -131,59 +103,11 @@ public class MySqlUserRepository : IUserRepository
     }
 
 
-    public async Task<UserModel?> GetInformationFromUserAsync(UserAuthDto userAuthDto)
+    public async Task<UserModel?> GetByEmailAndPasswordAsync(string email, string passwordHash)
     {
-        var user = await GetByEmailAsync(userAuthDto.Email);
-
-        if (user == null)
-        {
-            return null; // Benutzer nicht gefunden
-        }
-
-        if (!_userAuth.VerifyPassword(user.PasswordHash, userAuthDto.Password))
-        {
-            return null; // Ungültiges Passwort
-        }
-
-        await _context.SaveChangesAsync();
-        return user;
+        return await _context.Users.FirstOrDefaultAsync(u => u.Email == email && u.PasswordHash == passwordHash);
     }
     
-    private (double[] consumption, double[] recommended) GenerateDuckCurveData()
-    {
-        // Duck curve parameters (adjusted from search results)
-        var hours = Enumerable.Range(0, 24).Select(h => (double)h).ToArray();
-    
-        // Baseline load pattern
-        var baseline = hours.Select(h => 
-                1.2 + 0.8 * Math.Sin((h - 6) / 24 * 2 * Math.PI) // Morning/evening peaks
-        ).ToArray();
-
-        // Solar generation dip
-        var solarDip = hours.Select(h => 
-                1.5 * Math.Exp(-0.5 * Math.Pow((h - 13) / 2.5, 2)) // Peak at 13:00
-        ).ToArray();
-
-        // Net consumption (baseline + evening peak - solar generation)
-        var netConsumption = hours.Select((h, i) => 
-            baseline[i] + 0.5 * Math.Exp(-0.5 * Math.Pow((h - 19)/2, 2)) - solarDip[i]
-        ).ToArray();
-
-        // Normalize to match Excel data range (3-13 kWh daily total)
-        var minConsumption = netConsumption.Min();
-        var maxConsumption = netConsumption.Max();
-        var scaledConsumption = netConsumption.Select(c => 
-            0.2 + (c - minConsumption) * (1.8 - 0.2) / (maxConsumption - minConsumption)
-        ).ToArray();
-
-        // Create recommendation curve (encourage shifting to solar hours)
-        var maxRec = scaledConsumption.Max();
-        var recommended = scaledConsumption.Select(c => 
-            Math.Round(maxRec - c + 0.3, 1)
-        ).ToArray();
-
-        return (scaledConsumption, recommended);
-    }
 
     public async Task<List<RewardTransactionModel>> GetRecentTransactionsAsync(Guid userId, int count)
     {

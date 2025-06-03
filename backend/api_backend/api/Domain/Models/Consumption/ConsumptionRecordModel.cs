@@ -16,7 +16,7 @@ public class ConsumptionRecordModel
 
     public required DateTime Timestamp { get; set; }
 
-    public required double kWValue { get; set; }
+    public required double KWValue { get; set; }
 
     public virtual UserModel Users { get; set; }
 }

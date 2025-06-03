@@ -51,16 +51,10 @@ namespace WebApplication1.Application_Layer.Services.Article
 
         public async Task<bool> SubmitOneQuestionAnswer(QuizQuestionDto quizQuestionDto, Guid userId)
         {
-            // submit one question answer to database, for a specific user
-            var lastQuestionCheck =
-                await _articleRepository.IsLastQuestionInQuiz(quizQuestionDto.QuestionId);
-            if (!lastQuestionCheck)
-            {
-                await _articleRepository.SubmitOneQuestionAnswerToDB(quizQuestionDto, userId);
-                return false;
-            }
+            var isLastQuestion = await _articleRepository.IsLastQuestionInQuiz(quizQuestionDto.QuestionId);
             await _articleRepository.SubmitOneQuestionAnswerToDB(quizQuestionDto, userId);
-            return true;
+            return isLastQuestion;
         }
+
     }
 }

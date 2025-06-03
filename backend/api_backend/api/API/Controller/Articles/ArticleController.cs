@@ -45,7 +45,8 @@ namespace WebApplication1.API.Controller.Articles
             }
             // TODO: call createTransaction method to get points for reading article
             var rewardPointsGained = await _transactionServices.CalculateArticlePoints(articleId);
-
+            
+            
             return Ok(fullArticle);
         }
 
@@ -53,20 +54,18 @@ namespace WebApplication1.API.Controller.Articles
         [HttpPost("{id}/quiz/submissions")]
         public async Task<IActionResult> SubmitOneQuestionAnswer(QuizQuestionDto quizQuestionDto)
         {
-            // read userId from token claims
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
             if (string.IsNullOrEmpty(userIdString))
                 return Unauthorized("Invalid token.");
 
             var userIdGuid = _userAuth.GetUserIdGuidFromClaims(userIdString);
 
-            // save one question answer to database 
-            // return 202 if not last question --> check if last question in quiz for each answer submission
-            // return 200 if last question, to inform front end that quiz is now finished, aka the next question is the last question
-            var submitAndCheckLastQuestion = await _articleServices.SubmitOneQuestionAnswer(quizQuestionDto, userIdGuid);
-
-            return Ok(submitAndCheckLastQuestion);
+            var isLastQuestion = await _articleServices.SubmitOneQuestionAnswer(quizQuestionDto, userIdGuid);
+            if (isLastQuestion)
+                return Ok(); // 200: Quiz finished
+            else
+                return Accepted(); // 202: Continue to next question
         }
+
     }
 }

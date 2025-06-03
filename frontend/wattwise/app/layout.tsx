@@ -5,25 +5,13 @@ import clsx from "clsx";
 import { Providers } from "./providers";
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
-import { LayoutShell } from "@/components/layout-shell"; // 👈 new
+import { LayoutShell } from "@/components/layout-shell";
+import { WebSocketProvider } from "@/context/WebSocketProvider";
+import { RewardPointsProvider } from "@/context/RewardPointsContext";
 
-export const metadata: Metadata = {
-  title: {
-    default: siteConfig.name,
-    template: `%s - ${siteConfig.name}`,
-  },
-  description: siteConfig.description,
-  icons: {
-    icon: "/favicon.ico",
-  },
-};
 
-export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "white" },
-    { media: "(prefers-color-scheme: dark)", color: "black" },
-  ],
-};
+export const metadata: Metadata = { /* ... */ };
+export const viewport: Viewport = { /* ... */ };
 
 export default function RootLayout({
   children,
@@ -40,7 +28,11 @@ export default function RootLayout({
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <LayoutShell>{children}</LayoutShell>
+          <RewardPointsProvider>
+            <WebSocketProvider>
+              <LayoutShell>{children}</LayoutShell>
+            </WebSocketProvider>
+          </RewardPointsProvider>
         </Providers>
       </body>
     </html>

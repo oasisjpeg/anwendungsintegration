@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   LineChart,
   Line,
@@ -14,6 +14,8 @@ import axios, { Axios } from "axios";
 import { useRouter } from "next/navigation";
 import { Spinner } from "@heroui/spinner";
 import { Button } from "@heroui/button";
+import { useRewardPoints } from "@/context/RewardPointsContext";
+
 
 export default function Home() {
   const [data, setData] = useState({ records: [], total: 0 });
@@ -24,31 +26,10 @@ export default function Home() {
   const [mergedData, setMergedData] = useState([]);
 
   const router = useRouter();
+  const { rewardPoints } = useRewardPoints();
 
-  const [rewardPoints, setRewardPoints] = useState(0);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const socket = new WebSocket(`ws://localhost:5137/ws/rewardpoints?access_token=${token}`);
-
-    socket.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        console.log("WebSocket message received:", data.points);
-        setRewardPoints(data.points);
-      } catch (err) {
-        console.error("Invalid WebSocket message:", err);
-      }
-    };
-
-    socket.onclose = () => {
-      console.log("WebSocket closed");
-    };
-
-    return () => {
-      socket.close();
-    };
-  }, []);
+  const prevRewardPoints = useRef(rewardPoints);
+  const isFirstRender = useRef(true);
 
   async function checkAuth() {
     const storedEmail = localStorage.getItem("email");
@@ -63,29 +44,6 @@ export default function Home() {
     }
   }
 
-  const fetchRecommendations = async () => {
-    const isLoggedIn = await checkAuth();
-
-    if (!isLoggedIn) {
-      console.warn("User is not logged in!");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const response = await axios.get(
-        "http://localhost:5137/api/recommend-records/me",
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      setRecommendations(response.data);
-    } catch (error) {
-      console.error("Failed to load recommendation data:", error);
-    }
-  };
 
   useEffect(() => {
     async function fetchData() {
@@ -120,7 +78,7 @@ export default function Home() {
         setData({
           records: consumptionRes.data,
           total: totalKwh,
-        });   
+        });
         setRecommendations(recommendationsRes.data);
         setMergedData(merged);
         setLoading(false);
@@ -161,7 +119,7 @@ export default function Home() {
       );
 
       const recommendation = recommendations.find(
-        (r) => new Date(r.timestamp).getHours() === hour
+        (r) => new Date(r.created).getHours() === hour
       );
 
       return {
@@ -218,6 +176,7 @@ export default function Home() {
               <h3 className="text-sm text-gray-500 dark:text-gray-400">
                 Statistik
               </h3>
+
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Stromverbrauch
               </h2>

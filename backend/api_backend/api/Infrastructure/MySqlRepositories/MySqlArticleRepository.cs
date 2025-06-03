@@ -18,18 +18,19 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
 
         public async Task<int> CreateTransaction(PointSourceType pointSourceType, int sourceId, Guid userId)
         {
-            var newTransaction = new RewardTransactionModel // TODO: move to domain layer?
+            var newTransaction = new RewardTransactionModel
             {
                 id = 0,
                 Created = DateTime.Now,
-                PointsGained = 0, // <-- TODO: ADD some sort of way to Calculate Points --> add method
+                PointsGained = 0, // Points will be calculated in service layer
                 PointSourceType = pointSourceType,
                 PointSourceId = sourceId,
                 UserId = userId
             };
-            int pointsGained = newTransaction.PointsGained;
+            
+            _dbContext.RewardTransactions.Add(newTransaction);
             await _dbContext.SaveChangesAsync();
-            return pointsGained;
+            return newTransaction.PointsGained;
         }
 
         public async Task<List<ArticleOverviewDto>> GetArticleOverviewFromDB()

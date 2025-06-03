@@ -4,8 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
-using WebApplication1.Infrastructure.MySqlRepositories;
+using WebApplication1.Domain.Repositories;
 
 namespace WebApplication1.Application_Layer.Websockets;
 
@@ -56,8 +55,8 @@ public class RewardPointsWebSocketHandler
             }
 
             using var scope = _serviceProvider.CreateScope();
-            var dbContext = scope.ServiceProvider
-                .GetRequiredService<MySqlDbContext>();
+            var userRepository = scope.ServiceProvider
+                .GetRequiredService<IUserRepository>();
 
             var webSocket = await context.WebSockets.AcceptWebSocketAsync();
             long lastSentPoints = -1; // Initial state
@@ -66,11 +65,9 @@ public class RewardPointsWebSocketHandler
             {
                 while (webSocket.State == WebSocketState.Open)
                 {
-                    var currentPoints = await dbContext.Users
-                        .AsNoTracking()
-                        .Where(u => u.Id.ToString() == userId)
-                        .Select(u => u.Points)
-                        .FirstOrDefaultAsync();
+                    var userIdGuid = Guid.Parse(userId);
+                    var user = await userRepository.GetByIdAsync(userIdGuid);
+                    var currentPoints = user?.Points ?? 0;
 
                     if (currentPoints != lastSentPoints)
                     {

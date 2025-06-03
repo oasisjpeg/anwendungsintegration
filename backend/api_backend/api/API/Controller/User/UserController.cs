@@ -134,7 +134,11 @@ public class UserController : ControllerBase
 
         var existingUser = await _userRepository.GetByEmailAsync(userAuthDto.Email);
         // User Auth
-        // TODO: deal with null PasswordHash
+        if (string.IsNullOrEmpty(existingUser.PasswordHash))
+        {
+            return Unauthorized("Invalid user credentials.");
+        }
+        
         if (!_userAuth.VerifyPassword(existingUser.PasswordHash, userAuthDto.Password))
         {
             return Unauthorized("Invalid email or password.");

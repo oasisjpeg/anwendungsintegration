@@ -1,13 +1,11 @@
 "use client";
-
 import React from "react";
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
 
 // Hilfsfunktionen für Punkte
 function getPointsColor(points) {
-  if (points > 0) return "text-green-700 bg-green-100";
-  if (points < 0) return "text-red-700 bg-red-100";
-  return "text-yellow-700 bg-yellow-100";
+  if (points > 0) return "text-green-700 bg-green-100 dark:text-green-300 dark:bg-green-900/40";
+  if (points < 0) return "text-red-700 bg-red-100 dark:text-red-300 dark:bg-red-900/40";
+  return "text-yellow-700 bg-yellow-100 dark:text-yellow-300 dark:bg-yellow-900/40";
 }
 
 function getPointsPrefix(points) {
@@ -65,48 +63,48 @@ const testTransactions = [
     Point_Ressource: "Amazon 25€ Coupon",
     User_ID: 1,
   }
-  // ... weitere Einträge
 ];
 
-
 export default function TransactionHistory() {
-
-  //TODO: Replace with real data fetching logic
-  const transactions = testTransactions; 
+  const transactions = testTransactions; // TODO: Replace with real data
 
   return (
-    <div className="bg-white dark:bg-zinc-900 shadow-lg rounded-2xl p-6 mb-8">
+    <div className="shadow-lg rounded-2xl p-4 mb-8 pb-24">
       <h2 className="text-xl font-semibold mb-4">Transaktionsverlauf</h2>
-      <Table aria-label="Transaktionsverlauf">
-        <TableHeader>
-          <TableColumn width={150}>Datum</TableColumn>
-          <TableColumn>Quelle</TableColumn>
-          <TableColumn>Ressource</TableColumn>
-          <TableColumn align="end">Punkte</TableColumn>
-        </TableHeader>
-        <TableBody
-          emptyContent={"Keine Transaktionen gefunden."}
-          items={transactions}
-        >
-          {(tx) => (
-            <TableRow key={tx.Transaction_ID}>
-              <TableCell>{new Date(tx.Date).toLocaleDateString()}</TableCell>
-              <TableCell>{tx.Point_Source}</TableCell>
-              <TableCell>{tx.Point_Ressource}</TableCell>
-              <TableCell className="text-right">
+      {transactions.length === 0 ? (
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+          Keine Transaktionen gefunden.
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {transactions.map((tx) => (
+            <div
+              key={tx.Transaction_ID}
+              className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-4 border border-gray-200 dark:border-zinc-700"
+            >
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm text-gray-700 dark:text-gray-300">
+                  {new Date(tx.Date).toLocaleDateString()}
+                </span>
                 <span
-                  className={`inline-block px-3 py-1 rounded-full font-semibold ${getPointsColor(
+                  className={`inline-block px-3 py-1 rounded-full font-semibold text-sm ${getPointsColor(
                     tx.Points_Gained
                   )}`}
                 >
                   {getPointsPrefix(tx.Points_Gained)}
                   {Math.abs(tx.Points_Gained)}
                 </span>
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+              </div>
+              <div className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                {tx.Point_Source}
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                {tx.Point_Ressource}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -14,6 +14,7 @@ import {
   ModalFooter,
 } from "@heroui/modal";
 import axios from "axios";
+import { ClockIcon } from "@heroicons/react/24/outline";
 
 
 export default function SettingsPage() {
@@ -135,6 +136,16 @@ export default function SettingsPage() {
       <div className="absolute top-4 right-4 z-50">
         <ThemeSwitch />
       </div>
+      <div className="absolute top-4 left-4 z-50">
+        <Button
+          color="default"
+          onPress={() => router.push("/history")}
+          className="rounded-full p-2 bg-transparent"
+        >
+          <ClockIcon className="w-6 h-6" />
+        </Button>
+      </div>
+          
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
         Einstellungen von {email}
       </h1>

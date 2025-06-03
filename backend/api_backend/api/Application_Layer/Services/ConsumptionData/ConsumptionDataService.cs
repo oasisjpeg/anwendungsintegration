@@ -2,12 +2,6 @@ using WebApplication1.Domain.Models.Consumption;
 
 namespace WebApplication1.Application_Layer.Services.ConsumptionData;
 
-public interface IConsumptionDataService
-{
-    Task<List<ConsumptionRecordModel>> GenerateInitialConsumptionDataAsync(Guid userId);
-    Task<List<RecommendRecordModel>> GenerateInitialRecommendationDataAsync(Guid userId);
-}
-
 public class ConsumptionDataService : IConsumptionDataService
 {
     private static readonly DateTime BaseDate = DateTime.Parse("2025-03-13 00:00:00");

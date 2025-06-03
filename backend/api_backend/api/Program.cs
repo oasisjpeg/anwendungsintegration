@@ -5,12 +5,14 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using WebApplication1.Application_Layer.Services.Article;
 using WebApplication1.Application_Layer.Services.ConsumptionData;
+using WebApplication1.Application_Layer.Services.Leaderboard;
 using WebApplication1.Application_Layer.Services.Transaction;
 using WebApplication1.Application_Layer.Services.UserAuth;
 using WebApplication1.Application_Layer.Services.UserExistCheck;
 using WebApplication1.Application_Layer.Websockets;
 using WebApplication1.Domain.Models.User;
 using WebApplication1.Domain.Repositories;
+using WebApplication1.Domain.Services;
 using WebApplication1.Infrastructure.MySqlRepositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -91,6 +93,8 @@ builder.Services.AddScoped<IArticleRepository, MySqlArticleRepository>();
 builder.Services.AddScoped<IArticleServices, ArticleServices>();
 builder.Services.AddScoped<ITransactionServices, TransactionServices>();
 builder.Services.AddScoped<IConsumptionDataService, ConsumptionDataService>();
+builder.Services.AddScoped<ILeaderboardServices, LeaderboardServices>();
+builder.Services.AddScoped<ILeaderboardRepository, MySqlLeaderboardRepository>();
 
 
 var app = builder.Build();

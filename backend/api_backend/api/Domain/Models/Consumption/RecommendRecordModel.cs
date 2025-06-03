@@ -17,7 +17,7 @@ namespace WebApplication1.Domain.Models.Consumption
 
         public required DateTime Created { get; set; }
 
-        public required double kWValue { get; set; }
+        public required double KWValue { get; set; }
 
         // navigation prop
         public virtual UserModel Users { get; set; }

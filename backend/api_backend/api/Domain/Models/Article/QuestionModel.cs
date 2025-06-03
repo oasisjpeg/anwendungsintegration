@@ -13,6 +13,6 @@
         public required int QuizId { get; set; }
 
         // navigation prop
-        public required QuizModel Quiz { get; set; }
+        public QuizModel Quiz { get; set; }
     }
 }

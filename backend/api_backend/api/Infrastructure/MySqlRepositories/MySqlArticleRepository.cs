@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.Security.AccessControl;
 using WebApplication1.Application_Layer.DTO.Article;
 using WebApplication1.Application_Layer.DTO.Quiz;
@@ -18,18 +18,19 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
 
         public async Task<int> CreateTransaction(PointSourceType pointSourceType, int sourceId, Guid userId)
         {
-            var newTransaction = new RewardTransactionModel // TODO: move to domain layer?
+            var newTransaction = new RewardTransactionModel
             {
                 id = 0,
                 Created = DateTime.Now,
-                PointsGained = 0, // <-- TODO: ADD some sort of way to Calculate Points --> add method
+                PointsGained = 0, // Points will be calculated in service layer
                 PointSourceType = pointSourceType,
                 PointSourceId = sourceId,
                 UserId = userId
             };
-            int pointsGained = newTransaction.PointsGained;
+            
+            _dbContext.RewardTransactions.Add(newTransaction);
             await _dbContext.SaveChangesAsync();
-            return pointsGained;
+            return newTransaction.PointsGained;
         }
 
         public async Task<List<ArticleOverviewDto>> GetArticleOverviewFromDB()
@@ -37,6 +38,7 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             return await _dbContext.Articles
             .Select(a => new ArticleOverviewDto
             {
+                id = a.id,
                 Title = a.Title,
                 Description = a.Description,
                 Url = a.Url
@@ -44,13 +46,70 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             .ToListAsync();
         }
 
-        public async Task<ArticleModel> GetOneCompleteArticleFromDB(int articleId)
+        // Fetches a complete article with its associated quiz and questions
+        public async Task<ArticleWithQuizModel> GetOneCompleteArticleFromDB(int articleId)
         {
-            var article = await _dbContext.Articles.FirstOrDefaultAsync(a => a.id == articleId);
+            if (articleId <= 0)
+                throw new ArgumentException("Article ID must be greater than zero.", nameof(articleId));
+
+            // Get article
+            var article = await _dbContext.Articles
+                .FirstOrDefaultAsync(a => a.id == articleId);
+
             if (article == null)
                 throw new KeyNotFoundException($"Article with ID {articleId} not found.");
-            return article;
+
+            // Get quiz with questions using Include to ensure proper loading
+            var quiz = await _dbContext.Quiz
+                .Include(q => q.Questions)
+                .FirstOrDefaultAsync(q => q.ArticleId == articleId);
+
+            if (quiz == null)
+                throw new KeyNotFoundException($"No quiz found for article with ID {articleId}.");
+
+            // Map questions
+            var questions = quiz.Questions
+                .OrderBy(q => q.id)
+                .Select(q => new QuestionModel
+                {
+                    id = q.id,
+                    QuestionText = q.QuestionText,
+                    FirstAnswerOption = q.FirstAnswerOption,
+                    SecondAnswerOption = q.SecondAnswerOption,
+                    ThirdAnswerOption = q.ThirdAnswerOption,
+                    FourthAnswerOption = q.FourthAnswerOption,
+                    CorrectAnswerIndex = q.CorrectAnswerIndex,
+                    QuizId = q.QuizId
+                })
+                .ToList();
+
+            // Create the quiz model with questions
+            var quizModel = new QuizModel
+            {
+                id = quiz.id,
+                Title = quiz.Title,
+                ArticleId = quiz.ArticleId,
+                Questions = questions
+            };
+
+            // Create the article model
+            var articleModel = new ArticleModel
+            {
+                id = article.id,
+                Title = article.Title,
+                Content = article.Content,
+                Url = article.Url,
+                DateTime = article.DateTime,
+                Description = article.Description
+            };
+
+            return new ArticleWithQuizModel
+            {
+                Article = articleModel,
+                Quiz = quizModel
+            };
         }
+
 
         public async Task SubmitOneQuestionAnswerToDB(QuizQuestionDto quizQuestionDto, Guid userId)
         {
@@ -77,23 +136,23 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             await _dbContext.SaveChangesAsync();
         }
         
-        public async Task<bool> IsLastQuestionInQuiz(int questionId) 
+        public async Task<bool> IsLastQuestionInQuiz(int questionId)
         {
-            // Flexible Lösung für variable Anzahl von Fragen pro Quiz (aktuell 4)
-            var question = await _dbContext.Question.FirstOrDefaultAsync(q => q.id == questionId);
-            if (question == null)
-                throw new KeyNotFoundException($"Question with ID {questionId} not found.");
+            // Example: Get the quiz ID for the question
+            var quizId = await _dbContext.Question
+                .Where(q => q.id == questionId)
+                .Select(q => q.QuizId)
+                .FirstOrDefaultAsync();
 
-            var totalQuestionsInQuiz = await _dbContext.Question
-                .CountAsync(q => q.QuizId == question.QuizId);
-            
-            var currentQuestionIndex = await _dbContext.Question
-                .Where(q => q.QuizId == question.QuizId)
-                .OrderBy(q => q.id)
-                .Select(q => q.id)
-                .ToListAsync();
-
-            return currentQuestionIndex.IndexOf(questionId) == totalQuestionsInQuiz - 1;
+            // Find the highest question ID for this quiz
+            var maxQuestionId = await _dbContext.Question
+                .Where(q => q.QuizId == quizId)
+                .MaxAsync(q => (int?)q.id);
+            // Return true if this is the last question
+            return questionId == maxQuestionId;
         }
+
     }
+
+
 }

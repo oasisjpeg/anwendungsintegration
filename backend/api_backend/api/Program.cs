@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using WebApplication1.Application_Layer.Services.Article;
+using WebApplication1.Application_Layer.Services.ConsumptionData;
 using WebApplication1.Application_Layer.Services.Transaction;
 using WebApplication1.Application_Layer.Services.UserAuth;
 using WebApplication1.Application_Layer.Services.UserExistCheck;
@@ -89,6 +90,7 @@ builder.Services.AddScoped<ITransactionRepository, MySqlTransactionRepository>()
 builder.Services.AddScoped<IArticleRepository, MySqlArticleRepository>();
 builder.Services.AddScoped<IArticleServices, ArticleServices>();
 builder.Services.AddScoped<ITransactionServices, TransactionServices>();
+builder.Services.AddScoped<IConsumptionDataService, ConsumptionDataService>();
 
 
 var app = builder.Build();

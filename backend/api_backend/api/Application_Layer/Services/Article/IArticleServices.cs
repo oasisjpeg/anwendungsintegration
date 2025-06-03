@@ -9,7 +9,7 @@ namespace WebApplication1.Application_Layer.Services.Article
     {
         Task<int> CreateTransaction(PointSourceType sourceType, int sourceId, Guid userId); // return point amount AND either change name to "CreateArticleTransaction" or create in TransactionServices
         Task<List<ArticleOverviewDto>> GetArticlesOverview();
-        Task<ArticleModel> GetOneCompleteArticleById(int id);
+        Task<ArticleWithQuizModel> GetOneCompleteArticleById(int id);
         Task<bool> SubmitOneQuestionAnswer(QuizQuestionDto quizQuestionDto, Guid userId);
         
     }

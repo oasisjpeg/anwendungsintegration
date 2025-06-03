@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.Security.AccessControl;
 using WebApplication1.Application_Layer.DTO.Article;
 using WebApplication1.Application_Layer.DTO.Quiz;
@@ -37,6 +37,7 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             return await _dbContext.Articles
             .Select(a => new ArticleOverviewDto
             {
+                id = a.id,
                 Title = a.Title,
                 Description = a.Description,
                 Url = a.Url

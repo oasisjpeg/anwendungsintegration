@@ -5,11 +5,12 @@
 /.pnp
 .pnp.js
 
-/android
-/ios
+.vs/
 # testing
 /coverage
 
+/android
+/ios
 # next.js
 /.next/
 /out/

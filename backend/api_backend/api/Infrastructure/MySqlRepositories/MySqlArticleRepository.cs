@@ -136,24 +136,22 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             await _dbContext.SaveChangesAsync();
         }
         
-        public async Task<bool> IsLastQuestionInQuiz(int questionId) 
+        public async Task<bool> IsLastQuestionInQuiz(int questionId)
         {
-            // Flexible Lösung für variable Anzahl von Fragen pro Quiz (aktuell 4)
-            var question = await _dbContext.Question.FirstOrDefaultAsync(q => q.id == questionId);
-            if (question == null)
-                throw new KeyNotFoundException($"Question with ID {questionId} not found.");
+            // Example: Get the quiz ID for the question
+            var quizId = await _dbContext.Question
+                .Where(q => q.id == questionId)
+                .Select(q => q.QuizId)
+                .FirstOrDefaultAsync();
 
-            var totalQuestionsInQuiz = await _dbContext.Question
-                .CountAsync(q => q.QuizId == question.QuizId);
-            
-            var currentQuestionIndex = await _dbContext.Question
-                .Where(q => q.QuizId == question.QuizId)
-                .OrderBy(q => q.id)
-                .Select(q => q.id)
-                .ToListAsync();
-
-            return currentQuestionIndex.IndexOf(questionId) == totalQuestionsInQuiz - 1;
+            // Find the highest question ID for this quiz
+            var maxQuestionId = await _dbContext.Question
+                .Where(q => q.QuizId == quizId)
+                .MaxAsync(q => (int?)q.id);
+            // Return true if this is the last question
+            return questionId == maxQuestionId;
         }
+
     }
 
 

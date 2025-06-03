@@ -204,8 +204,8 @@ public class UserController : ControllerBase
         if (existingUser == null)
             return NotFound("User not found.");
 
-        var LeaderboardData = _leaderboardServices.GetLeaderboardForUser(userIdGuid);
+        var LeaderboardData = await _leaderboardServices.GetLeaderboardForUser(userIdGuid);
 
-        return Ok(LeaderboardData);
+            return Ok(LeaderboardData);
     }
 }

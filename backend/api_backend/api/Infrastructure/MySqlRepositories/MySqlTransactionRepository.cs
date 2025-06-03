@@ -26,7 +26,6 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             var wordCount = articleContent.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
 
             var points = (int)Math.Round(0.2 * wordCount);
-            // TODO: add point max
             if (points > 300)
             {
                 points = 300;

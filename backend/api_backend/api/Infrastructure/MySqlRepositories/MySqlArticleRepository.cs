@@ -45,13 +45,70 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             .ToListAsync();
         }
 
-        public async Task<ArticleModel> GetOneCompleteArticleFromDB(int articleId)
+        // Fetches a complete article with its associated quiz and questions
+        public async Task<ArticleWithQuizModel> GetOneCompleteArticleFromDB(int articleId)
         {
-            var article = await _dbContext.Articles.FirstOrDefaultAsync(a => a.id == articleId);
+            if (articleId <= 0)
+                throw new ArgumentException("Article ID must be greater than zero.", nameof(articleId));
+
+            // Get article
+            var article = await _dbContext.Articles
+                .FirstOrDefaultAsync(a => a.id == articleId);
+
             if (article == null)
                 throw new KeyNotFoundException($"Article with ID {articleId} not found.");
-            return article;
+
+            // Get quiz with questions using Include to ensure proper loading
+            var quiz = await _dbContext.Quiz
+                .Include(q => q.Questions)
+                .FirstOrDefaultAsync(q => q.ArticleId == articleId);
+
+            if (quiz == null)
+                throw new KeyNotFoundException($"No quiz found for article with ID {articleId}.");
+
+            // Map questions
+            var questions = quiz.Questions
+                .OrderBy(q => q.id)
+                .Select(q => new QuestionModel
+                {
+                    id = q.id,
+                    QuestionText = q.QuestionText,
+                    FirstAnswerOption = q.FirstAnswerOption,
+                    SecondAnswerOption = q.SecondAnswerOption,
+                    ThirdAnswerOption = q.ThirdAnswerOption,
+                    FourthAnswerOption = q.FourthAnswerOption,
+                    CorrectAnswerIndex = q.CorrectAnswerIndex,
+                    QuizId = q.QuizId
+                })
+                .ToList();
+
+            // Create the quiz model with questions
+            var quizModel = new QuizModel
+            {
+                id = quiz.id,
+                Title = quiz.Title,
+                ArticleId = quiz.ArticleId,
+                Questions = questions
+            };
+
+            // Create the article model
+            var articleModel = new ArticleModel
+            {
+                id = article.id,
+                Title = article.Title,
+                Content = article.Content,
+                Url = article.Url,
+                DateTime = article.DateTime,
+                Description = article.Description
+            };
+
+            return new ArticleWithQuizModel
+            {
+                Article = articleModel,
+                Quiz = quizModel
+            };
         }
+
 
         public async Task SubmitOneQuestionAnswerToDB(QuizQuestionDto quizQuestionDto, Guid userId)
         {
@@ -97,4 +154,6 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             return currentQuestionIndex.IndexOf(questionId) == totalQuestionsInQuiz - 1;
         }
     }
+
+
 }

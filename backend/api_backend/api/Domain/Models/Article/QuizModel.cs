@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace WebApplication1.Domain.Models.Article
 {
@@ -8,7 +8,10 @@ namespace WebApplication1.Domain.Models.Article
         public required string Title { get; set; }
         // fk
         public required int ArticleId { get; set; }
-        // navigation property
-        public required ArticleModel Article { get; set; }
+        // navigation property (not required to prevent circular references)
+        public ArticleModel? Article { get; set; }
+        
+        public ICollection<QuestionModel> Questions { get; set; }
+
     }
 }

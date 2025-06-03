@@ -42,7 +42,7 @@ namespace WebApplication1.Application_Layer.Services.Article
             return await _articleRepository.GetArticleOverviewFromDB();
         }
 
-        public async Task<ArticleModel> GetOneCompleteArticleById(int articleId)
+        public async Task<ArticleWithQuizModel> GetOneCompleteArticleById(int articleId)
         {
             // get one complete article by ID, return entire article object
             var fullArticle = await _articleRepository.GetOneCompleteArticleFromDB(articleId);

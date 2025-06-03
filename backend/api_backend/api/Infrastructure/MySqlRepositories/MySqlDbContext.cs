@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Domain.Models.Article;
@@ -36,15 +36,19 @@ public class MySqlDbContext : IdentityDbContext<UserModel, IdentityRole<Guid>, G
             .WithMany()
             .HasForeignKey(r => r.UserId);
 
-        builder.Entity<QuestionModel>()
-            .HasOne(r => r.Quiz)
-            .WithMany()
-            .HasForeignKey(r => r.QuizId);
-
+        // Configure the Quiz-Questions relationship
         builder.Entity<QuizModel>()
-            .HasOne(r => r.Article)
+            .HasMany(q => q.Questions)
+            .WithOne(q => q.Quiz)
+            .HasForeignKey(q => q.QuizId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure the Article-Quiz relationship
+        builder.Entity<QuizModel>()
+            .HasOne(q => q.Article)
             .WithMany()
-            .HasForeignKey(r => r.ArticleId);
+            .HasForeignKey(q => q.ArticleId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         //builder.Entity<RewardTransactionModel>()
         //    .HasOne(r => r.User)

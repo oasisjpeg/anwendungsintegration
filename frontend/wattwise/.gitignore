@@ -8,6 +8,8 @@
 # testing
 /coverage
 
+/android
+/ios
 # next.js
 /.next/
 /out/

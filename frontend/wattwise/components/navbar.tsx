@@ -1,10 +1,11 @@
 "use client";
 import {
   HomeIcon,
-  DevicePhoneMobileIcon,
   ClockIcon,
   EllipsisHorizontalIcon,
-  BookOpenIcon
+  BookOpenIcon,
+  ShoppingBagIcon,
+  TrophyIcon
 } from "@heroicons/react/24/outline";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -32,11 +33,17 @@ const Navbar = () => {
           onClick={() => handleNavigate("/knowledge")}
         />
         <NavItem
-          icon={<ClockIcon className="w-6 h-6" />}
-          label="Transaktionen"
-          active={pathname === "/history"}
-          onClick={() => handleNavigate("/history")}
+          icon={<TrophyIcon className="w-6 h-6" />}
+          label="Bestenliste"
+          active={pathname === "/leaderboard"}
+          onClick={() => handleNavigate("/leaderboard")}
         />
+        <NavItem
+          icon={<ShoppingBagIcon className="w-6 h-6" />}
+          label="Geräte"
+          active={pathname === "/dropshipping"}
+          onClick={() => handleNavigate("/dropshipping")}
+          />
         <NavItem
           icon={<EllipsisHorizontalIcon className="w-6 h-6" />}
           label="Mehr"

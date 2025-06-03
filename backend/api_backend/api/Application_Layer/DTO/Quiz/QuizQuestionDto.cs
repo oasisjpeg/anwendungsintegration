@@ -7,11 +7,10 @@ namespace WebApplication1.Application_Layer.DTO.Quiz
     {
         [Key]
         [Required]
-        [MaxLength(100)]
         public required int QuestionId { get; set; }
 
         [Required]
-        [MaxLength(1)]
+        [Range(0, 3)]
         public required int AnswerSelectionIndex { get; set; } // 0 - 3 answer index options
     }
 }

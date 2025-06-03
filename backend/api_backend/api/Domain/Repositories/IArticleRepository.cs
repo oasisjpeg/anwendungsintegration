@@ -9,7 +9,7 @@ namespace WebApplication1.Domain.Repositories
     {
         Task<int> CreateTransaction(PointSourceType pointSourceType, int sourceId, Guid userId);
         Task<List<ArticleOverviewDto>> GetArticleOverviewFromDB();
-        Task<ArticleWithQuizModel> GetOneCompleteArticleFromDB(int articleId);
+        Task<CompleteArticleDto> GetOneCompleteArticleFromDB(int articleId);
         Task SubmitOneQuestionAnswerToDB(QuizQuestionDto quizQuestionDto, Guid userId);
         Task<bool> IsLastQuestionInQuiz(int questionId);
     }

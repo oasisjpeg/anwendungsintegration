@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using WebApplication1.Application_Layer.DTO.User;
+using WebApplication1.Application_Layer.Services.Leaderboard;
 using WebApplication1.Application_Layer.Services.UserAuth;
 using WebApplication1.Application_Layer.Services.UserExistCheck;
 using WebApplication1.Domain.Models;
@@ -16,12 +17,14 @@ public class UserController : ControllerBase
     private readonly IUserRepository _userRepository;
     private readonly IUserAuth _userAuth;
     private readonly IUserExistCheck _userExistCheck;
+    private readonly ILeaderboardServices _leaderboardServices;
 
-    public UserController(IUserRepository userRepository, IUserAuth userAuth, IUserExistCheck userExistCheck)
+    public UserController(IUserRepository userRepository, IUserAuth userAuth, IUserExistCheck userExistCheck, ILeaderboardServices leaderboardServices)
     {
         _userRepository = userRepository;
         _userAuth = userAuth;
         _userExistCheck = userExistCheck;
+        _leaderboardServices = leaderboardServices;
     }
 
     // Register a new user
@@ -61,6 +64,8 @@ public class UserController : ControllerBase
         }
 
         var token = jwtAuth.GenerateToken(existingUser);
+
+        // TODO: Add Leaderboard call
 
         return Ok(new { message = "Login successful!", email = existingUser.Email, token });
     }
@@ -172,5 +177,25 @@ public class UserController : ControllerBase
         }
 
         return Ok(transactionList);
+    }
+    [Authorize]
+    [HttpGet("leaderboard")]
+    public async Task<IActionResult> GetLeaderboardForCurrentUser()
+    {
+        // read userId from JWT claims --> use UserId to retrieve
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userIdString))
+            return Unauthorized("Invalid token.");
+
+        var userIdGuid = _userAuth.GetUserIdGuidFromClaims(userIdString);
+
+        var existingUser = await _userRepository.GetByIdAsync(userIdGuid);
+        if (existingUser == null)
+            return NotFound("User not found.");
+
+        var LeaderboardData = _leaderboardServices.GetLeaderboardForUser(userIdGuid);
+
+        return Ok(LeaderboardData);
     }
 }

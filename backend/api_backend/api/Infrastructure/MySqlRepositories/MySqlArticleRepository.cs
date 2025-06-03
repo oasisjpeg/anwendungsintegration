@@ -46,7 +46,7 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
         }
 
         // Fetches a complete article with its associated quiz and questions
-        public async Task<ArticleWithQuizModel> GetOneCompleteArticleFromDB(int articleId)
+        public async Task<CompleteArticleDto> GetOneCompleteArticleFromDB(int articleId)
         {
             if (articleId <= 0)
                 throw new ArgumentException("Article ID must be greater than zero.", nameof(articleId));
@@ -102,7 +102,7 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
                 Description = article.Description
             };
 
-            return new ArticleWithQuizModel
+            return new CompleteArticleDto
             {
                 Article = articleModel,
                 Quiz = quizModel

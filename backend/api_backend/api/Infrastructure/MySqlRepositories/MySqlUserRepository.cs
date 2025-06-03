@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
-using WebApplication1.Application_Layer.Services.UserAuth;
 using WebApplication1.Domain.Models.Consumption;
 using WebApplication1.Domain.Models.User;
 using WebApplication1.Domain.Models.Article;
@@ -13,12 +12,10 @@ namespace WebApplication1.Infrastructure.MySqlRepositories;
 public class MySqlUserRepository : IUserRepository
 {
     private readonly MySqlDbContext _context;
-    private readonly IUserAuth _userAuth; // <-- Not good, domain layer should not point to application layer --> review and handle with parameters if possible
 
-    public MySqlUserRepository(MySqlDbContext context, IUserAuth userAuth)
+    public MySqlUserRepository(MySqlDbContext context)
     {
         _context = context;
-        _userAuth = userAuth;
     }
 
     public async Task<UserModel?> GetByEmailAsync(string email)
@@ -35,14 +32,14 @@ public class MySqlUserRepository : IUserRepository
         return await _context.Users.FirstOrDefaultAsync(u => u.Id == Id);
     }
 
-    public async Task<UserModel> RegisterAsync(UserRegisterDto userRegisterDto)
+    public async Task<UserModel> RegisterAsync(string name, string email, string passwordHash)
     {
         var userModel = new UserModel
         {
             Id = Guid.NewGuid(),
-            Name = userRegisterDto.Name,
-            Email = userRegisterDto.Email,
-            PasswordHash = userRegisterDto.Password,
+            Name = name,
+            Email = email,
+            PasswordHash = passwordHash,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             Points = 0
@@ -66,7 +63,7 @@ public class MySqlUserRepository : IUserRepository
                 id = Guid.NewGuid().ToString(),
                 UserId = userModel.Id,
                 Timestamp = baseDate.AddHours(i),
-                kWValue = kWValuesConsumption[i]
+                KWValue = kWValuesConsumption[i]
             });
         }
 
@@ -79,7 +76,7 @@ public class MySqlUserRepository : IUserRepository
                 id = Guid.NewGuid().ToString(),
                 UserId = userModel.Id,
                 Created = baseDate.AddHours(i),
-                kWValue = kWValuesRecommended[i]
+                KWValue = kWValuesRecommended[i]
             });
         }
 
@@ -92,36 +89,38 @@ public class MySqlUserRepository : IUserRepository
         return userModel;
     }
 
-    public async Task<UserModel> DeleteAsync(UserAuthDto userAuthDto)
+    public async Task<UserModel> DeleteAsync(string email)
     {
-        var user = await GetByEmailAsync(userAuthDto.Email);
+        var user = await GetByEmailAsync(email);
+        if (user == null)
+            throw new Exception("User not found.");
 
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
-        return (user);
+        return user;
     }
 
-    public async Task<UserModel> PatchAsync(Guid userId, UserPatchDto userPatchDto)
+    public async Task<UserModel> PatchAsync(Guid userId, string? newName, string? newEmail, string? newPasswordHash)
     {
         var user = await _context.Users.FindAsync(userId);
 
         if (user == null)
             throw new Exception("User not found.");
 
-        if (!string.IsNullOrWhiteSpace(userPatchDto.NewName))
+        if (!string.IsNullOrWhiteSpace(newName))
         {
-            user.Name = userPatchDto.NewName;
+            user.Name = newName;
         }
 
-        if (!string.IsNullOrWhiteSpace(userPatchDto.NewEmail))
+        if (!string.IsNullOrWhiteSpace(newEmail))
         {
-            user.Email = userPatchDto.NewEmail;
-            user.UserName = userPatchDto.NewEmail; // if using Identity
+            user.Email = newEmail;
+            user.UserName = newEmail; // if using Identity
         }
 
-        if (!string.IsNullOrWhiteSpace(userPatchDto.NewPassword))
+        if (!string.IsNullOrWhiteSpace(newPasswordHash))
         {
-            user.PasswordHash = _userAuth.HashPassword(userPatchDto.NewPassword);
+            user.PasswordHash = newPasswordHash;
         }
 
         user.UpdatedAt = DateTime.UtcNow;
@@ -131,22 +130,9 @@ public class MySqlUserRepository : IUserRepository
     }
 
 
-    public async Task<UserModel?> GetInformationFromUserAsync(UserAuthDto userAuthDto)
+    public async Task<UserModel?> GetByEmailAndPasswordAsync(string email, string passwordHash)
     {
-        var user = await GetByEmailAsync(userAuthDto.Email);
-
-        if (user == null)
-        {
-            return null; // Benutzer nicht gefunden
-        }
-
-        if (!_userAuth.VerifyPassword(user.PasswordHash, userAuthDto.Password))
-        {
-            return null; // Ungültiges Passwort
-        }
-
-        await _context.SaveChangesAsync();
-        return user;
+        return await _context.Users.FirstOrDefaultAsync(u => u.Email == email && u.PasswordHash == passwordHash);
     }
     
     private (double[] consumption, double[] recommended) GenerateDuckCurveData()

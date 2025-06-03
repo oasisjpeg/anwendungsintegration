@@ -4,6 +4,7 @@ namespace WebApplication1.Application_Layer.Services.Transaction
 {
     public interface ITransactionServices
     {
-        Task<int> CalculateArticlePoints(int articleId);
+        Task CreateTransaction(Guid userId, int? articleId);
+        Task<int> CalculateArticlePoints(int? articleId);
     }
 }

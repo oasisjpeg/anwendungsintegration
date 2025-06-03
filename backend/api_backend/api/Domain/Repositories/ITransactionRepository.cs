@@ -4,6 +4,7 @@ namespace WebApplication1.Domain.Repositories
 {
     public interface ITransactionRepository
     {
-        Task<int> GetArticlePoints(int articleId);
+        Task<int> GetArticlePoints(int? articleId);
+        Task CreateTransaction(PointSourceType sourceType, Guid userId, int pointAmount);
     }
 }

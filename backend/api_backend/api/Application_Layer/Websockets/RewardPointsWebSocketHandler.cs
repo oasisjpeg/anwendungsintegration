@@ -65,6 +65,7 @@ public class RewardPointsWebSocketHandler
             {
                 while (webSocket.State == WebSocketState.Open)
                 {
+                    
                     var userIdGuid = Guid.Parse(userId);
                     var user = await userRepository.GetByIdAsync(userIdGuid);
                     var currentPoints = user?.Points ?? 0;

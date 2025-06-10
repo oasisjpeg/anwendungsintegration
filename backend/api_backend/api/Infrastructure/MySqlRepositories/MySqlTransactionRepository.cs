@@ -46,7 +46,17 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             };
 
             _dbContext.RewardTransactions.Add(newTransaction);
+
+            // Update the user's points
+            var user = await _dbContext.Users.FindAsync(userId);
+            if (user != null)
+            {
+                user.Points += pointAmount;
+                _dbContext.Users.Update(user); // Not strictly needed if user is tracked, but safe to include
+            }
+
             await _dbContext.SaveChangesAsync();
         }
+
     }
 }

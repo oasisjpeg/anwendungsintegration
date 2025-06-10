@@ -14,11 +14,14 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (!token) return;
 
     const socket = new WebSocket(`ws://localhost:5137/ws/rewardpoints?access_token=${token}`);
+    console.log("WebSocket connection established");
 
     socket.onmessage = (event) => {
       try {
+
         const data = JSON.parse(event.data);
         const newPoints: number = data.points;
+        console.log("WebSocket message received:", data);
         if (!isFirstRender.current && newPoints !== prevRewardPoints.current) {
           if (prevRewardPoints.current !== null) {
             if (newPoints > (prevRewardPoints.current ?? 0)) {

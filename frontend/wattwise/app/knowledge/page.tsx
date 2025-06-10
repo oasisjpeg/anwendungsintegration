@@ -29,9 +29,10 @@ export default function KnowledgePage() {
   const fetchArticleDetail = async (id: number) => {
     setLoading(true);
     try {
-      const response = await axios.get<ArticleDetailResponse>(
-        `http://localhost:5137/api/articles/${id}` // Fixed URL (no "api201")
-      );
+      const response = await axios.get(`http://localhost:5137/api/articles/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      console.log("Fetched article detail:", response.data);
       setDetail(response.data);
     } catch (error) {
       console.error("Error fetching article detail:", error);

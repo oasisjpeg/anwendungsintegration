@@ -30,7 +30,8 @@ public class MySqlUserRepository : IUserRepository
 
     public async Task<UserModel?> GetByIdAsync(Guid Id)
     {
-        return await _context.Users.FirstOrDefaultAsync(u => u.Id == Id);
+        //AsNoTrackig is for workbench changes
+        return await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == Id);
     }
 
     public async Task<UserModel> RegisterAsync(string name, string email, string passwordHash)

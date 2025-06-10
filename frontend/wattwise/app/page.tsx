@@ -44,6 +44,19 @@ export default function Home() {
     }
   }
 
+useEffect(() => {
+      axios.get("http://localhost:5137/api/users/leaderboard", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+        .then((response) => { 
+          console.log("User data fetched successfully:", response.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);}
+        );
+    }
+  , []);
+
 
   useEffect(() => {
     async function fetchData() {
@@ -71,9 +84,10 @@ export default function Home() {
         );
 
         const totalKwh = consumptionRes.data.reduce(
-          (sum, record) => sum + Number(record.kWValue),
+          (sum, record) => sum + Number(record.kwValue),
           0
         );
+
 
         setData({
           records: consumptionRes.data,
@@ -121,14 +135,13 @@ export default function Home() {
       const recommendation = recommendations.find(
         (r) => new Date(r.created).getHours() === hour
       );
-
       return {
         timestamp,
-        kWValue: consumptionRecord && !isFuture
-          ? Number(consumptionRecord.kWValue).toFixed(2)
+        kwValue: consumptionRecord && !isFuture
+          ? Number(consumptionRecord.kwValue).toFixed(2)
           : null,
         recommended: recommendation
-          ? Number(recommendation.kWValue).toFixed(2)
+          ? Number(recommendation.kwValue).toFixed(2)
           : null,
       };
     });
@@ -230,7 +243,7 @@ export default function Home() {
                   />
                   <Line
                     type="monotone"
-                    dataKey="kWValue"
+                    dataKey="kwValue"
                     stroke="#6366F1"
                     strokeWidth={3}
                     dot={{ r: 4 }}

@@ -32,8 +32,9 @@ namespace WebApplication1.API.Controller.Articles
         }
         [Authorize]
         [HttpGet("{articleId}")]
-        public async Task<IActionResult> GetOneCompleteArticle(int articleId)
+        public async Task<IActionResult> GetOneCompleteArticle(int articleId) //TODO consider removing Correct Answer Index from response because we now have the isCorrect validation for each submitted answer
         {
+
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdString))
                 return Unauthorized("Invalid token.");
@@ -59,7 +60,7 @@ namespace WebApplication1.API.Controller.Articles
 
         [Authorize]
         [HttpPost("{id}/quiz/submissions")]
-        public async Task<IActionResult> SubmitOneQuestionAnswer(QuizQuestionDto quizQuestionDto)
+        public async Task<IActionResult> SubmitOneQuestionAnswer(QuizQuestionDto quizQuestionDto) 
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdString))
@@ -67,14 +68,20 @@ namespace WebApplication1.API.Controller.Articles
 
             var userIdGuid = _userAuth.GetUserIdGuidFromClaims(userIdString);
 
+            var isCorrectAnswer = await _articleServices.IsCorrectAnswer(quizQuestionDto.AnswerSelectionIndex);
             var isLastQuestion = await _articleServices.SubmitOneQuestionAnswer(quizQuestionDto, userIdGuid);
+
             if (isLastQuestion)
-                return Ok(); // 200: Quiz finished
-            else
             {
                 await _transactionServices.CreateTransaction(userIdGuid, null);
-                return Accepted(); // 202: Continue to next question
+                return Ok("Answer correct status:" + isCorrectAnswer); // 200: Quiz finished & returns if the answer was correct
             }
+            else
+            {
+                return Accepted("Answer correct status:" + isCorrectAnswer); // 202: Continue to next question & returns if the answer was correct
+            }
+                
+
         }
 
     }

@@ -135,6 +135,14 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             return questionId == maxQuestionId;
         }
 
+        public async Task<bool> IsCorrectAnswer(int answerSelection)
+        {
+            // Check if the answer selection is correct
+            var isCorrect = await _dbContext.Question
+                .AnyAsync(q => q.CorrectAnswerIndex == answerSelection);
+            return isCorrect;
+        }
+
     }
 
 

@@ -43,5 +43,11 @@ namespace WebApplication1.Application_Layer.Services.Article
             return isLastQuestion;
         }
 
+        public Task<bool> IsCorrectAnswer(int answerSelection)
+        {
+            var isCorrect = _articleRepository.IsCorrectAnswer(answerSelection);
+            return isCorrect;
+        }
+
     }
 }

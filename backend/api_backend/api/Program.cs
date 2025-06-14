@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 using WebApplication1.Application_Layer.Services.Article;
 using WebApplication1.Application_Layer.Services.ConsumptionData;
@@ -42,7 +43,8 @@ builder.Services.AddIdentity<UserModel, IdentityRole<Guid>>()
 
 // JWT Auth
 builder.Services.Configure<JwtAuth>(builder.Configuration.GetSection("JwtSettings"));
-builder.Services.AddSingleton<JwtAuth>(); // unnecessary?
+builder.Services.AddScoped<JwtAuth>();
+// builder.Services.AddSingleton<JwtAuth>(); // unnecessary?
 
 var jwtSecret = builder.Configuration["JwtSettings:Secret"];
 
@@ -70,7 +72,8 @@ builder.Services.AddAuthentication(options =>
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
             ValidAudience = builder.Configuration["JwtSettings:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(key)
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            NameClaimType = ClaimTypes.Name
         };
     });
 
@@ -80,7 +83,36 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Add the JWT Bearer definition
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Enter 'Bearer' followed by your JWT token.\n\nExample: Bearer eyJhbGciOiJIUzI1NiIsInR5..."
+    });
+
+    // Add global requirement
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
 
 // Dependency Injection stuff --> registers dependencies
 builder.Services.AddScoped<IConsumptionRecordRepository, MySqlConsumptionRecordRepository>();

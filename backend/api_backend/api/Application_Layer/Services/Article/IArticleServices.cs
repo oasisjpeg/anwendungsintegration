@@ -10,6 +10,6 @@ namespace WebApplication1.Application_Layer.Services.Article
         Task<List<ArticleOverviewDto>> GetArticlesOverview();
         Task<CompleteArticleDto> GetOneCompleteArticleById(int id);
         Task<bool> SubmitOneQuestionAnswer(QuizQuestionDto quizQuestionDto, Guid userId);
-        
+        Task<bool> IsCorrectAnswer(int answerSelection);
     }
 }

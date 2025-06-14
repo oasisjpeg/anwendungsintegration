@@ -11,4 +11,6 @@ public interface IUserRepository
     Task<UserModel> PatchAsync(Guid userId, string? newName, string? newEmail, string? newPasswordHash);
     Task<UserModel?> GetByEmailAndPasswordAsync(string email, string passwordHash);
     Task<List<RewardTransactionModel>> GetRecentTransactionsAsync(Guid userId, int count);
+    Task<UserModel> UpdateRefreshTokenAsync(Guid userId, string refreshToken, DateTime expiryTime);
+    Task<UserModel?> GetByRefreshTokenAsync(string refreshToken);
 }

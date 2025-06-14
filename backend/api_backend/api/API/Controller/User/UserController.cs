@@ -64,10 +64,54 @@ public class UserController : ControllerBase
         }
 
         var token = jwtAuth.GenerateToken(existingUser);
+        var refreshToken = jwtAuth.GenerateRefreshToken();
+        
+        // Store refresh token with 7 days expiry
+        await _userRepository.UpdateRefreshTokenAsync(existingUser.Id, refreshToken, DateTime.UtcNow.AddDays(7));
 
         // TODO: Add Leaderboard call
 
-        return Ok(new { message = "Login successful!", email = existingUser.Email, token });
+        return Ok(new { message = "Login successful!", email = existingUser.Email, token, refreshToken });
+    }
+
+    // Refresh Token
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request, [FromServices] JwtAuth jwtAuth)
+    {
+        if (string.IsNullOrEmpty(request.Token) || string.IsNullOrEmpty(request.RefreshToken))
+        {
+            return BadRequest("Token and refresh token are required.");
+        }
+
+        try
+        {
+            var principal = jwtAuth.GetPrincipalFromExpiredToken(request.Token);
+            var userIdString = principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
+            {
+                return BadRequest("Invalid token.");
+            }
+
+            var user = await _userRepository.GetByRefreshTokenAsync(request.RefreshToken);
+
+            if (user == null || user.Id != userId || 
+                user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+            {
+                return Unauthorized("Invalid refresh token.");
+            }
+
+            var newAccessToken = jwtAuth.GenerateToken(user);
+            var newRefreshToken = jwtAuth.GenerateRefreshToken();
+
+            await _userRepository.UpdateRefreshTokenAsync(user.Id, newRefreshToken, DateTime.UtcNow.AddDays(7));
+
+            return Ok(new { token = newAccessToken, refreshToken = newRefreshToken });
+        }
+        catch (Exception)
+        {
+            return BadRequest("Invalid token.");
+        }
     }
 
     // DELETE user 

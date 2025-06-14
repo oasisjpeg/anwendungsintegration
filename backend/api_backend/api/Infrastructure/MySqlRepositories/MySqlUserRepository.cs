@@ -118,4 +118,23 @@ public class MySqlUserRepository : IUserRepository
             .Take(count)
             .ToListAsync();
     }
+
+    public async Task<UserModel> UpdateRefreshTokenAsync(Guid userId, string refreshToken, DateTime expiryTime)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null)
+            throw new Exception("User not found.");
+
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiryTime = expiryTime;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+        return user;
+    }
+
+    public async Task<UserModel?> GetByRefreshTokenAsync(string refreshToken)
+    {
+        return await _context.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+    }
 }

@@ -22,5 +22,9 @@ namespace WebApplication1.Domain.Models.User
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
         public required int Points { get; set; } = 0;
+        
+        // Refresh Token fields
+        public string? RefreshToken { get; set; }
+        public DateTime? RefreshTokenExpiryTime { get; set; }
     }
 }

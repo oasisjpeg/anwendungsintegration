@@ -7,7 +7,7 @@
         public required int PointsGained { get; set; }
         // both not FK but used to recollect the information related to user andpoint histroy/origin of points
         public required PointSourceType PointSourceType { get; set; }
-        // public required int PointSourceId { get; set; } --> I dont see this as relevant anymore (author: Jacob)
+        public required int PointSourceId { get; set; } // correction: this is actually needed to identify the source of points specifically
         // fk
         public required Guid UserId { get; set; }
         // navigation prop

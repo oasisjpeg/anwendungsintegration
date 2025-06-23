@@ -126,28 +126,19 @@ public class UserController : ControllerBase
 
     // INFORMATION Request
 
+  
     [Authorize]
     [HttpGet("information")]
-    public async Task<IActionResult> GetInformationOfUser(UserAuthDto userAuthDto)
+    public async Task<IActionResult> GetInformationOfUser()
     {
-        var email = User.FindFirst(ClaimTypes.Email)?.Value; // Adjust to use primary key instead of email
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (!await _userExistCheck.UserExistsAsync(userAuthDto.Email))
-        {
-            return NotFound("User not found.");
-        }
+        if (string.IsNullOrEmpty(userIdString))
+            return Unauthorized("Invalid token.");
 
-        var existingUser = await _userRepository.GetByEmailAsync(userAuthDto.Email);
-        // User Auth
-        if (string.IsNullOrEmpty(existingUser.PasswordHash))
-        {
-            return Unauthorized("Invalid user credentials.");
-        }
-        
-        if (!_userAuth.VerifyPassword(existingUser.PasswordHash, userAuthDto.Password))
-        {
-            return Unauthorized("Invalid email or password.");
-        }
+        var userIdGuid = _userAuth.GetUserIdGuidFromClaims(userIdString);
+
+        var existingUser = await _userRepository.GetByIdAsync(userIdGuid);
 
         return Ok(existingUser);
     }

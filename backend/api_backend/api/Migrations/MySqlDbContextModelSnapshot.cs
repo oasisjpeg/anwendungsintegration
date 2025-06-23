@@ -210,9 +210,6 @@ namespace WebApplication1.Migrations
                     b.Property<int>("QuizId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("QuizModelid")
-                        .HasColumnType("int");
-
                     b.Property<string>("SecondAnswerOption")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -224,8 +221,6 @@ namespace WebApplication1.Migrations
                     b.HasKey("id");
 
                     b.HasIndex("QuizId");
-
-                    b.HasIndex("QuizModelid");
 
                     b.ToTable("Question");
                 });
@@ -257,14 +252,14 @@ namespace WebApplication1.Migrations
                     b.Property<string>("id")
                         .HasColumnType("varchar(255)");
 
+                    b.Property<double>("KWValue")
+                        .HasColumnType("double");
+
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("datetime(6)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("char(36)");
-
-                    b.Property<double>("kWValue")
-                        .HasColumnType("double");
 
                     b.HasKey("id");
 
@@ -281,11 +276,11 @@ namespace WebApplication1.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<double>("KWValue")
+                        .HasColumnType("double");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("char(36)");
-
-                    b.Property<double>("kWValue")
-                        .HasColumnType("double");
 
                     b.HasKey("id");
 
@@ -304,6 +299,9 @@ namespace WebApplication1.Migrations
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<int>("DummyTempProperty")
+                        .HasColumnType("int");
 
                     b.Property<int>("PointSourceId")
                         .HasColumnType("int");
@@ -483,14 +481,10 @@ namespace WebApplication1.Migrations
             modelBuilder.Entity("WebApplication1.Domain.Models.Article.QuestionModel", b =>
                 {
                     b.HasOne("WebApplication1.Domain.Models.Article.QuizModel", "Quiz")
-                        .WithMany()
+                        .WithMany("Questions")
                         .HasForeignKey("QuizId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("WebApplication1.Domain.Models.Article.QuizModel", null)
-                        .WithMany("Questions")
-                        .HasForeignKey("QuizModelid");
 
                     b.Navigation("Quiz");
                 });

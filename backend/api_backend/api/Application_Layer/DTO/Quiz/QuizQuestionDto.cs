@@ -7,10 +7,11 @@ namespace WebApplication1.Application_Layer.DTO.Quiz
     {
         [Key]
         [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "QuestionId must be greater than 0.")]
         public required int QuestionId { get; set; }
 
         [Required]
-        [Range(0, 3)]
+        [Range(1, 4)]
         public required int AnswerSelectionIndex { get; set; } // 0 - 3 answer index options
     }
 }

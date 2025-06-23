@@ -44,19 +44,6 @@ export default function Home() {
     }
   }
 
-useEffect(() => {
-      axios.get("http://localhost:5137/api/users/leaderboard", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      })
-        .then((response) => { 
-          console.log("User data fetched successfully:", response.data);
-        })
-        .catch((error) => {
-          console.error("Error fetching user data:", error);}
-        );
-    }
-  , []);
-
 
   useEffect(() => {
     async function fetchData() {

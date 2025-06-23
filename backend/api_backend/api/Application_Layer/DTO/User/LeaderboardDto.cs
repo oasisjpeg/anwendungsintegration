@@ -3,6 +3,6 @@
     public class LeaderboardDto
     {
         public required string UserName { get; set; }
-        public required int PointIncreaseValue { get; set; }
+        public required int PointIncreaseValue { get; set; }  
     }
 }

@@ -60,7 +60,7 @@ export default function KnowledgePage() {
           {articles.map((article) => (
             <div
               key={article.id}
-              className="bg-white dark:bg-zinc-900 shadow-lg rounded-2xl p-6 flex flex-col md:flex-row items-center gap-4"
+              className="bg-white dark:bg-zinc-900 shadow-lg rounded-2xl p-6 flex flex-col md:flex-row items-center gap-4 "
             >
               {article.url && article.url.length > 0 && (
                 <div className="flex-shrink-0">
@@ -84,7 +84,7 @@ export default function KnowledgePage() {
                 <div className="flex items-center gap-4">
                   {/* Fixed prop: on201Press → onPress */}
                   <Button
-                    className="bg-indigo-600 dark:bg-indigo-500 text-white font-semibold rounded-xl px-4 py-2 text-sm shadow-md"
+                    className="bg-indigo-600 dark:bg-indigo-500 text-white font-semibold rounded-xl px-4 py-2 text-sm shadow-md hover:scale-[1.02] transition-transform duration-200"
                     variant="flat"
                     onPress={() => fetchArticleDetail(article.id)}
                     isLoading={loading}

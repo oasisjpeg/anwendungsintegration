@@ -15,7 +15,13 @@ import { useRouter } from "next/navigation";
 import { Spinner } from "@heroui/spinner";
 import { Button } from "@heroui/button";
 import { useRewardPoints } from "@/context/RewardPointsContext";
+import { jwtDecode } from "jwt-decode";
 
+interface DataPoint {
+  timestamp: string;
+  kwValue: string | null;
+  recommended: string | null;
+}
 
 export default function Home() {
   const [data, setData] = useState({ records: [], total: 0 });
@@ -23,26 +29,49 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
   const [recommendations, setRecommendations] = useState([]);
-  const [mergedData, setMergedData] = useState([]);
+  const [mergedData, setMergedData] = useState<DataPoint[]>([]);
 
   const router = useRouter();
   const { rewardPoints } = useRewardPoints();
 
-  const prevRewardPoints = useRef(rewardPoints);
-  const isFirstRender = useRef(true);
+
 
   async function checkAuth() {
     const storedEmail = localStorage.getItem("email");
-    if (storedEmail) {
-      setEmail(storedEmail);
-      setLoggedIn(true);
-      return true;
+    const token = localStorage.getItem("token"); // assuming you store the JWT as "token"
+
+    if (storedEmail && token) {
+      try {
+        const { exp } = jwtDecode(token); // exp is in seconds
+        const now = Date.now() / 1000; // current time in seconds
+        console.log(exp);
+        console.log(now);
+        if (exp && exp > now) {
+          setEmail(storedEmail);
+          setLoggedIn(true);
+          return true;
+        } else {
+          // Token expired
+          setLoggedIn(false);
+          localStorage.removeItem("token");
+          localStorage.removeItem("email");
+          console.warn("Token expired");
+          return false;
+        }
+      } catch (e) {
+        setLoggedIn(false);
+        localStorage.removeItem("token");
+        localStorage.removeItem("email");
+        console.warn("Invalid token");
+        return false;
+      }
     } else {
       setLoggedIn(false);
       console.warn("No user data found in localStorage");
       return false;
     }
   }
+
 
 
   useEffect(() => {
@@ -71,7 +100,7 @@ export default function Home() {
         );
 
         const totalKwh = consumptionRes.data.reduce(
-          (sum, record) => sum + Number(record.kwValue),
+          (sum: number, record: { kwValue: any; }) => sum + Number(record.kwValue),
           0
         );
 
@@ -107,7 +136,7 @@ export default function Home() {
     return timeline;
   };
 
-  const mergeData = (consumption, recommendations) => {
+  const mergeData = (consumption: any[], recommendations: any[]) => {
     const timeline = generate24HourTimeline();
     const now = new Date();
 

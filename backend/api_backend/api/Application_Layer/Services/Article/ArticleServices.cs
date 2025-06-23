@@ -43,11 +43,15 @@ namespace WebApplication1.Application_Layer.Services.Article
             return isLastQuestion;
         }
 
-        public Task<bool> IsCorrectAnswer(int answerSelection)
+        public Task<bool> IsCorrectAnswer(int questionId, int answerSelection)
         {
-            var isCorrect = _articleRepository.IsCorrectAnswer(answerSelection);
+            var isCorrect = _articleRepository.IsCorrectAnswer(questionId, answerSelection);
             return isCorrect;
         }
-
+        public async Task<List<QuizAnswersDto>> GetCorrectAnswersForQuiz(int articleId)
+        {
+            // get correct answers for quiz by article ID and return list of QuizAnswersDto objects
+            return await _articleRepository.GetCorrectAnswersForQuiz(articleId);
+        }
     }
 }

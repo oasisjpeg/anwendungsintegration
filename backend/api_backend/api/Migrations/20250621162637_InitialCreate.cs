@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WebApplication1.Migrations
 {
     /// <inheritdoc />
-    public partial class AddedQuizModel : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -104,6 +104,7 @@ namespace WebApplication1.Migrations
                     PointsGained = table.Column<int>(type: "int", nullable: false),
                     PointSourceType = table.Column<int>(type: "int", nullable: false),
                     PointSourceId = table.Column<int>(type: "int", nullable: false),
+                    DummyTempProperty = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
                 },
                 constraints: table =>
@@ -263,7 +264,7 @@ namespace WebApplication1.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     UserId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     Timestamp = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    kWValue = table.Column<double>(type: "double", nullable: false)
+                    KWValue = table.Column<double>(type: "double", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -285,7 +286,7 @@ namespace WebApplication1.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     UserId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     Created = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    kWValue = table.Column<double>(type: "double", nullable: false)
+                    KWValue = table.Column<double>(type: "double", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -316,8 +317,7 @@ namespace WebApplication1.Migrations
                     FourthAnswerOption = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CorrectAnswerIndex = table.Column<int>(type: "int", nullable: false),
-                    QuizId = table.Column<int>(type: "int", nullable: false),
-                    QuizModelid = table.Column<int>(type: "int", nullable: true)
+                    QuizId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -328,11 +328,6 @@ namespace WebApplication1.Migrations
                         principalTable: "Quiz",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Question_Quiz_QuizModelid",
-                        column: x => x.QuizModelid,
-                        principalTable: "Quiz",
-                        principalColumn: "id");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -411,11 +406,6 @@ namespace WebApplication1.Migrations
                 name: "IX_Question_QuizId",
                 table: "Question",
                 column: "QuizId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Question_QuizModelid",
-                table: "Question",
-                column: "QuizModelid");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Quiz_ArticleId",

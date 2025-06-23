@@ -51,16 +51,15 @@ namespace WebApplication1.API.Controller.Articles
             {
                 return NotFound();
             }
-            // TODO: call createTransaction method to get points for reading article
-            // var rewardPointsGained = await _transactionServices.CalculateArticlePoints(articleId);
-            await _transactionServices.CreateTransaction(userIdGuid, articleId);
+            bool isArticle = true;
+            await _transactionServices.CreateTransaction(userIdGuid, articleId, isArticle);
             
             return Ok(fullArticle);
         }
 
         [Authorize]
-        [HttpPost("{id}/quiz/submissions")]
-        public async Task<IActionResult> SubmitOneQuestionAnswer(QuizQuestionDto quizQuestionDto) 
+        [HttpPost("{articleId}/quiz/submissions")]
+        public async Task<IActionResult> SubmitOneQuestionAnswer(QuizQuestionDto quizQuestionDto, int articleId)
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdString))
@@ -68,21 +67,26 @@ namespace WebApplication1.API.Controller.Articles
 
             var userIdGuid = _userAuth.GetUserIdGuidFromClaims(userIdString);
 
-            var isCorrectAnswer = await _articleServices.IsCorrectAnswer(quizQuestionDto.AnswerSelectionIndex);
+            var isCorrectAnswer = await _articleServices.IsCorrectAnswer(quizQuestionDto.QuestionId ,quizQuestionDto.AnswerSelectionIndex);
             var isLastQuestion = await _articleServices.SubmitOneQuestionAnswer(quizQuestionDto, userIdGuid);
 
             if (isLastQuestion)
             {
-                await _transactionServices.CreateTransaction(userIdGuid, null);
-                return Ok("Answer correct status:" + isCorrectAnswer); // 200: Quiz finished & returns if the answer was correct
+                // TODO add which answer is correct for each question
+                bool isArticle = false;
+                var correctAnswers = await _articleServices.GetCorrectAnswersForQuiz(articleId);
+                await _transactionServices.CreateTransaction(userIdGuid, articleId, isArticle);
+                return Ok(new
+                {
+                    AnswerCorrectStatus = isCorrectAnswer,
+                    CorrectAnswers = correctAnswers
+                }); // 200: Quiz finished & returns if the answer was correct; Sorry JSON works best here since two different return types are needed (for now)
             }
             else
             {
+                // TODO add which answer is correct for each question
                 return Accepted("Answer correct status:" + isCorrectAnswer); // 202: Continue to next question & returns if the answer was correct
             }
-                
-
         }
-
     }
 }

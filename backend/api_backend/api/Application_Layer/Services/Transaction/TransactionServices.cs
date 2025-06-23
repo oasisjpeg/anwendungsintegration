@@ -19,7 +19,7 @@ namespace WebApplication1.Application_Layer.Services.Transaction
             var articlePoints = await _transactionRepository.GetArticlePoints(articleId);
             return articlePoints;
         }
-        public async Task CreateTransaction(Guid userId, int? articleId)
+        public async Task CreateTransaction(Guid userId, int articleId, bool isArticle)
         {
             var userModel = await _userRepository.GetByIdAsync(userId);
 
@@ -28,18 +28,40 @@ namespace WebApplication1.Application_Layer.Services.Transaction
                 throw new Exception("User not found.");
             }
             int pointAmount;
-            if (articleId == null)
+            if (isArticle == true)
             {
                 PointSourceType pointSourceType = PointSourceType.Article;
-                pointAmount = await CalculateArticlePoints(articleId);
-                await _transactionRepository.CreateTransaction(pointSourceType, userId, pointAmount);
+                var isDuplicate = await PreventDuplicateTransaction(userId, pointSourceType, articleId);
+                if (isDuplicate)
+                {
+                    return; // no need to create a new transaction with zero points...
+                }
+                else
+                {
+                    pointAmount = await CalculateArticlePoints(articleId);
+                }
+                await _transactionRepository.CreateTransaction(pointSourceType, articleId, userId, pointAmount);
             }
             else
             {
                 PointSourceType pointSourceType = PointSourceType.Quiz;
-                pointAmount = 15; // all quizes reward 15 points upon completion
-                await _transactionRepository.CreateTransaction(pointSourceType, userId, pointAmount);
+                var isDuplicate = await PreventDuplicateTransaction(userId, pointSourceType, articleId);
+                if (isDuplicate)
+                {
+                    return; // no need to create a new transaction with zero points...
+                }
+                else
+                {
+                    pointAmount = 15; // all quizes reward 15 points upon completion
+                }
+                await _transactionRepository.CreateTransaction(pointSourceType, articleId, userId, pointAmount);
             }
+        }
+
+        public Task<bool> PreventDuplicateTransaction(Guid userId, PointSourceType sourceType, int articleId)
+        {
+            var isDuplicate = _transactionRepository.PreventDuplicateTransaction(userId, sourceType, articleId);
+            return isDuplicate;
         }
     }
 }

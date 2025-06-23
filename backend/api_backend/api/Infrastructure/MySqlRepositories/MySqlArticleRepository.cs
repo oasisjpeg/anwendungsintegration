@@ -102,7 +102,7 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
 
             if (question == null)
             {
-                throw new Exception("Question not found");
+                throw new KeyNotFoundException("Question not found");
             }
 
             var userAnswer = new UserAnswerModel
@@ -135,15 +135,34 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             return questionId == maxQuestionId;
         }
 
-        public async Task<bool> IsCorrectAnswer(int answerSelection)
+        public async Task<bool> IsCorrectAnswer(int questionId, int answerSelection)
         {
             // Check if the answer selection is correct
-            var isCorrect = await _dbContext.Question
-                .AnyAsync(q => q.CorrectAnswerIndex == answerSelection);
-            return isCorrect;
+            var question = await _dbContext.Question.FirstOrDefaultAsync(q => q.id == questionId);
+            if (question == null)
+                throw new Exception("Question not found."); // Or return false / handle appropriately
+
+            return question.CorrectAnswerIndex == answerSelection;
         }
 
+        public async Task<List<QuizAnswersDto>> GetCorrectAnswersForQuiz(int articleId)
+        {
+            // TODO: add the finding of the quiz by articleID as a helper method to avoid code duplication (check if necessary)
+            var quiz = await _dbContext.Quiz
+                .FirstOrDefaultAsync(q => q.ArticleId == articleId);
+            if (quiz == null)
+                throw new Exception("Quiz not found.");
+
+            var questions = await _dbContext.Question
+            .Where(q => q.QuizId == quiz.id)
+            .Select(q => new QuizAnswersDto
+            {
+                QuestionId = q.id,
+                CorrectAnswerIndex = q.CorrectAnswerIndex
+            })
+            .ToListAsync();
+
+            return questions;
+        }
     }
-
-
 }

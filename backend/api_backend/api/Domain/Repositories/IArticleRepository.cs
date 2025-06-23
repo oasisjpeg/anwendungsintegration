@@ -11,6 +11,7 @@ namespace WebApplication1.Domain.Repositories
         Task<CompleteArticleDto> GetOneCompleteArticleFromDB(int articleId);
         Task SubmitOneQuestionAnswerToDB(QuizQuestionDto quizQuestionDto, Guid userId);
         Task<bool> IsLastQuestionInQuiz(int questionId);
-        Task<bool> IsCorrectAnswer(int answerSelection);
+        Task<bool> IsCorrectAnswer(int questionId, int answerSelection);
+        Task<List<QuizAnswersDto>> GetCorrectAnswersForQuiz(int articleId);
     }
 }

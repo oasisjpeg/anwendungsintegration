@@ -15,6 +15,7 @@ import {
 } from "@heroui/modal";
 import axios from "axios";
 import { ClockIcon } from "@heroicons/react/24/outline";
+import { WebSocketProvider } from "@/context/WebSocketProvider";
 
 
 export default function SettingsPage() {

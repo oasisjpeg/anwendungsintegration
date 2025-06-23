@@ -43,14 +43,14 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             var comparisonUserIds = aboveUsers.Concat(belowUsers).Select(u => u.UserId).ToList();
             var userInfos = await _dbContext.Users
                 .Where(u => comparisonUserIds.Contains(u.Id))
-                .Select(u => new { u.Id, u.UserName })
+                .Select(u => new { u.Id, u.Name })
                 .ToListAsync();
 
             var result = aboveUsers
                 .Concat(belowUsers)
                 .Select(u =>
                 {
-                    var userName = userInfos.FirstOrDefault(info => info.Id == u.UserId)?.UserName ?? "Unknown";
+                    var userName = userInfos.FirstOrDefault(info => info.Id == u.UserId)?.Name ?? "Unknown";
                     return (userName, u.Score);
                 })
                 .ToList();

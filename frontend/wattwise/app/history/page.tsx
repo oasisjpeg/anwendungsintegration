@@ -1,72 +1,54 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 // Hilfsfunktionen für Punkte
-function getPointsColor(points) {
+function getPointsColor(points: number) {
   if (points > 0) return "text-green-700 bg-green-100 dark:text-green-300 dark:bg-green-900/40";
   if (points < 0) return "text-red-700 bg-red-100 dark:text-red-300 dark:bg-red-900/40";
   return "text-yellow-700 bg-yellow-100 dark:text-yellow-300 dark:bg-yellow-900/40";
 }
 
-function getPointsPrefix(points) {
+function getPointsPrefix(points: number) {
   if (points > 0) return "+";
   if (points < 0) return "-";
   return "";
 }
 
-const testTransactions = [
-  {
-    Transaction_ID: 1,
-    Date: "2025-04-29T13:45:00Z",
-    Points_Gained: 20,
-    Point_Source: "quiz taken",
-    Point_Ressource: "Duck Curve Quiz",
-    User_ID: 1,
-  },
-  {
-    Transaction_ID: 2,
-    Date: "2025-04-28T09:30:00Z",
-    Points_Gained: 10,
-    Point_Source: "article read",
-    Point_Ressource: "Solar Basics Article",
-    User_ID: 1,
-  },
-  {
-    Transaction_ID: 3,
-    Date: "2025-04-27T17:00:00Z",
-    Points_Gained: -100,
-    Point_Source: "amazon coupon activated",
-    Point_Ressource: "Amazon 10€ Coupon",
-    User_ID: 1,
-  },
-  {
-    Transaction_ID: 4,
-    Date: "2025-04-26T15:20:00Z",
-    Points_Gained: 20,
-    Point_Source: "quiz taken",
-    Point_Ressource: "Wind Power Quiz",
-    User_ID: 1,
-  },
-  {
-    Transaction_ID: 5,
-    Date: "2025-04-25T11:00:00Z",
-    Points_Gained: 10,
-    Point_Source: "article read",
-    Point_Ressource: "Battery Storage Article",
-    User_ID: 1,
-  },
-  {
-    Transaction_ID: 6,
-    Date: "2025-04-24T19:55:00Z",
-    Points_Gained: -100,
-    Point_Source: "amazon coupon activated",
-    Point_Ressource: "Amazon 25€ Coupon",
-    User_ID: 1,
+// Map pointSourceType to string
+function getPointSource(pointSourceType: any) {
+  switch (pointSourceType) {
+    case 0:
+      return "Artikel gelesen";
+    case 1:
+      return "Quiz abgeschlossen";
+    default:
+      return "Anderer Punktesource";
   }
-];
+}
+
+type Transaction = {
+  id: string | number;
+  created: string;
+  pointsGained: number;
+  pointSourceType: number;
+  userId: string | number;
+};
 
 export default function TransactionHistory() {
-  const transactions = testTransactions; // TODO: Replace with real data
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+
+  useEffect(() => {
+    axios.get("http://localhost:5137/api/users/transactions/50", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    })
+      .then(response => {
+        setTransactions(response.data);
+      })
+      .catch(error => {
+        console.error("Error fetching transactions:", error);
+      });
+  }, []);
 
   return (
     <div className="shadow-lg rounded-2xl p-4 mb-8 pb-24">
@@ -79,27 +61,27 @@ export default function TransactionHistory() {
         <div className="space-y-3">
           {transactions.map((tx) => (
             <div
-              key={tx.Transaction_ID}
+              key={tx.id}
               className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-4 border border-gray-200 dark:border-zinc-700"
             >
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm text-gray-700 dark:text-gray-300">
-                  {new Date(tx.Date).toLocaleDateString()}
+                  {new Date(tx.created).toLocaleDateString()}
                 </span>
                 <span
                   className={`inline-block px-3 py-1 rounded-full font-semibold text-sm ${getPointsColor(
-                    tx.Points_Gained
+                    tx.pointsGained
                   )}`}
                 >
-                  {getPointsPrefix(tx.Points_Gained)}
-                  {Math.abs(tx.Points_Gained)}
+                  {getPointsPrefix(tx.pointsGained)}
+                  {Math.abs(tx.pointsGained)}
                 </span>
               </div>
               <div className="text-sm font-medium text-gray-900 dark:text-gray-200">
-                {tx.Point_Source}
+                {getPointSource(tx.pointSourceType)}
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                {tx.Point_Ressource}
+                User ID: {tx.userId}
               </div>
             </div>
           ))}

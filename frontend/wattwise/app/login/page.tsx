@@ -30,6 +30,7 @@ export default function AuthPage() {
 
       localStorage.setItem("email", response.data.email);
       localStorage.setItem("token", response.data.token);
+      localStorage.setItem("name", response.data.name);
       router.push("/");
     } catch (error: any) {
       console.error("Login failed", error);

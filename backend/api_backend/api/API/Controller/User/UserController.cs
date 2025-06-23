@@ -41,7 +41,7 @@ public class UserController : ControllerBase
         // Hash password before saving
         var hashedPassword = _userAuth.HashPassword(userRegisterDto.Password);
         var createdUser = await _userRepository.RegisterAsync(userRegisterDto.Name, userRegisterDto.Email, hashedPassword);
-        return CreatedAtAction(nameof(Login), new { email = createdUser.Email }, createdUser);
+        return CreatedAtAction(nameof(Login), new { email = createdUser.Email, name = createdUser.Name }, createdUser);
     }
 
     // Login user
@@ -67,7 +67,7 @@ public class UserController : ControllerBase
 
         // TODO: Add Leaderboard call
 
-        return Ok(new { message = "Login successful!", email = existingUser.Email, token });
+        return Ok(new { message = "Login successful!", email = existingUser.Email, name= existingUser.Name, token });
     }
 
     // DELETE user 
@@ -204,8 +204,14 @@ public class UserController : ControllerBase
         if (existingUser == null)
             return NotFound("User not found.");
 
-        var LeaderboardData = await _leaderboardServices.GetLeaderboardForUser(userIdGuid);
+        var (leaderboard, currentUserScore) = await _leaderboardServices.GetLeaderboardForUser(userIdGuid);
 
-            return Ok(LeaderboardData);
+        var response = new LeaderboardResponseDto
+        {
+            Leaderboard = leaderboard,
+            CurrentUserScore = currentUserScore
+        };
+
+        return Ok(response);
     }
 }

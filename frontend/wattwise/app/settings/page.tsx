@@ -55,9 +55,12 @@ export default function SettingsPage() {
           },
         }
       );
-
+      console.log("Update successful", response.data);
       if (response.data.user?.email) {
         localStorage.setItem("email", response.data.user.email);
+      }
+      if (response.data.user?.name) {
+        localStorage.setItem("name", response.data.user.name);
       }
 
       if (password !== "" || email !== currentEmail) {
@@ -125,6 +128,10 @@ export default function SettingsPage() {
 
   useEffect(() => {
     const storedEmail = localStorage.getItem("email");
+    const storedName = localStorage.getItem("name");
+    if (storedName) {
+      setName(storedName);
+    }
     if (storedEmail) {
       setEmail(storedEmail);
     } else {

@@ -10,7 +10,16 @@ import { WebSocketProvider } from "@/context/WebSocketProvider";
 import { RewardPointsProvider } from "@/context/RewardPointsContext";
 
 
-export const metadata: Metadata = { /* ... */ };
+export const metadata: Metadata = {
+  title: {
+    default: siteConfig.name,
+    template: `%s | ${siteConfig.name}`,
+  },
+  description: siteConfig.description,
+  icons: {
+    icon: "/favicon.ico",
+  },
+};
 export const viewport: Viewport = { /* ... */ };
 
 export default function RootLayout({

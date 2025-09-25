@@ -81,6 +81,7 @@ export default function Home() {
 
       if (!isLoggedIn) {
         setLoading(false);
+        router.push("/login");
         return;
       }
 
@@ -212,7 +213,7 @@ export default function Home() {
             </div>
             <div className="text-right">
               <p className="text-sm font-medium text-gray-800 dark:text-white">
-                {data.total.toFixed(2)}W
+                {data.total.toFixed(2)}Wh
               </p>
               <p className="text-xs text-green-500 font-semibold">+12.75%</p>
             </div>
@@ -277,7 +278,7 @@ export default function Home() {
               </ResponsiveContainer>
             ) : (
               <div className="flex items-center justify-center h-full">
-                <Spinner variant="dots" size="lg" />
+                <Spinner variant="wave" size="lg" color="white"/>
               </div>
             )}
           </div>

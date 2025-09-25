@@ -11,8 +11,8 @@ import axios from "axios";
 export default function KnowledgePage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [detail, setDetail] = useState<ArticleDetailResponse | null>(null);
-  const [loading, setLoading] = useState(false);
   const [loadingArticles, setLoadingArticles] = useState(true);
+  const [loadingStates, setLoadingStates] = useState<Record<number, boolean>>({});
 
   // Fetch article list
   useEffect(() => {
@@ -27,17 +27,17 @@ export default function KnowledgePage() {
 
   // Fetch article detail and quiz with axios
   const fetchArticleDetail = async (id: number) => {
-    setLoading(true);
+    setLoadingStates(prev => ({ ...prev, [id]: true }));
     try {
       const response = await axios.get(`http://localhost:5137/api/articles/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      })
+      });
       console.log("Fetched article detail:", response.data);
       setDetail(response.data);
     } catch (error) {
       console.error("Error fetching article detail:", error);
     } finally {
-      setLoading(false);
+      setLoadingStates(prev => ({ ...prev, [id]: false }));
     }
   };
   
@@ -47,7 +47,7 @@ export default function KnowledgePage() {
       {/* Add spinner overlay when loading */}
       {loadingArticles && (
         <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50">
-          <Spinner size="lg" className="text-indigo-600" />
+         <Spinner variant="wave" size="lg" color="white"/>
         </div>
       )}
       <section className="max-w-2xl mx-auto px-4 py-12">
@@ -87,7 +87,7 @@ export default function KnowledgePage() {
                     className="bg-indigo-600 dark:bg-indigo-500 text-white font-semibold rounded-xl px-4 py-2 text-sm shadow-md hover:scale-[1.02] transition-transform duration-200"
                     variant="flat"
                     onPress={() => fetchArticleDetail(article.id)}
-                    isLoading={loading}
+                    isLoading={loadingStates[article.id] || false}
                   >
                     Zum Artikel
                   </Button>

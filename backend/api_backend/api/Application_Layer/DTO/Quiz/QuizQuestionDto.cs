@@ -11,7 +11,7 @@ namespace WebApplication1.Application_Layer.DTO.Quiz
         public required int QuestionId { get; set; }
 
         [Required]
-        [Range(1, 4)]
+        [Range(0, 3)]
         public required int AnswerSelectionIndex { get; set; } // 0 - 3 answer index options
     }
 }

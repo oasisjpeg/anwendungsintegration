@@ -10,6 +10,8 @@
         public required int PointSourceId { get; set; } // correction: this is actually needed to identify the source of points specifically
         // fk
         public required Guid UserId { get; set; }
+        
+        public string? SourceName { get; set; }
         // navigation prop
         // public required UserModel User { get; set; } --> removed because of initialization issues when creating new RewardTransactionModel instances
     }

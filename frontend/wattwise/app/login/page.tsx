@@ -31,7 +31,12 @@ export default function AuthPage() {
       localStorage.setItem("email", response.data.email);
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("name", response.data.name);
+      
+      // Trigger custom event to notify WebSocketProvider about login
+      window.dispatchEvent(new Event('userLoggedIn'));
+      
       router.push("/");
+      router.refresh();
     } catch (error: any) {
       console.error("Login failed", error);
       alert(error.response?.data?.message || "Login fehlgeschlagen.");

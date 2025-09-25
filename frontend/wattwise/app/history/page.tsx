@@ -33,6 +33,7 @@ type Transaction = {
   pointsGained: number;
   pointSourceType: number;
   userId: string | number;
+  sourceName: string;
 };
 
 export default function TransactionHistory() {
@@ -44,6 +45,7 @@ export default function TransactionHistory() {
     })
       .then(response => {
         setTransactions(response.data);
+        console.log(response.data);
       })
       .catch(error => {
         console.error("Error fetching transactions:", error);
@@ -77,11 +79,11 @@ export default function TransactionHistory() {
                   {Math.abs(tx.pointsGained)}
                 </span>
               </div>
-              <div className="text-sm font-medium text-gray-900 dark:text-gray-200">
+              <div className="text-md font-bold text-gray-900 dark:text-gray-200">
                 {getPointSource(tx.pointSourceType)}
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                User ID: {tx.userId}
+              <div className="text-sm font-medium italic text-zinc-900 dark:text-zinc-200">
+                {tx.sourceName}
               </div>
             </div>
           ))}

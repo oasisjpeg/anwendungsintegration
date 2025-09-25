@@ -1,20 +1,63 @@
 "use client"
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { addToast } from "@heroui/toast";
 import { useRewardPoints } from "@/context/RewardPointsContext";
+
+// Custom hook to listen to localStorage changes
+const useAuthListener = () => {
+  const [token, setToken] = React.useState<string | null>(null);
+
+  useEffect(() => {
+    // Set initial value
+    setToken(localStorage.getItem('token'));
+    
+    // Listen for storage events
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'token') {
+        setToken(e.newValue);
+      }
+    };
+
+    // Listen for custom event triggered after login
+    const handleLogin = () => {
+      setToken(localStorage.getItem('token'));
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('userLoggedIn', handleLogin as EventListener);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('userLoggedIn', handleLogin as EventListener);
+    };
+  }, []);
+
+  return token;
+};
 
 export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { setRewardPoints } = useRewardPoints();
   const isFirstRender = useRef(true);
   const prevRewardPoints = useRef<number | null>(null);
+  const socketRef = useRef<WebSocket | null>(null);
+  const token = useAuthListener();
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
+  const connectWebSocket = useCallback(() => {
+    // Close existing connection if any
+    if (socketRef.current) {
+      socketRef.current.close();
+      socketRef.current = null;
+    }
 
-    const socket = new WebSocket(`ws://localhost:5137/ws/rewardpoints?access_token=${token}`);
-    console.log("WebSocket connection established");
+    if (!token) {
+      return;
+    }
+
+    try {
+      const socket = new WebSocket(`ws://localhost:5137/ws/rewardpoints?access_token=${token}`);
+      console.log("WebSocket connection established");
+      socketRef.current = socket;
 
     socket.onmessage = (event) => {
       try {
@@ -53,10 +96,27 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
     };
 
+      return () => {
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.close();
+        }
+      };
+    } catch (error) {
+      console.error("WebSocket connection error:", error);
+    }
+  }, [token, setRewardPoints]);
+
+  // Connect when token changes
+  useEffect(() => {
+    connectWebSocket();
+    
     return () => {
-      socket.close();
+      if (socketRef.current) {
+        socketRef.current.close();
+        socketRef.current = null;
+      }
     };
-  }, [setRewardPoints]);
+  }, [connectWebSocket]);
 
   return <>{children}</>;
 };

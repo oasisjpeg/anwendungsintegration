@@ -79,12 +79,6 @@ export function ArticleDetailModal({ article, quiz, onClose }: ArticleDetail201M
     }
   };
 
-  const resetQuiz = () => {
-    setCurrentQuestionIndex(0);
-    setSelectedAnswers({});
-    setShowScore(false);
-  };
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 pb-20">
       <div className="bg-white dark:bg-zinc-900 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -172,12 +166,6 @@ export function ArticleDetailModal({ article, quiz, onClose }: ArticleDetail201M
                   );
                 })}
               </div>
-              <button
-                onClick={resetQuiz}
-                className="mt-2 bg-indigo-600 dark:bg-indigo-500 text-white font-semibold rounded-xl px-4 py-2 text-sm shadow-md hover:bg-indigo-700"
-              >
-                Quiz neu starten
-              </button>
             </div>
           )}
         </div>

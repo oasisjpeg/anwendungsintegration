@@ -112,10 +112,47 @@ public class MySqlUserRepository : IUserRepository
 
     public async Task<List<RewardTransactionModel>> GetRecentTransactionsAsync(Guid userId, int count)
     {
-        return await _context.RewardTransactions
+        // 1. Get transactions without names
+        var transactions = await _context.RewardTransactions
             .Where(t => t.UserId == userId)
-            .OrderByDescending(t => t.Created) 
+            .OrderByDescending(t => t.Created)
             .Take(count)
             .ToListAsync();
+
+    
+        var articleIds = transactions
+            .Where(t => t.PointSourceType == PointSourceType.Article)
+            .Select(t => t.PointSourceId)
+            .Distinct().ToList();
+    
+        var quizIds = transactions
+            .Where(t => t.PointSourceType == PointSourceType.Quiz)
+            .Select(t => t.PointSourceId)
+            .Distinct().ToList();
+
+        var articleNames = await _context.Articles
+            .Where(a => articleIds.Contains(a.id))
+            .ToDictionaryAsync(a => a.id, a => a.Title);
+    
+        var quizNames = await _context.Quiz
+            .Where(q => quizIds.Contains(q.id))
+            .ToDictionaryAsync(q => q.id, q => q.Title);
+
+        foreach (var t in transactions)
+        {
+            if (t.PointSourceType == PointSourceType.Article 
+                && articleNames.TryGetValue(t.PointSourceId, out var articleName))
+            {
+                t.SourceName = articleName;
+            }
+            else if (t.PointSourceType == PointSourceType.Quiz 
+                     && quizNames.TryGetValue(t.PointSourceId, out var quizName))
+            {
+                t.SourceName = quizName;
+            }
+        }
+
+        return transactions;
     }
+
 }

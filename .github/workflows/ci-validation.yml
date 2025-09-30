@@ -7,6 +7,7 @@ on:
   # Allow manual triggering for testing
   workflow_dispatch:
 
+    
 jobs:
   lint:
     name: Lint

@@ -4,6 +4,8 @@ import { Avatar, AvatarGroup, AvatarIcon } from "@heroui/avatar";
 import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
 import { Spinner } from "@heroui/spinner";
 import axios from "axios";
+import { storage } from "@/utils/capacitor";
+import { getBaseUrl } from "@/utils/api";
 
 type LeaderboardUser = {
   userName: string;
@@ -13,29 +15,47 @@ type LeaderboardUser = {
 export default function StromsparMedalsTable() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
   const [currentUserScore, setCurrentUserScore] = useState(0);
-  const currentUserName = localStorage.getItem("name") || "Gast";
+  const [currentUserName, setCurrentUserName] = useState<string>("Gast");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    axios.get("http://localhost:5137/api/users/leaderboard", {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    })
-      .then((response) => {
+    // Safe check for browser environment
+    if (typeof window === 'undefined') return;
+    
+    const fetchData = async () => {
+      try {
+        // Get user name from storage
+        const storedName = await storage.get("name");
+        if (storedName) {
+          setCurrentUserName(storedName);
+        }
+        
+        const token = await storage.get("token");
+        const response = await axios.get(`${getBaseUrl()}/api/users/leaderboard`, {
+          headers: { Authorization: `Bearer ${token || ''}` },
+        });
+        
         setLeaderboard(response.data.leaderboard);
         setCurrentUserScore(response.data.currentUserScore);
         setIsLoading(false);
 
+        // Get the updated user name for comparison
+        const userName = storedName || "Gast";
+        
         // Optionally: Add current user to leaderboard if not present
-        if (!response.data.leaderboard.some((u: { userName: string; }) => u.userName === currentUserName)) {
+        if (!response.data.leaderboard.some((u: { userName: string; }) => u.userName === userName)) {
           setLeaderboard(prev => [
             ...prev,
-            { userName: currentUserName, pointIncreaseValue: response.data.currentUserScore }
+            { userName, pointIncreaseValue: response.data.currentUserScore }
           ]);
         }
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching user data:", error);
-      });
+        setIsLoading(false);
+      }
+    };
+    
+    fetchData();
   }, []);
 
   const sortedLeaderboard = [...leaderboard].sort((a, b) => b.pointIncreaseValue - a.pointIncreaseValue);
@@ -75,8 +95,8 @@ export default function StromsparMedalsTable() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center px-4">
-      <div className="w-full max-w-sm mx-auto">
+    <div className="min-h-screen flex flex-col items-center">
+      <div className="w-full max-w-md mx-auto">
         <Card className="rounded-2xl shadow-xl overflow-hidden">
           <CardHeader className="px-6 py-4">
             <div className="text-center">
@@ -95,7 +115,7 @@ export default function StromsparMedalsTable() {
                 <Spinner variant="wave" size="lg" color="white"/>
               </div>
             )}
-            {!isLoading && sortedLeaderboard.map((user, idx) => {
+            {!isLoading && sortedLeaderboard.map((user: LeaderboardUser, idx: number) => {
               const { avatar, medal, color, text } = getAvatarAndMedal(idx);
               const isCurrentUser = user.userName === currentUserName;
               return (

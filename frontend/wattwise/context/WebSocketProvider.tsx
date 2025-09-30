@@ -3,25 +3,41 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { addToast } from "@heroui/toast";
 import { useRewardPoints } from "@/context/RewardPointsContext";
+import { getBaseUrl } from '@/utils/api';
+import { storage } from '@/utils/capacitor';
 
-// Custom hook to listen to localStorage changes
+// Custom hook to listen to storage changes
 const useAuthListener = () => {
   const [token, setToken] = React.useState<string | null>(null);
 
   useEffect(() => {
-    // Set initial value
-    setToken(localStorage.getItem('token'));
+    // Set initial value from Capacitor storage or localStorage
+    const getInitialToken = async () => {
+      try {
+        const storedToken = await storage.get('token');
+        setToken(storedToken);
+      } catch (error) {
+        console.error('Error getting token from storage:', error);
+      }
+    };
     
-    // Listen for storage events
+    getInitialToken();
+    
+    // Listen for storage events (for web browser)
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'token') {
-        setToken(e.newValue);
+        setToken(e.newValue ? JSON.parse(e.newValue) : null);
       }
     };
 
     // Listen for custom event triggered after login
-    const handleLogin = () => {
-      setToken(localStorage.getItem('token'));
+    const handleLogin = async () => {
+      try {
+        const storedToken = await storage.get('token');
+        setToken(storedToken);
+      } catch (error) {
+        console.error('Error getting token after login:', error);
+      }
     };
 
     window.addEventListener('storage', handleStorageChange);
@@ -55,7 +71,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
 
     try {
-      const socket = new WebSocket(`ws://localhost:5137/ws/rewardpoints?access_token=${token}`);
+      const socket = new WebSocket(`${getBaseUrl()}/ws/rewardpoints?access_token=${token}`);
       console.log("WebSocket connection established");
       socketRef.current = socket;
 
@@ -73,8 +89,6 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 title: "Punkte erhöht",
                 description: `Du hast jetzt ${newPoints} Punkte!`,
                 color: "success" as const,
-                timeout: 3000,
-                shouldShowTimeoutProgress: true,
               });
             } else if (newPoints < (prevRewardPoints.current ?? 0)) {
               // Warning toast if points decreased
@@ -82,8 +96,6 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 title: "Punkte reduziert",
                 description: `Du hast jetzt ${newPoints} Punkte!`,
                 color: "warning" as const,
-                timeout: 3000,
-                shouldShowTimeoutProgress: true,
               });
             }
           }

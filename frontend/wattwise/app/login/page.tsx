@@ -4,8 +4,15 @@ import { useState } from "react";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { Card } from "@heroui/card";
-import { useRouter } from "next/navigation";
-import axios from "axios";
+import { useCapacitorRouter } from "@/components/CapacitorRouter";
+import { apiPost } from "@/utils/api";
+import { storage } from "@/utils/capacitor";
+
+interface AuthResponse {
+  email: string;
+  token: string;
+  name: string;
+}
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -14,29 +21,29 @@ export default function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const router = useRouter();
+  const { navigateTo } = useCapacitorRouter();
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post(
-        "http://localhost:5137/api/users/login",
+      const response = await apiPost<AuthResponse>(
+        "/api/users/login",
         {
           email: email.trim(),
           password,
         }
       );
 
-      console.log("Login successful", response.data);
+      const authData = response.data as AuthResponse;
+      console.log("Login successful", authData);
 
-      localStorage.setItem("email", response.data.email);
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("name", response.data.name);
+      await storage.set("email", authData.email);
+      await storage.set("token", authData.token);
+      await storage.set("name", authData.name);
       
       // Trigger custom event to notify WebSocketProvider about login
       window.dispatchEvent(new Event('userLoggedIn'));
       
-      router.push("/");
-      router.refresh();
+      navigateTo("/");
     } catch (error: any) {
       console.error("Login failed", error);
       alert(error.response?.data?.message || "Login fehlgeschlagen.");
@@ -45,8 +52,8 @@ export default function AuthPage() {
 
   const handleRegister = async () => {
     try {
-      const response = await axios.post(
-        "http://localhost:5137/api/users/register",
+      const response = await apiPost(
+        "/api/users/register",
         {
           name,
           email: email.trim(),
@@ -70,7 +77,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 pt-24 pb-32">
+    <div className="max-w-md mx-auto p-6 pt-12 pb-[calc(1rem+env(safe-area-inset-bottom,0))]">
       <h1 className="text-2xl font-bold text-center mb-6">
         {isLogin ? "Login" : "Registrieren"}
       </h1>

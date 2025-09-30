@@ -24,7 +24,12 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000")
+            policy.WithOrigins(
+                    "http://localhost:3000",
+                    "http://172.25.96.152:3000",
+                    "http://172.25.96.152:5137",
+                    "capacitor://localhost"
+                )
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials();

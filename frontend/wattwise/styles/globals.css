@@ -1,3 +1,88 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom CSS for mobile optimization */
+
+/* iOS-specific viewport fixes */
+@supports (-webkit-touch-callout: none) {
+  .ios-fix {
+    height: -webkit-fill-available;
+  }
+}
+
+/* Hide website URL when page is unavailable */
+@media (display-mode: standalone) {
+  /* Hide any system UI elements that might show URLs */
+  body::after {
+    content: "";
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-bottom, 0);
+    background-color: #000;
+    z-index: 9999;
+  }
+
+  /* Override browser's default offline page */
+  body:empty::before {
+    content: "Keine Internetverbindung";
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    background-color: #000;
+  }
+}
+
+/* Prevent overscroll/bounce effect */
+html, body {
+  overscroll-behavior: none;
+  touch-action: none;
+  height: 100%;
+  position: fixed;
+  width: 100%;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Add viewport-fit=cover meta tag support */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: min(0vmin, env(safe-area-inset-left));
+    padding-right: min(0vmin, env(safe-area-inset-right));
+  }
+}
+
+/* Toast customization */
+.mt-safe-area {
+  margin-top: calc(env(safe-area-inset-top, 16px) + 8px) !important;
+}
+
+/* Make toasts more visible on mobile */
+[data-toast-placement="top-center"] {
+  top: env(safe-area-inset-top, 0) !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: calc(100% - 32px) !important;
+  max-width: 400px !important;
+  z-index: 9999 !important;
+}
+
+/* Improve toast appearance */
+[data-toast] {
+  margin-top: env(safe-area-inset-top, 16px) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+/* Add shadow to toast */
+[data-toast] [data-slot="content"] {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}

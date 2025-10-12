@@ -140,7 +140,7 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             // Check if the answer selection is correct
             var question = await _dbContext.Question.FirstOrDefaultAsync(q => q.id == questionId);
             if (question == null)
-                throw new Exception("Question not found."); // Or return false / handle appropriately
+                throw new KeyNotFoundException("Question not found."); // Or return false / handle appropriately
 
             return question.CorrectAnswerIndex == answerSelection;
         }
@@ -151,7 +151,7 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             var quiz = await _dbContext.Quiz
                 .FirstOrDefaultAsync(q => q.ArticleId == articleId);
             if (quiz == null)
-                throw new Exception("Quiz not found.");
+                throw new KeyNotFoundException("Quiz not found.");
 
             var questions = await _dbContext.Question
             .Where(q => q.QuizId == quiz.id)

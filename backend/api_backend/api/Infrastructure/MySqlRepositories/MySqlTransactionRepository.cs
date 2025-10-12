@@ -34,14 +34,14 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             return points;
         }
 
-        public async Task CreateTransaction(PointSourceType pointSourceType, int pointSourceId, Guid userId, int pointAmount)
+        public async Task CreateTransaction(PointSourceType sourceType, int pointSourceId, Guid userId, int pointAmount)
         {
             var newTransaction = new RewardTransactionModel
             {
                 id = 0,
                 Created = DateTime.Now,
                 PointsGained = pointAmount,
-                PointSourceType = pointSourceType,
+                PointSourceType = sourceType,
                 PointSourceId = pointSourceId,
                 UserId = userId
             };

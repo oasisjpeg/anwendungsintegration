@@ -67,7 +67,7 @@ public class MySqlUserRepository : IUserRepository
     {
         var user = await GetByEmailAsync(email);
         if (user == null)
-            throw new Exception("User not found.");
+            throw new KeyNotFoundException("User not found.");
 
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
@@ -79,7 +79,7 @@ public class MySqlUserRepository : IUserRepository
         var user = await _context.Users.FindAsync(userId);
 
         if (user == null)
-            throw new Exception("User not found.");
+            throw new KeyNotFoundException("User not found.");
 
         if (!string.IsNullOrWhiteSpace(newName))
         {

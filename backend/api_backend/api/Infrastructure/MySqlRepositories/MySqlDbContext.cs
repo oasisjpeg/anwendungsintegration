@@ -11,7 +11,6 @@ public class MySqlDbContext : IdentityDbContext<UserModel, IdentityRole<Guid>, G
 {
     public DbSet<ConsumptionRecordModel> ConsumptionRecords { get; set; }
     public DbSet<RecommendRecordModel> RecommendRecords { get; set; }
-    // public new DbSet<UserModel> Users { get; set; } --> not needed cause DbContext already inherits from IdentityDbContext<UserModel> 
     public DbSet<ArticleModel> Articles { get; set; }
     public DbSet<QuestionModel> Question { get; set; }
     public DbSet<QuizModel> Quiz { get; set; }
@@ -49,14 +48,7 @@ public class MySqlDbContext : IdentityDbContext<UserModel, IdentityRole<Guid>, G
             .WithMany()
             .HasForeignKey(q => q.ArticleId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        //builder.Entity<RewardTransactionModel>()
-        //    .HasOne(r => r.User)
-        //    .WithMany()
-        //    .HasForeignKey(r => r.UserId);
-        // NOTE: above section not usable anymore, bc nav prop was removed --> see RewardTransactionModel        
-        // Ef should still be able to handle the FK relationship though
-
+        
         builder.Entity<UserAnswerModel>()
             .HasOne(r => r.User)
             .WithMany()

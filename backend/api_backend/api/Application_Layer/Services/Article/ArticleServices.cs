@@ -14,12 +14,10 @@ namespace WebApplication1.Application_Layer.Services.Article
 {
     public class ArticleServices : IArticleServices
     {
-        private IUserRepository _userRepository;
-        private IArticleRepository _articleRepository;
+        private readonly IArticleRepository _articleRepository;
 
-        public ArticleServices(IUserRepository userRepository, IArticleRepository articleRepository)
+        public ArticleServices(IArticleRepository articleRepository)
         {
-            _userRepository = userRepository;
             _articleRepository = articleRepository;
         }
 
@@ -29,10 +27,10 @@ namespace WebApplication1.Application_Layer.Services.Article
             return await _articleRepository.GetArticleOverviewFromDB();
         }
 
-        public async Task<CompleteArticleDto> GetOneCompleteArticleById(int articleId)
+        public async Task<CompleteArticleDto> GetOneCompleteArticleById(int id)
         {
             // get one complete article by ID, return entire article object
-            var fullArticle = await _articleRepository.GetOneCompleteArticleFromDB(articleId);
+            var fullArticle = await _articleRepository.GetOneCompleteArticleFromDB(id);
             return fullArticle;
         }
 

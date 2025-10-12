@@ -25,10 +25,10 @@ namespace WebApplication1.Application_Layer.Services.Transaction
 
             if (userModel == null)
             {
-                throw new Exception("User not found.");
+                throw new KeyNotFoundException("User not found.");
             }
             int pointAmount;
-            if (isArticle == true)
+            if (isArticle)
             {
                 PointSourceType pointSourceType = PointSourceType.Article;
                 var isDuplicate = await PreventDuplicateTransaction(userId, pointSourceType, articleId);

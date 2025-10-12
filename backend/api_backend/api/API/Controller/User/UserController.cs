@@ -14,6 +14,8 @@ namespace WebApplication1.API.Controller.User;
 [Route("api/users")]
 public class UserController : ControllerBase
 {
+    private const string UserNotFoundMessage = "User not found.";
+    private const string InvalidTokenMessage = "Invalid token.";
     private readonly IUserRepository _userRepository;
     private readonly IUserAuth _userAuth;
     private readonly IUserExistCheck _userExistCheck;
@@ -52,13 +54,14 @@ public class UserController : ControllerBase
         // User Exist Check
         if (!await _userExistCheck.UserExistsAsync(userAuthDto.Email))
         {
-            return NotFound("User not found.");
+            return NotFound(UserNotFoundMessage);
         }
 
         var existingUser = await _userRepository.GetByEmailAsync(userAuthDto.Email);
 
         // User Auth
-        if (!_userAuth.VerifyPassword(existingUser.PasswordHash, userAuthDto.Password))
+        if (string.IsNullOrEmpty(existingUser?.PasswordHash) ||
+            !_userAuth.VerifyPassword(existingUser.PasswordHash, userAuthDto.Password))
         {
             return Unauthorized("Invalid email or password.");
         }
@@ -79,12 +82,13 @@ public class UserController : ControllerBase
         // check if user exists
         if (!await _userExistCheck.UserExistsAsync(userAuthDto.Email))
         {
-            return NotFound("User not found.");
+            return NotFound(UserNotFoundMessage);
         }
 
         var existingUser = await _userRepository.GetByEmailAsync(userAuthDto.Email);
         // User Auth
-        if (!_userAuth.VerifyPassword(existingUser.PasswordHash, userAuthDto.Password))
+        if (string.IsNullOrEmpty(existingUser?.PasswordHash) ||
+            !_userAuth.VerifyPassword(existingUser.PasswordHash, userAuthDto.Password))
         {
             return Unauthorized("Invalid email or password.");
         }
@@ -104,13 +108,13 @@ public class UserController : ControllerBase
         var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (string.IsNullOrEmpty(userIdString))
-            return Unauthorized("Invalid token.");
+            return Unauthorized(InvalidTokenMessage);
 
         var userIdGuid = _userAuth.GetUserIdGuidFromClaims(userIdString);
 
         var existingUser = await _userRepository.GetByIdAsync(userIdGuid);
         if (existingUser == null)
-            return NotFound("User not found.");
+            return NotFound(UserNotFoundMessage);
 
         string? hashedNewPassword = null;
         if (!string.IsNullOrWhiteSpace(userPatchDto.NewPassword))
@@ -134,7 +138,7 @@ public class UserController : ControllerBase
         var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (string.IsNullOrEmpty(userIdString))
-            return Unauthorized("Invalid token.");
+            return Unauthorized(InvalidTokenMessage);
 
         var userIdGuid = _userAuth.GetUserIdGuidFromClaims(userIdString);
 
@@ -153,13 +157,13 @@ public class UserController : ControllerBase
         var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (string.IsNullOrEmpty(userIdString))
-            return Unauthorized("Invalid token.");
+            return Unauthorized(InvalidTokenMessage);
 
         var userIdGuid = _userAuth.GetUserIdGuidFromClaims(userIdString);
 
         var existingUser = await _userRepository.GetByIdAsync(userIdGuid);
         if (existingUser == null)
-            return NotFound("User not found.");
+            return NotFound(UserNotFoundMessage);
 
         if (quantity > 100) // prevent getting ridiculous amount of transactions 
         {
@@ -187,13 +191,13 @@ public class UserController : ControllerBase
         var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (string.IsNullOrEmpty(userIdString))
-            return Unauthorized("Invalid token.");
+            return Unauthorized(InvalidTokenMessage);
 
         var userIdGuid = _userAuth.GetUserIdGuidFromClaims(userIdString);
 
         var existingUser = await _userRepository.GetByIdAsync(userIdGuid);
         if (existingUser == null)
-            return NotFound("User not found.");
+            return NotFound(UserNotFoundMessage);
 
         var (leaderboard, currentUserScore) = await _leaderboardServices.GetLeaderboardForUser(userIdGuid);
 

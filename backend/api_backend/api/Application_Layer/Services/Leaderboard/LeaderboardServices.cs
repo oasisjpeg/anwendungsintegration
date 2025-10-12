@@ -6,21 +6,19 @@ namespace WebApplication1.Application_Layer.Services.Leaderboard
 {
     public class LeaderboardServices : ILeaderboardServices
     {
-        private ILeaderboardRepository _leaderboardRepository;
-        private readonly IUserRepository _userRepository;
+        private readonly ILeaderboardRepository _leaderboardRepository;
 
-        public LeaderboardServices(ILeaderboardRepository leaderboardRepository, IUserRepository userRepository)
+        public LeaderboardServices(ILeaderboardRepository leaderboardRepository)
         {
             _leaderboardRepository = leaderboardRepository;
-            _userRepository = userRepository;
 
         }
         public async Task<(List<LeaderboardDto> Leaderboard, int CurrentUserScore)> GetLeaderboardForUser(Guid userId)
         {
-            var PointIncreaseCurrentUser = await _leaderboardRepository.RecentPointIncreaseCurrentUser(userId);
-            var ListOfLeaderboardTuples = await _leaderboardRepository.GetLeaderboardForOneUser(userId, PointIncreaseCurrentUser);
+            var pointIncreaseCurrentUser = await _leaderboardRepository.RecentPointIncreaseCurrentUser(userId);
+            var listOfLeaderboardTuples = await _leaderboardRepository.GetLeaderboardForOneUser(userId, pointIncreaseCurrentUser);
 
-            var dtoList = ListOfLeaderboardTuples
+            var dtoList = listOfLeaderboardTuples
                 .Select(tuple => new LeaderboardDto
                 {
                     UserName = tuple.Item1,
@@ -28,7 +26,7 @@ namespace WebApplication1.Application_Layer.Services.Leaderboard
                 })
                 .ToList();
 
-            return (dtoList, PointIncreaseCurrentUser);
+            return (dtoList, pointIncreaseCurrentUser);
         }
 
     }

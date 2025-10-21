@@ -2,11 +2,11 @@ name: .NET Unit Tests
 
 on:
   push:
-    branches: [ main, master, develop ]
+    branches: [ main, master, develop, testing-actions ]
     paths:
       - 'backend/api_backend/**'
   pull_request:
-    branches: [ main, master, develop ]
+    branches: [ main, master, develop, testing-actions ]
     paths:
       - 'backend/api_backend/**'
   workflow_dispatch:

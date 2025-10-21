@@ -66,8 +66,8 @@ namespace api.Tests
             // Assert
             var createdAtActionResult = Assert.IsType<CreatedAtActionResult>(result);
             Assert.Equal("Login", createdAtActionResult.ActionName);
-            Assert.Equal(createdUser.Email, ((dynamic)createdAtActionResult.RouteValues).email);
-            Assert.Equal(createdUser.Name, ((dynamic)createdAtActionResult.RouteValues).name);
+            Assert.Equal(createdUser.Email, createdAtActionResult.RouteValues["email"]);
+            Assert.Equal(createdUser.Name, createdAtActionResult.RouteValues["name"]);
         }
     }
 }

@@ -1,19 +1,19 @@
-name: .NET Unit Tests
+name: .NET Tests
 
 on:
   push:
-    branches: [ main, master, develop]
+    branches: [ main, master, develop, testing-actions ]
     paths:
       - 'backend/api_backend/**'
   pull_request:
-    branches: [ main, master, develop]
+    branches: [ main, master, develop, testing-actions ]
     paths:
       - 'backend/api_backend/**'
   workflow_dispatch:
 
 jobs:
   test:
-    name: Run Unit Tests
+    name: Run Tests
     runs-on: ubuntu-latest
     
     steps:
@@ -33,10 +33,14 @@ jobs:
       run: dotnet build api.sln --no-restore
       working-directory: backend/api_backend
       
-    - name: Test
-      run: dotnet test api.sln --no-build --verbosity normal
+    - name: Run Unit Tests
+      run: dotnet test api.Tests/api.Tests/api.Tests.csproj --no-build --verbosity normal
+      working-directory: backend/api_backend
+      
+    - name: Run Integration Tests
+      run: dotnet test api.IntegrationTests/api.IntegrationTests.csproj --no-build --verbosity normal
       working-directory: backend/api_backend
       
     - name: Report test results
       if: always()
-      run: echo "✅ Unit tests completed. Check the logs for any failures."
+      run: echo "✅ Tests completed. Check the logs for any failures."

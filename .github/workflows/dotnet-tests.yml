@@ -1,0 +1,42 @@
+name: .NET Unit Tests
+
+on:
+  push:
+    branches: [ main, master, develop ]
+    paths:
+      - 'backend/api_backend/**'
+  pull_request:
+    branches: [ main, master, develop ]
+    paths:
+      - 'backend/api_backend/**'
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      working-directory: backend/api_backend
+      
+    - name: Build
+      run: dotnet build --no-restore
+      working-directory: backend/api_backend
+      
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+      working-directory: backend/api_backend/api.Tests/api.Tests
+      
+    - name: Report test results
+      if: always()
+      run: echo "✅ Unit tests completed. Check the logs for any failures."

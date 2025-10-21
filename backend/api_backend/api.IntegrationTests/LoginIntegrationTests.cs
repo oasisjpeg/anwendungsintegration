@@ -2,18 +2,19 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using WebApplication1.Application_Layer.DTO.User;
 using Xunit;
 
 namespace api.IntegrationTests
 {
-    public class LoginIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
+    public class LoginIntegrationTests : IClassFixture<CustomWebApplicationFactory>
     {
-        private readonly WebApplicationFactory<Program> _factory;
+        private readonly CustomWebApplicationFactory _factory;
         private readonly HttpClient _client;
 
-        public LoginIntegrationTests(WebApplicationFactory<Program> factory)
+        public LoginIntegrationTests(CustomWebApplicationFactory factory)
         {
             _factory = factory;
             _client = _factory.CreateClient();
@@ -57,9 +58,9 @@ namespace api.IntegrationTests
             var response = await _client.PostAsync("/api/users/login", loginContent);
 
             // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseContent = await response.Content.ReadAsStringAsync();
-            Assert.Contains("Login successful", responseContent);
+            responseContent.Should().Contain("Login successful");
         }
 
         [Fact]
@@ -81,7 +82,7 @@ namespace api.IntegrationTests
             var response = await _client.PostAsync("/api/users/login", content);
 
             // Assert
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
     }
 }

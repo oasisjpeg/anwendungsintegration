@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
@@ -16,28 +18,41 @@ using WebApplication1.Domain.Repositories;
 using WebApplication1.Domain.Services;
 using WebApplication1.Infrastructure.MySqlRepositories;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace WebApplication1.API;
 
-// Enable CORS
-builder.Services.AddCors(options =>
+public partial class Program
 {
-    options.AddPolicy("AllowFrontend",
-        policy =>
+    public static void Main(string[] args)
+    {
+        var builder = CreateHostBuilder(args);
+        var app = ConfigureApp(builder);
+        app.Run();
+    }
+
+    public static WebApplicationBuilder CreateHostBuilder(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
+
+        // Enable CORS
+        builder.Services.AddCors(options =>
         {
-            policy.WithOrigins(
-                    "http://localhost:3000",
-                    "http://172.25.96.152:3000",
-                    "http://172.25.96.152:5137",
-                    "capacitor://localhost"
-                )
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials();
+            options.AddPolicy("AllowFrontend",
+                policy =>
+                {
+                    policy.WithOrigins(
+                            "http://localhost:3000",
+                            "http://172.25.96.152:3000",
+                            "http://172.25.96.152:5137",
+                            "capacitor://localhost"
+                        )
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
         });
-});
 
 // configure dbcontext for ef core stuff
-var connectionString = builder.Configuration.GetConnectionString("mySqlDb");
+var connectionString = builder.Configuration.GetConnectionString("mySqlDb") ?? "Server=localhost;Database=test;User=test;Password=test;";
 builder.Services.AddDbContext<MySqlDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
@@ -55,7 +70,15 @@ var jwtSecret = builder.Configuration["JwtSettings:Secret"];
 
 if(string.IsNullOrEmpty(jwtSecret))
 {
-    throw new InvalidOperationException("JWT Secret is not set in configuration.");
+    // Use a default secret for testing environments
+    if (builder.Environment.IsEnvironment("Testing"))
+    {
+        jwtSecret = "TestingSecretKey12345678901234567890123456789012";
+    }
+    else
+    {
+        throw new InvalidOperationException("JWT Secret is not set in configuration.");
+    }
 }
 
 var key = Encoding.UTF8.GetBytes(jwtSecret);
@@ -134,29 +157,33 @@ builder.Services.AddScoped<ILeaderboardServices, LeaderboardServices>();
 builder.Services.AddScoped<ILeaderboardRepository, MySqlLeaderboardRepository>();
 
 
-var app = builder.Build();
+        return builder;
+    }
 
-// Use CORS
-app.UseCors("AllowFrontend");
+    public static WebApplication ConfigureApp(WebApplicationBuilder builder)
+    {
+        var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+        // Use CORS
+        app.UseCors("AllowFrontend");
+
+        // Configure the HTTP request pipeline.
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+
+        app.UseHttpsRedirection();
+
+        app.UseAuthentication();
+
+        app.UseAuthorization();
+        app.UseWebSockets();
+        app.UseMiddleware<RewardPointsWebSocketHandler>();
+
+        app.MapControllers();
+
+        return app;
+    }
 }
-
-
-
-
-app.UseHttpsRedirection();
-
-app.UseAuthentication();
-
-app.UseAuthorization();
-app.UseWebSockets();
-app.UseMiddleware<RewardPointsWebSocketHandler>();
-
-app.MapControllers();
-
-await app.RunAsync();

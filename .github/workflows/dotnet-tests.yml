@@ -33,12 +33,8 @@ jobs:
       run: dotnet build api.sln --no-restore
       working-directory: backend/api_backend
       
-    - name: Run Unit Tests
-      run: dotnet test api.Tests/api.Tests/api.Tests.csproj --no-build --verbosity normal
-      working-directory: backend/api_backend
-      
-    - name: Run Integration Tests
-      run: dotnet test api.IntegrationTests/api.IntegrationTests.csproj --no-build --verbosity normal
+    - name: Run Tests
+      run: dotnet test api.sln --no-build --verbosity normal
       working-directory: backend/api_backend
       
     - name: Report test results

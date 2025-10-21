@@ -40,7 +40,7 @@ jobs:
       
     # The following steps are for informational purposes to show which test projects are being run
     - name: List Unit Tests Project
-      run: 'echo "Unit Tests Project: api.Tests/api.Tests/api.Tests.csproj"'
+      run: 'echo "Unit Tests Project: api.Tests/api.Tests.csproj"'
       
     - name: List Integration Tests Project
       run: 'echo "Integration Tests Project: api.IntegrationTests/api.IntegrationTests.csproj"'

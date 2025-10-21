@@ -34,8 +34,8 @@ jobs:
       working-directory: backend/api_backend
       
     - name: Test
-      run: dotnet test api.Tests.csproj --no-build --verbosity normal
-      working-directory: backend/api_backend/api.Tests/api.Tests
+      run: dotnet test api.sln --no-build --verbosity normal
+      working-directory: backend/api_backend
       
     - name: Report test results
       if: always()

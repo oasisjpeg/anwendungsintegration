@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34607.119
@@ -7,9 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api", "api\api.csproj", "{7
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api.IntegrationTests", "api.IntegrationTests\api.IntegrationTests.csproj", "{47599C99-386A-40B8-A533-6FA2DCB21BEB}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api.Tests", "api.Tests", "{5354B49E-B49F-44E0-9CD3-D014735CE477}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api.Tests", "api.Tests\api.Tests\api.Tests.csproj", "{3F38707F-08BD-494A-87C0-AAFB473AA276}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api.Tests", "api.Tests\api.Tests.csproj", "{3F38707F-08BD-494A-87C0-AAFB473AA276}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

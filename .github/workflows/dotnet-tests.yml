@@ -33,10 +33,15 @@ jobs:
       run: dotnet build api.sln --no-restore
       working-directory: backend/api_backend
       
-    # Run all tests in the solution
-    - name: Run All Tests
-      run: dotnet test api.Tests.csproj --no-build --verbosity normal
-      working-directory: backend/api_backend/api.Tests
+    # Run unit tests
+    - name: Run Unit Tests
+      run: dotnet test api.Tests/api.Tests.csproj --no-build --verbosity normal
+      working-directory: backend/api_backend
+      
+    # Run integration tests
+    - name: Run Integration Tests
+      run: dotnet test api.IntegrationTests/api.IntegrationTests.csproj --no-build --verbosity normal
+      working-directory: backend/api_backend
       
     # The following steps are for informational purposes to show which test projects are being run
     - name: List Unit Tests Project

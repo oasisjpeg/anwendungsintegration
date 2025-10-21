@@ -9,7 +9,24 @@ import {
   ArrowTopRightOnSquareIcon,
 } from "@heroicons/react/24/outline";
 
-const products = [
+interface Product {
+  name: string;
+  image: string;
+  description: string;
+  price: string;
+  originalPrice: string;
+  rating: number;
+  reviews: number;
+  savings: string;
+  link: string;
+}
+
+interface DropshippingWidgetProps {
+  title?: string;
+  productsList?: Product[];
+}
+
+const products: Product[] = [
   {
     name: "Smarte Steckdose",
     image: "/drop/steckdose.webp",
@@ -57,10 +74,14 @@ const products = [
   },
 ];
 
-export default function EnhancedDropshippingWidget({
+export default function DropshippingPage() {
+  return <EnhancedDropshippingWidget />;
+}
+
+function EnhancedDropshippingWidget({
   title = "⚡ Energie Sparen Leicht Gemacht",
   productsList = products,
-}) {
+}: DropshippingWidgetProps) {
   const [hoveredProduct, setHoveredProduct] = useState<number | null>(null);
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
 
@@ -73,8 +94,8 @@ export default function EnhancedDropshippingWidget({
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center pb-20">
-      <div className="w-full max-w-2xl sm:max-w-2xl md:max-w-2xl lg:max-w-2xl shadow-lg">
+    <div className="min-h-screen flex flex-col items-center">
+      <div className="w-full max-w-md mx-auto shadow-lg">
         {/* Header with gradient */}
         <div
           className="relative overflow-hidden dark:bg-zinc-900 rounded-t-3xl p-4 sm:p-6 lg:p-8 text-center"

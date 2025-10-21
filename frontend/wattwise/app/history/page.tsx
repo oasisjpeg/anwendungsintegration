@@ -1,6 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { storage } from "@/utils/capacitor";
+import { getBaseUrl } from "@/utils/api";
 
 // Hilfsfunktionen für Punkte
 function getPointsColor(points: number) {
@@ -40,16 +42,20 @@ export default function TransactionHistory() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   useEffect(() => {
-    axios.get("http://localhost:5137/api/users/transactions/50", {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    })
-      .then(response => {
+    const fetchTransactions = async () => {
+      try {
+        const token = await storage.get("token");
+        const response = await axios.get(`${getBaseUrl()}/api/users/transactions/50`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setTransactions(response.data);
         console.log(response.data);
-      })
-      .catch(error => {
+      } catch (error) {
         console.error("Error fetching transactions:", error);
-      });
+      }
+    };
+    
+    fetchTransactions();
   }, []);
 
   return (

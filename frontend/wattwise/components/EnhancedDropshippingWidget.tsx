@@ -9,7 +9,24 @@ import {
   ArrowTopRightOnSquareIcon
 } from "@heroicons/react/24/outline";
 
-const products = [
+interface Product {
+  name: string;
+  image: string;
+  description: string;
+  price: string;
+  originalPrice: string;
+  rating: number;
+  reviews: number;
+  savings: string;
+  link: string;
+}
+
+interface DropshippingWidgetProps {
+  title?: string;
+  productsList?: Product[];
+}
+
+const products: Product[] = [
   {
     name: "Smarte Steckdose",
     image: "/drop/steckdose.webp",
@@ -48,11 +65,11 @@ const products = [
 export default function EnhancedDropshippingWidget({ 
   title = "⚡ Energie Sparen Leicht Gemacht", 
   productsList = products 
-}) {
-  const [hoveredProduct, setHoveredProduct] = useState(null);
-  const [favorites, setFavorites] = useState(new Set());
+}: DropshippingWidgetProps) {
+  const [hoveredProduct, setHoveredProduct] = useState<number | null>(null);
+  const [favorites, setFavorites] = useState<Set<number>>(new Set<number>());
 
-  const toggleFavorite = (index, e) => {
+  const toggleFavorite = (index: number, e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
     const newFavorites = new Set(favorites);
@@ -103,8 +120,12 @@ export default function EnhancedDropshippingWidget({
                     alt={product.name}
                     className="w-full h-full object-contain"
                     onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.nextSibling.style.display = 'flex';
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const nextElement = target.nextSibling as HTMLElement;
+                      if (nextElement) {
+                        nextElement.style.display = 'flex';
+                      }
                     }}
                   />
                   <div className="hidden w-full h-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">

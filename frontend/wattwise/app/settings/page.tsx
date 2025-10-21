@@ -13,9 +13,9 @@ import {
   ModalBody,
   ModalFooter,
 } from "@heroui/modal";
-import axios from "axios";
 import { ClockIcon } from "@heroicons/react/24/outline";
-import { WebSocketProvider } from "@/context/WebSocketProvider";
+import { storage } from "@/utils/capacitor";
+import { apiDelete, apiPatch, getBaseUrl } from "@/utils/api";
 
 
 export default function SettingsPage() {
@@ -33,17 +33,15 @@ export default function SettingsPage() {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const currentEmail = localStorage.getItem("email");
-    const token = localStorage.getItem("token");
-
-    if (!currentEmail || !token) {
-      alert("Nicht eingeloggt.");
-      return;
-    }
-
     try {
-      const response = await axios.patch(
-        "http://localhost:5137/api/users/update",
+      const currentEmail = await storage.get("email");
+      const token = await storage.get("token");
+
+      if (!currentEmail || !token) {
+        alert("Nicht eingeloggt.");
+        return;
+      }
+      const response = await apiPatch<{ message: string }>(`${getBaseUrl()}/api/users/update`,
         {
           newName: name || undefined,
           newEmail: email !== currentEmail ? email : undefined,
@@ -56,17 +54,14 @@ export default function SettingsPage() {
         }
       );
       console.log("Update successful", response.data);
-      if (response.data.user?.email) {
-        localStorage.setItem("email", response.data.user.email);
-      }
-      if (response.data.user?.name) {
-        localStorage.setItem("name", response.data.user.name);
+      if (response.data.message) {
+        await storage.set("email", email);
       }
 
       if (password !== "" || email !== currentEmail) {
         setIsModalOpen(true);
-        localStorage.removeItem("email");
-        localStorage.removeItem("token");
+        await storage.remove("email");
+        await storage.remove("token");
         setTimeout(() => {
           router.push("/");
         }, 2000);
@@ -85,79 +80,84 @@ export default function SettingsPage() {
   };
 
   const handleDeleteAccount = async (confirmPassword: string) => {
-    const email = localStorage.getItem("email");
-    const token = localStorage.getItem("token");
-
-    if (!email || !token) {
-      return;
-    }
-
     try {
-      const response = await axios.delete(
-        "http://localhost:5137/api/users/delete",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          data: {
-            email,
-            password: confirmPassword,
-          },
-        }
-      );
-      setShowDeleteModal(false);
-      setIsModalOpen(true);
-      localStorage.removeItem("email");
-      localStorage.removeItem("token");
-      setTimeout(() => {
-        router.push("/login");
-      }, 2000);
+      const email = await storage.get("email");
+      const token = await storage.get("token");
+
+      if (!email || !token) {
+        return;
+      }
+      
+      // Include the authorization header and the required data
+      const response = await apiDelete<{ message: string }>(`${getBaseUrl()}/api/users/delete`, {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { email, password: confirmPassword }
+      });
+      if (response.status === 200) {
+        console.log("Delete successful", response.data);
+        setShowDeleteModal(false);
+        setIsModalOpen(true);
+        await storage.remove("email");
+        await storage.remove("token");
+        setTimeout(() => {
+          router.push("/login");
+        }, 2000);
+      }
+
     } catch (error: any) {
       console.error("Delete failed", error);
       alert(error.response?.data?.message || "Fehler beim Löschen.");
     }
   };
 
-  function handleLogout() {
-    localStorage.removeItem("email");
-    localStorage.removeItem("token");
-    setTimeout(() => {
-      router.push("/login");
-    }, 200);
+  async function handleLogout() {
+    try {
+      await storage.remove("email");
+      await storage.remove("token");
+      setTimeout(() => {
+        router.push("/login");
+      }, 200);
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   }
 
   useEffect(() => {
-    const storedEmail = localStorage.getItem("email");
-    const storedName = localStorage.getItem("name");
-    if (storedName) {
-      setName(storedName);
-    }
-    if (storedEmail) {
-      setEmail(storedEmail);
-    } else {
-      console.warn("No user data found in localStorage");
-    }
+    const fetchUserData = async () => {
+      try {
+        const storedEmail = await storage.get("email");
+        const storedName = await storage.get("name");
+        if (storedName) {
+          setName(storedName);
+        }
+        if (storedEmail) {
+          setEmail(storedEmail);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+    
+    fetchUserData();
   }, []);
   
   return (
     <div className="max-w-md mx-auto p-6 pb-24">
-      <div className="absolute top-4 right-4 z-50">
+      <div className="absolute top-16 right-8 z-50">
         <ThemeSwitch />
       </div>
-      <div className="absolute top-4 left-4 z-50">
-        <Button
-          color="default"
-          onPress={() => router.push("/history")}
-          className="rounded-full p-2 bg-transparent"
+      <div className="absolute top-16 left-8 z-50">
+        <button
+          onClick={() => router.push("/history")}
+          className="rounded-full p-2 bg-transparent text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600"
         >
-          <ClockIcon className="w-6 h-6" />
-        </Button>
+          <ClockIcon className="w-8 h-8" />
+        </button>
       </div>
           
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
         Einstellungen von {email}
       </h1>
-
       <Card className="bg-white dark:bg-zinc-900 shadow-xl rounded-2xl p-6">
         <form onSubmit={handleUpdate} className="space-y-6">
           <Input

@@ -7,16 +7,20 @@ import { ArticleDetailModal } from "@/components/ArticleDetailModal";
 import { Article, ArticleDetailResponse } from "@/types/types";
 import {Spinner} from "@heroui/spinner";
 import axios from "axios";
+import { storage } from "@/utils/capacitor";
+import { getBaseUrl } from "@/utils/api";
+import { useUIState } from "@/context/UIStateContext";
 
 export default function KnowledgePage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [detail, setDetail] = useState<ArticleDetailResponse | null>(null);
   const [loadingArticles, setLoadingArticles] = useState(true);
   const [loadingStates, setLoadingStates] = useState<Record<number, boolean>>({});
+  const { openModal } = useUIState();
 
   // Fetch article list
   useEffect(() => {
-    fetch("http://localhost:5137/api/articles")
+    fetch(`${getBaseUrl()}/api/articles`)
       .then((res) => res.json())
       .then((data: Article[]) => {
         setArticles(data);
@@ -29,10 +33,12 @@ export default function KnowledgePage() {
   const fetchArticleDetail = async (id: number) => {
     setLoadingStates(prev => ({ ...prev, [id]: true }));
     try {
-      const response = await axios.get(`http://localhost:5137/api/articles/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      const token = await storage.get("token");
+      const response = await axios.get(`${getBaseUrl()}/api/articles/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       console.log("Fetched article detail:", response.data);
+      // Set the detail which will trigger the modal to open via its useEffect
       setDetail(response.data);
     } catch (error) {
       console.error("Error fetching article detail:", error);
@@ -43,14 +49,14 @@ export default function KnowledgePage() {
   
 
   return (
-    <main className="min-h-screen text-foreground">
+    <main className="min-h-screen text-foreground flex flex-col items-center">
       {/* Add spinner overlay when loading */}
       {loadingArticles && (
         <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50">
          <Spinner variant="wave" size="lg" color="white"/>
         </div>
       )}
-      <section className="max-w-2xl mx-auto px-4 py-12">
+      <section className="w-full max-w-md mx-auto pt-2">
         <h1 className="text-3xl font-bold mb-4 text-center">Wissensdatenbank</h1>
         <div className="space-y-6 mb-12">
           
@@ -97,11 +103,17 @@ export default function KnowledgePage() {
           ))}
         </div>
       </section>
-      <ArticleDetailModal
-        article={detail?.article || null}
-        quiz={detail?.quiz || null}
-        onClose={() => setDetail(null)}
-      />
+      {/* Only render the modal when detail is not null */}
+      {detail && (
+        <ArticleDetailModal
+          article={detail.article}
+          quiz={detail.quiz}
+          onClose={() => {
+            console.log('Closing modal, resetting detail state');
+            setDetail(null);
+          }}
+        />
+      )}
     </main>
   );
 }

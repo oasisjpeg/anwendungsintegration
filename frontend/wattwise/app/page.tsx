@@ -10,12 +10,27 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import axios, { Axios } from "axios";
-import { useRouter } from "next/navigation";
+import { apiGet } from "@/utils/api";
+import { useCapacitorRouter } from '@/components/CapacitorRouter';
 import { Spinner } from "@heroui/spinner";
 import { Button } from "@heroui/button";
 import { useRewardPoints } from "@/context/RewardPointsContext";
 import { jwtDecode } from "jwt-decode";
+import { storage } from "@/utils/capacitor";
+
+interface ConsumptionRecord {
+  id: string;
+  userId: string;
+  timestamp: string;
+  kwValue: string;
+}
+
+interface RecommendationRecord {
+  id: string;
+  userId: string;
+  created: string;
+  kwValue: string;
+}
 
 interface DataPoint {
   timestamp: string;
@@ -24,50 +39,56 @@ interface DataPoint {
 }
 
 export default function Home() {
-  const [data, setData] = useState({ records: [], total: 0 });
-  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<{ records: ConsumptionRecord[], total: number }>({ records: [], total: 0 });
+  const [loading, setLoading] = useState(true); // Start with loading true
+  const [authChecked, setAuthChecked] = useState(false); // Add state to track if auth check is complete
   const [email, setEmail] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
-  const [recommendations, setRecommendations] = useState([]);
+  const [recommendations, setRecommendations] = useState<RecommendationRecord[]>([]);
   const [mergedData, setMergedData] = useState<DataPoint[]>([]);
 
-  const router = useRouter();
+  const { navigateTo } = useCapacitorRouter();
   const { rewardPoints } = useRewardPoints();
 
 
 
   async function checkAuth() {
-    const storedEmail = localStorage.getItem("email");
-    const token = localStorage.getItem("token"); // assuming you store the JWT as "token"
+    try {
+      const storedEmail = await storage.get("email");
+      const token = await storage.get("token"); // assuming you store the JWT as "token"
 
-    if (storedEmail && token) {
-      try {
-        const { exp } = jwtDecode(token); // exp is in seconds
-        const now = Date.now() / 1000; // current time in seconds
-        console.log(exp);
-        console.log(now);
-        if (exp && exp > now) {
-          setEmail(storedEmail);
-          setLoggedIn(true);
-          return true;
-        } else {
-          // Token expired
+      if (storedEmail && token) {
+        try {
+          const { exp } = jwtDecode(token); // exp is in seconds
+          const now = Date.now() / 1000; // current time in seconds
+          
+          if (exp && exp > now) {
+            setEmail(storedEmail);
+            setLoggedIn(true);
+            return true;
+          } else {
+            // Token expired
+            setLoggedIn(false);
+            await storage.remove("token");
+            await storage.remove("email");
+            console.warn("Token expired");
+            return false;
+          }
+        } catch (e) {
           setLoggedIn(false);
-          localStorage.removeItem("token");
-          localStorage.removeItem("email");
-          console.warn("Token expired");
+          await storage.remove("token");
+          await storage.remove("email");
+          console.warn("Invalid token");
           return false;
         }
-      } catch (e) {
+      } else {
         setLoggedIn(false);
-        localStorage.removeItem("token");
-        localStorage.removeItem("email");
-        console.warn("Invalid token");
+        console.warn("No user data found in storage");
         return false;
       }
-    } else {
+    } catch (error) {
+      console.error("Error checking authentication:", error);
       setLoggedIn(false);
-      console.warn("No user data found in localStorage");
       return false;
     }
   }
@@ -78,39 +99,38 @@ export default function Home() {
     async function fetchData() {
       setLoading(true);
       const isLoggedIn = await checkAuth();
+      setAuthChecked(true); // Mark auth check as complete
 
       if (!isLoggedIn) {
         setLoading(false);
-        router.push("/login");
+        navigateTo("/login");
         return;
       }
 
       try {
         const [consumptionRes, recommendationsRes] = await Promise.all([
-          axios.get("http://localhost:5137/api/consumption-records/me", {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-          }),
-          axios.get("http://localhost:5137/api/recommend-records/me", {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-          }),
+          apiGet<ConsumptionRecord[]>("/api/consumption-records/me"),
+          apiGet<RecommendationRecord[]>("/api/recommend-records/me"),
         ]);
 
+        const consumptionData = consumptionRes.data as ConsumptionRecord[];
+        const recommendationData = recommendationsRes.data as RecommendationRecord[];
+
         const merged = mergeData(
-          consumptionRes.data,
-          recommendationsRes.data
+          consumptionData,
+          recommendationData
         );
 
-        const totalKwh = consumptionRes.data.reduce(
-          (sum: number, record: { kwValue: any; }) => sum + Number(record.kwValue),
+        const totalKwh = consumptionData.reduce(
+          (sum: number, record: ConsumptionRecord) => sum + Number(record.kwValue),
           0
         );
 
-
         setData({
-          records: consumptionRes.data,
+          records: consumptionData,
           total: totalKwh,
         });
-        setRecommendations(recommendationsRes.data);
+        setRecommendations(recommendationData);
         setMergedData(merged);
         setLoading(false);
       } catch (error) {
@@ -166,7 +186,17 @@ export default function Home() {
 
 
 
-  if (!loggedIn) {
+  // Show loading spinner until auth check is complete
+  if (!authChecked || loading) {
+    return (
+      <main className="min-h-screen bg-white dark:bg-black text-foreground flex items-center justify-center">
+        <Spinner variant="wave" size="lg" color="white"/>
+      </main>
+    );
+  }
+  
+  // Only show login message if auth is checked and user is not logged in
+  if (authChecked && !loggedIn) {
     return (
       <main className="min-h-screen bg-white dark:bg-black text-foreground">
         <section className="px-4 pb-24 pt-4 max-w-md mx-auto">
@@ -177,7 +207,7 @@ export default function Home() {
 
           {/* Login Box */}
           <Button
-            onPress={() => router.push("/login")}
+            onPress={() => navigateTo("/login")}
             className="bg-indigo-600 dark:bg-indigo-500 text-white font-semibold rounded-xl p-6 text-sm shadow-md"
             variant="flat"
           >
@@ -192,7 +222,7 @@ export default function Home() {
       <section className="px-4 pb-24 pt-4 max-w-md mx-auto">
         <div className="bg-white dark:bg-zinc-900 shadow-lg rounded-3xl p-6 text-center mb-6">
           <h2 className="text-sm text-gray-500 dark:text-gray-400">
-            Ersparnis
+            Punktestand
           </h2>
 
           <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">

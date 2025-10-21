@@ -15,11 +15,11 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             _context = context;
         }
 
-        public async Task<IEnumerable<RecommendRecordModel>> GetRecommendConsumption(Guid UserId)
+        public async Task<IEnumerable<RecommendRecordModel>> GetRecommendConsumption(Guid userId)
         {
 
             var record = await _context.RecommendRecords
-                .Where(r => r.UserId == UserId)
+                .Where(r => r.UserId == userId)
                 .OrderByDescending(r => r.Created)
                 .ToListAsync();
 

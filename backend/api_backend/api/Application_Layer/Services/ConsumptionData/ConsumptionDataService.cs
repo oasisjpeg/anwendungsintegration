@@ -44,7 +44,7 @@ public class ConsumptionDataService : IConsumptionDataService
         return await Task.FromResult(recommendationRecords);
     }
 
-    private (double[] consumption, double[] recommended) GenerateDuckCurveData()
+    private static (double[] consumption, double[] recommended) GenerateDuckCurveData()
     {
         var hours = Enumerable.Range(0, 24).Select(h => (double)h).ToArray();
 

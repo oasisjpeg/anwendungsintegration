@@ -11,7 +11,7 @@ namespace WebApplication1.Domain.Models.Article
         // navigation property (not required to prevent circular references)
         public ArticleModel? Article { get; set; }
         
-        public ICollection<QuestionModel> Questions { get; set; }
+        public required ICollection<QuestionModel> Questions { get; set; }
 
     }
 }

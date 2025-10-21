@@ -13,9 +13,9 @@ namespace WebApplication1.API.Controller.Articles
     [Route("api/articles")]
     public class ArticleController : ControllerBase
     {
-        private IArticleServices _articleServices;
-        private IUserAuth _userAuth;
-        private ITransactionServices _transactionServices;
+        private readonly IArticleServices _articleServices;
+        private readonly IUserAuth _userAuth;
+        private readonly ITransactionServices _transactionServices;
         public ArticleController(IArticleServices articleServices, IUserAuth userAuth, ITransactionServices transactionServices)
         {
             _articleServices = articleServices;

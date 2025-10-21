@@ -10,12 +10,14 @@ namespace WebApplication1.Application_Layer.Services.UserAuth
         private readonly PasswordHasher<object> _passwordHasher = new PasswordHasher<object>();
         public string HashPassword(string password)
         {
-            return _passwordHasher.HashPassword(null, password);
+            var dummyUser = new UserAuth(); // or your actual user class
+            return _passwordHasher.HashPassword(dummyUser, password);
         }
 
-        public bool VerifyPassword(string hashedPassword, string password)
+        public bool VerifyPassword(string hashedPassword, string providedPassword)
         {
-            return _passwordHasher.VerifyHashedPassword(null, hashedPassword, password) 
+            var dummyUser = new UserAuth();
+            return _passwordHasher.VerifyHashedPassword(dummyUser, hashedPassword, providedPassword) 
                 == PasswordVerificationResult.Success;
         }
 

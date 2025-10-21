@@ -37,9 +37,5 @@ public class ConsumptionRecordsController : ControllerBase
         Console.Out.WriteLine(records);
         return Ok(records);
     }
-
-    [HttpGet("test")]
-    public IActionResult Test() => Ok("It works!");
-
-
+    
 }

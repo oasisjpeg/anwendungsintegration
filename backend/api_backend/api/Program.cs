@@ -154,4 +154,4 @@ app.UseMiddleware<RewardPointsWebSocketHandler>();
 
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();

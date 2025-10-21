@@ -6,7 +6,7 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
 {
     public class MySqlLeaderboardRepository : ILeaderboardRepository
     {
-        private MySqlDbContext _dbContext;
+        private readonly MySqlDbContext _dbContext;
         public MySqlLeaderboardRepository(MySqlDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -65,12 +65,6 @@ namespace WebApplication1.Infrastructure.MySqlRepositories
             var pointIncrease = await _dbContext.RewardTransactions
                 .Where(t => t.UserId == userId && t.PointsGained > 0 && t.Created >= sevenDaysAgo)
                 .SumAsync(t => t.PointsGained);
-
-
-            //if (pointIncrease == null)
-            //{
-            //    throw new Exception("Point increase is null for this user.");
-            //}
 
             return pointIncrease; // returns point INCREASE over last 7 days for current user
         }

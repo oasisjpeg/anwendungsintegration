@@ -21,7 +21,7 @@ namespace WebApplication1.Application_Layer.Services.UserAuth
             var secret = _configuration["JwtSettings:Secret"];
             if (string.IsNullOrEmpty(secret))
             {
-                throw new ArgumentNullException(nameof(secret), "JWT Secret is not configured.");
+                throw new InvalidOperationException("JWT Secret is not configured.");
             }
 
             var key = Encoding.ASCII.GetBytes(secret);

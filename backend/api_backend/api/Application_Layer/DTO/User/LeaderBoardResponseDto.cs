@@ -1,7 +1,7 @@
-using WebApplication1.Application_Layer.DTO.User;
+namespace WebApplication1.Application_Layer.DTO.User;
 
 public class LeaderboardResponseDto
 {
-    public List<LeaderboardDto> Leaderboard { get; set; }
+    public required List<LeaderboardDto> Leaderboard { get; set; }
     public int CurrentUserScore { get; set; }
 }

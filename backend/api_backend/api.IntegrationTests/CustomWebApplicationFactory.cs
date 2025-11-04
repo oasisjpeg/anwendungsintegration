@@ -10,14 +10,16 @@ namespace api.IntegrationTests
 {
     public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
+        // Use a unique database name per factory instance to ensure test class isolation
+        private readonly string _databaseName = $"InMemoryDbForTesting_{Guid.NewGuid()}";
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.ConfigureServices(services =>
             {
                 // Remove the real database context registration
                 var descriptor = services.SingleOrDefault(d => 
-                    d.ServiceType == typeof(DbContextOptions<MySqlDbContext>) ||
-                    d.ServiceType == typeof(DbContextOptions<DbContextOptions<MySqlDbContext>>));
+                    d.ServiceType == typeof(DbContextOptions<MySqlDbContext>));
                 
                 if (descriptor != null)
                 {
@@ -25,10 +27,11 @@ namespace api.IntegrationTests
                 }
 
                 // Add in-memory database for testing
+                // Use the same database name for all requests within this factory instance
                 services.AddDbContext<MySqlDbContext>(options =>
                 {
-                    options.UseInMemoryDatabase("InMemoryDbForTesting");
-                }, ServiceLifetime.Singleton);
+                    options.UseInMemoryDatabase(_databaseName);
+                });
 
                 // Build the service provider
                 var sp = services.BuildServiceProvider();

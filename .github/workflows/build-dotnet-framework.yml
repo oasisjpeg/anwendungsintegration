@@ -1,22 +1,37 @@
-name: Build .NET Framework
+name: Build .NET Backend
 
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'backend/api_backend/**'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'backend/api_backend/**'
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup MSBuild path
-        uses: microsoft/setup-msbuild@v1.1
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore api.sln
+        working-directory: backend/api_backend
 
       - name: Build solution
-        run: msbuild api.sln /p:Configuration=Release
+        run: dotnet build api.sln --configuration Release --no-restore
         working-directory: backend/api_backend
+
+      - name: Report build status
+        if: always()
+        run: echo "✅ Build completed. Check the logs for any failures."

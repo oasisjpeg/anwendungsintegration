@@ -1,14 +1,13 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.wattwise.app',
+  appId: 'com.wattwise.app2',
   appName: 'WattWise',
   webDir: 'out',
   server: {
-    androidScheme: 'https',
-    // For development only - remove for production
-    url: 'http://192.168.0.164:5137', // Using port 5137 to match the API server
-    cleartext: true
+    androidScheme: 'https'
+    // Note: For iOS simulator, remove the 'url' property to use the built app
+    // The API URL is configured in utils/api.ts based on platform
   },
   plugins: {
     SplashScreen: {

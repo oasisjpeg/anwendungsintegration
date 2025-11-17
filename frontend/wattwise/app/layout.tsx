@@ -10,6 +10,7 @@ import { WebSocketProvider } from "@/context/WebSocketProvider";
 import { RewardPointsProvider } from "@/context/RewardPointsContext";
 import { CapacitorRouterProvider } from "@/components/CapacitorRouter";
 import { UIStateProvider } from "@/context/UIStateContext";
+import { PushNotificationInit } from "@/components/PushNotificationInit";
 
 
 export const metadata: Metadata = {
@@ -45,6 +46,7 @@ export default function RootLayout({
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+          <PushNotificationInit />
           <UIStateProvider>
             <CapacitorRouterProvider>
               <RewardPointsProvider>

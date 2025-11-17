@@ -19,12 +19,28 @@ export const getBaseUrl = (): string => {
     //return 'https://api.wattwise.io'; // Replace with your production API
     
     // For development with local server:
-    // return 'http://10.0.2.2:5137'; // Android local development (10.0.2.2 points to host's localhost)
-    return 'http://192.168.0.164:5137'; // Use the same IP as in capacitor.config.ts but with port 5137
+    // iOS Simulator can access host's localhost directly
+    // Android Emulator needs 10.0.2.2 to access host's localhost
+    // Android physical device needs the network IP (e.g., 192.168.0.164)
+    
+    // Detect platform
+    const platform = (window as any).Capacitor?.getPlatform();
+    
+    if (platform === 'ios') {
+      // iOS Simulator uses localhost
+      return 'http://localhost:5137';
+    } else if (platform === 'android') {
+      // For Android emulator, use 10.0.2.2
+      // For Android physical device, use your network IP: 192.168.0.164
+      return 'http://10.0.2.2:5137';
+    }
+    
+    // Fallback
+    return 'http://localhost:5137';
   }
   
   // For web development
-  return 'http://192.168.0.164:5137';
+  return 'http://localhost:5137';
 };
 
 // Add request interceptor to add auth token
